@@ -49,14 +49,18 @@
     <!-- Team Section -->
     <div class="section-title">
       團隊成員
-      <button class="btn btn-ghost" id="edit-mode-btn" onclick="toggleEditMode()" style="margin-left:auto;font-size:0.75rem;">✏️ 編輯</button>
-      <button class="btn btn-ghost" onclick="resetLocal()" style="font-size:0.75rem;">🔄 重置</button>
+      <span id="admin-controls" style="display:none;margin-left:auto;gap:0.5rem;">
+        <button class="btn btn-ghost" id="edit-mode-btn" onclick="toggleEditMode()" style="font-size:0.75rem;">✏️ 編輯</button>
+        <button class="btn btn-ghost" onclick="resetLocal()" style="font-size:0.75rem;">🔄 重置</button>
+      </span>
     </div>
     <div class="agents-grid" id="agents-grid"></div>
 
-    <!-- Add Task -->
-    <div class="section-title">新增任務</div>
-    <div class="add-task-bar" id="add-task-bar"></div>
+    <!-- Add Task (admin only) -->
+    <div id="add-task-section" style="display:none;">
+      <div class="section-title">新增任務</div>
+      <div class="add-task-bar" id="add-task-bar"></div>
+    </div>
 
     <!-- Task Board -->
     <div class="section-title">任務看板</div>

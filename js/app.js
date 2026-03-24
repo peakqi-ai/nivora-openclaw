@@ -7,13 +7,26 @@ let agents = [];
 let tasks = [];
 let editMode = false;
 
+// ── Admin Mode Detection ──
+const isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
+
 // ── Init ──
 async function init() {
   await loadData();
   renderStats();
   renderAgents();
   renderTaskBoard();
-  renderAddTaskForm();
+
+  if (isAdmin) {
+    renderAddTaskForm();
+    document.getElementById('add-task-section').style.display = 'block';
+  } else {
+    document.getElementById('add-task-section').style.display = 'none';
+  }
+
+  // Hide admin controls in public mode
+  document.getElementById('admin-controls').style.display = isAdmin ? 'flex' : 'none';
+
   startClock();
 }
 
@@ -31,7 +44,7 @@ async function loadData() {
   }
 }
 
-// ── Auto-save to JSON (downloads file for manual replacement) ──
+// ── Auto-save to localStorage ──
 function saveAgents() {
   localStorage.setItem('nivora-agents', JSON.stringify(agents));
 }
@@ -100,11 +113,30 @@ function renderAgents() {
     const agentTask = tasks.find(t => t.assignee === agent.id && t.status === 'in-progress');
     const taskDisplay = agent.currentTask || (agentTask ? agentTask.title : null);
 
+    // Only show edit controls in admin mode
+    const controlsHTML = isAdmin ? `
+        <div class="status-controls" id="controls-${agent.id}">
+          <button class="status-btn ${agent.status === 'idle' ? 'active' : ''}" 
+                  onclick="event.stopPropagation(); setStatus('${agent.id}', 'idle')">🟢 空閒</button>
+          <button class="status-btn ${agent.status === 'working' ? 'active' : ''}" 
+                  onclick="event.stopPropagation(); setStatus('${agent.id}', 'working')">🟡 執行中</button>
+          <button class="status-btn ${agent.status === 'busy' ? 'active' : ''}" 
+                  onclick="event.stopPropagation(); setStatus('${agent.id}', 'busy')">🔴 忙碌</button>
+          <input class="task-input" 
+                 type="text" 
+                 placeholder="輸入當前任務..." 
+                 value="${agent.currentTask || ''}"
+                 onclick="event.stopPropagation()"
+                 onchange="setCurrentTask('${agent.id}', this.value)"
+                 onkeydown="if(event.key==='Enter'){setCurrentTask('${agent.id}', this.value)}" />
+        </div>
+    ` : '';
+
     return `
       <div class="agent-card ${editMode ? 'editing' : ''}" 
            style="--agent-color: ${agent.color}" 
            data-id="${agent.id}"
-           onclick="toggleEdit('${agent.id}')">
+           ${isAdmin ? `onclick="toggleEdit('${agent.id}')"` : ''}>
         <div class="agent-header">
           <div class="agent-avatar">
             <img src="${agent.avatar}" alt="${agent.name}" />
@@ -130,21 +162,7 @@ function renderAgents() {
           <span>完成任務：${agent.completedTasks}</span>
           <span>${statusLabel(agent.status)}</span>
         </div>
-        <div class="status-controls" id="controls-${agent.id}">
-          <button class="status-btn ${agent.status === 'idle' ? 'active' : ''}" 
-                  onclick="event.stopPropagation(); setStatus('${agent.id}', 'idle')">🟢 空閒</button>
-          <button class="status-btn ${agent.status === 'working' ? 'active' : ''}" 
-                  onclick="event.stopPropagation(); setStatus('${agent.id}', 'working')">🟡 執行中</button>
-          <button class="status-btn ${agent.status === 'busy' ? 'active' : ''}" 
-                  onclick="event.stopPropagation(); setStatus('${agent.id}', 'busy')">🔴 忙碌</button>
-          <input class="task-input" 
-                 type="text" 
-                 placeholder="輸入當前任務..." 
-                 value="${agent.currentTask || ''}"
-                 onclick="event.stopPropagation()"
-                 onchange="setCurrentTask('${agent.id}', this.value)"
-                 onkeydown="if(event.key==='Enter'){setCurrentTask('${agent.id}', this.value)}" />
-        </div>
+        ${controlsHTML}
       </div>
     `;
   }).join('');
@@ -160,7 +178,7 @@ function statusLabel(status) {
 }
 
 function toggleEdit(agentId) {
-  if (!editMode) return;
+  if (!editMode || !isAdmin) return;
   const card = document.querySelector(`.agent-card[data-id="${agentId}"]`);
   card.classList.toggle('editing');
 }
@@ -189,6 +207,7 @@ function setCurrentTask(agentId, task) {
 
 // ── Edit Mode Toggle ──
 function toggleEditMode() {
+  if (!isAdmin) return;
   editMode = !editMode;
   document.getElementById('edit-mode-btn').textContent = editMode ? '🔒 鎖定' : '✏️ 編輯';
   document.querySelectorAll('.agent-card').forEach(card => {
@@ -221,7 +240,7 @@ function renderTaskBoard() {
         : col.items.map(task => {
           const agent = agents.find(a => a.id === task.assignee);
           return `
-            <div class="task-item" ondblclick="cycleTaskStatus('${task.id}')">
+            <div class="task-item" ${isAdmin ? `ondblclick="cycleTaskStatus('${task.id}')"` : ''}>
               <div class="task-item-title">${task.title}</div>
               <div class="task-item-meta">
                 <span>${agent ? agent.emoji + ' ' + agent.name : '未指派'}</span>
@@ -236,6 +255,7 @@ function renderTaskBoard() {
 }
 
 function cycleTaskStatus(taskId) {
+  if (!isAdmin) return;
   const task = tasks.find(t => t.id === taskId);
   if (!task) return;
   const cycle = ['todo', 'in-progress', 'done'];
@@ -260,6 +280,7 @@ function cycleTaskStatus(taskId) {
 // ── Add Task ──
 function renderAddTaskForm() {
   const container = document.getElementById('add-task-bar');
+  if (!container) return;
   container.innerHTML = `
     <div class="add-task-form">
       <input type="text" id="new-task-title" placeholder="新增任務..." />
@@ -279,6 +300,7 @@ function renderAddTaskForm() {
 }
 
 function addTask() {
+  if (!isAdmin) return;
   const title = document.getElementById('new-task-title').value.trim();
   const assignee = document.getElementById('new-task-assignee').value;
   const priority = document.getElementById('new-task-priority').value;
@@ -304,6 +326,7 @@ function addTask() {
 
 // ── Reset localStorage ──
 function resetLocal() {
+  if (!isAdmin) return;
   if (confirm('確定要重置所有本機修改？將回到 JSON 檔案的初始狀態。')) {
     localStorage.removeItem('nivora-agents');
     localStorage.removeItem('nivora-tasks');
@@ -318,5 +341,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderStats();
   renderAgents();
   renderTaskBoard();
-  renderAddTaskForm();
+  if (isAdmin) renderAddTaskForm();
 });
