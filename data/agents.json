@@ -3,7 +3,7 @@
     "id": "niva",
     "name": "Niva",
     "role": "CEO",
-    "status": "working",
+    "status": "idle",
     "skills": [
       "策略規劃",
       "任務拆解",
@@ -11,8 +11,8 @@
       "團隊調度",
       "商業分析"
     ],
-    "currentTask": "建立狀態同步SOP + 系統優化",
-    "completedTasks": 8,
+    "currentTask": null,
+    "completedTasks": 9,
     "personality": "冷靜決斷，全局思維，用結果說話。",
     "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Niva&backgroundColor=0a0a0f",
     "emoji": "🏢",
