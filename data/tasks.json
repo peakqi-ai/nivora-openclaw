@@ -1,0 +1,47 @@
+[
+  {
+    "id": "task-001",
+    "title": "建立公司知識庫目錄",
+    "assignee": "niva",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-03-24T18:51:00+08:00",
+    "completedAt": "2026-03-24T18:52:00+08:00"
+  },
+  {
+    "id": "task-002",
+    "title": "安裝 LaunchAgent 開機自啟",
+    "assignee": "niva",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-03-24T18:51:00+08:00",
+    "completedAt": "2026-03-24T18:53:00+08:00"
+  },
+  {
+    "id": "task-003",
+    "title": "草擬服務型錄 v1",
+    "assignee": "niva",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-03-24T18:51:00+08:00",
+    "completedAt": "2026-03-24T18:55:00+08:00"
+  },
+  {
+    "id": "task-004",
+    "title": "定義 Sub-agent 團隊",
+    "assignee": "niva",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-03-24T18:51:00+08:00",
+    "completedAt": "2026-03-24T18:56:00+08:00"
+  },
+  {
+    "id": "task-005",
+    "title": "建置虛擬辦公室網頁",
+    "assignee": "niva",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-03-24T21:08:00+08:00",
+    "completedAt": "2026-03-24T21:16:00+08:00"
+  }
+]

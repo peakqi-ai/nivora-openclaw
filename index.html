@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nivora AI — Virtual Office</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏢</text></svg>" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">N</div>
+        <div class="logo-text">
+          <h1>Nivora AI</h1>
+          <span>Virtual Office — AI-Powered Company</span>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat">
+          <div class="stat-value" id="stat-members">0</div>
+          <div class="stat-label">成員</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-active">0</div>
+          <div class="stat-label">執行中</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-tasks">0</div>
+          <div class="stat-label">待辦任務</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-completed">0</div>
+          <div class="stat-label">已完成</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="clock">--:--:--</div>
+          <div class="stat-label">台北時間</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Team Section -->
+    <div class="section-title">
+      團隊成員
+      <button class="btn btn-ghost" id="edit-mode-btn" onclick="toggleEditMode()" style="margin-left:auto;font-size:0.75rem;">✏️ 編輯</button>
+      <button class="btn btn-ghost" onclick="resetLocal()" style="font-size:0.75rem;">🔄 重置</button>
+    </div>
+    <div class="agents-grid" id="agents-grid"></div>
+
+    <!-- Add Task -->
+    <div class="section-title">新增任務</div>
+    <div class="add-task-bar" id="add-task-bar"></div>
+
+    <!-- Task Board -->
+    <div class="section-title">任務看板</div>
+    <div class="task-board" id="task-board"></div>
+
+  </main>
+
+  <footer class="footer">
+    Nivora AI © 2026 — Built by AI, for business.
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
