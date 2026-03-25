@@ -160,5 +160,14 @@
     "priority": "C",
     "createdAt": "2026-03-25T11:43:00+08:00",
     "completedAt": null
+  },
+  {
+    "id": "task-019",
+    "title": "第 3 篇 IG 貼文（LINE OA 案例）配圖",
+    "assignee": "muse",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-03-25T19:33:00+08:00",
+    "completedAt": "2026-03-25T19:45:00+08:00"
   }
 ]
