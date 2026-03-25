@@ -21,27 +21,34 @@
   </header>
 
   <!-- Office Scene -->
-  <div id="office">
-    <img id="officeBg" src="assets/office-pixel-v1.png" alt="Office">
-
-    <!-- Agent Labels (positioned over characters) -->
-    <div id="agentLabels"></div>
-
-    <!-- Info Cards -->
-    <div id="infoCards"></div>
-  </div>
-
-  <!-- Task Board Toggle -->
-  <button id="taskBoardBtn" title="Task Board">📋</button>
-
-  <!-- Task Board Panel -->
-  <div id="taskBoard" class="hidden">
-    <div class="panel-header">
-      <span>📋 Task Board</span>
-      <button onclick="toggleTaskBoard()">✕</button>
+  <section id="officeSection">
+    <div id="office">
+      <img id="officeBg" src="assets/office-pixel-v1.png" alt="Office">
+      <!-- Agent Labels (positioned over characters) -->
+      <div id="agentLabels"></div>
+      <!-- Info Cards -->
+      <div id="infoCards"></div>
     </div>
-    <div id="taskList"></div>
-  </div>
+  </section>
+
+  <!-- Task Board (inline, below scene) -->
+  <section id="taskBoardSection">
+    <h2 class="board-title">📋 Task Board</h2>
+    <div id="taskColumns">
+      <div class="task-col" id="col-todo">
+        <div class="col-header todo-header">📌 待辦</div>
+        <div class="col-body" id="list-todo"></div>
+      </div>
+      <div class="task-col" id="col-working">
+        <div class="col-header working-header">🔨 進行中</div>
+        <div class="col-body" id="list-working"></div>
+      </div>
+      <div class="task-col" id="col-done">
+        <div class="col-header done-header">✅ 已完成</div>
+        <div class="col-body" id="list-done"></div>
+      </div>
+    </div>
+  </section>
 
   <!-- Overlay backdrop for info cards -->
   <div id="backdrop" class="hidden" onclick="closeAllCards()"></div>

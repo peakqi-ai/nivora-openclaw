@@ -1,13 +1,14 @@
 // ===== CONFIG =====
 const REFRESH_MS = 30000;
 
-// Agent positions (% of container, pointing at head)
+// Agent positions (% of image area, pointing at character head)
+// Using contain-fit: positions are % of the rendered image box
 const AGENT_POSITIONS = {
-  niva:  { left: 40, top: 58 },  // front center-left (purple hair)
-  axel:  { left: 65, top: 53 },  // front right (teal hair)
-  muse:  { left: 22, top: 31 },  // back left (pink)
-  sage:  { left: 48, top: 28 },  // back center (green)
-  rex:   { left: 72, top: 31 },  // back right (white)
+  niva:  { left: 42, top: 62 },  // front center (CEO)
+  axel:  { left: 63, top: 56 },  // front right
+  muse:  { left: 20, top: 35 },  // back left
+  sage:  { left: 50, top: 30 },  // back center
+  rex:   { left: 75, top: 35 },  // back right
 };
 
 // ===== STATE =====
@@ -45,41 +46,63 @@ function renderHeader() {
   document.getElementById('doneCount').textContent = done;
 }
 
+// ===== LABEL POSITIONING =====
+// Because the image uses object-fit: contain, we need to find the actual
+// rendered image rect within the #office container and map positions onto it.
+function getImageRect() {
+  const img = document.getElementById('officeBg');
+  const container = document.getElementById('office');
+
+  const cw = container.clientWidth;
+  const ch = container.clientHeight;
+  const iw = img.naturalWidth || 1;
+  const ih = img.naturalHeight || 1;
+
+  const scale = Math.min(cw / iw, ch / ih);
+  const rw = iw * scale;
+  const rh = ih * scale;
+  const rx = (cw - rw) / 2;
+  const ry = (ch - rh) / 2;
+
+  return { x: rx, y: ry, w: rw, h: rh, cw, ch };
+}
+
 function renderLabels() {
   const container = document.getElementById('agentLabels');
   container.innerHTML = '';
 
-  agents.forEach(agent => {
+  const rect = getImageRect();
+
+  agents.forEach((agent, agentIdx) => {
     const pos = AGENT_POSITIONS[agent.id];
     if (!pos) return;
 
     const isWorking = agent.status === 'working';
 
+    // Convert image-relative % to container-relative px
+    const px = rect.x + (pos.left / 100) * rect.w;
+    const py = rect.y + (pos.top / 100) * rect.h;
+
     const group = document.createElement('div');
     group.className = 'agent-label-group';
-    group.style.left = pos.left + '%';
-    group.style.top = pos.top + '%';
-    // Offset float animation per agent for organic feel
-    const agentIdx = agents.indexOf(agent);
+    group.style.left = px + 'px';
+    group.style.top = py + 'px';
     group.style.animationDelay = (agentIdx * 0.6) + 's';
 
     // Label pill
     const label = document.createElement('div');
     label.className = 'agent-label';
 
-    // Status dot
     const dot = document.createElement('span');
     dot.className = 'dot ' + (isWorking ? 'yellow pulse' : 'green');
     label.appendChild(dot);
 
-    // Name
     const name = document.createElement('span');
     name.className = 'name';
     name.style.color = agent.color || '#fff';
     name.textContent = agent.name;
     label.appendChild(name);
 
-    // Role
     const role = document.createElement('span');
     role.className = 'role-text';
     role.textContent = agent.role;
@@ -87,7 +110,6 @@ function renderLabels() {
 
     group.appendChild(label);
 
-    // Task bubble (working only)
     if (isWorking && agent.currentTask) {
       const bubble = document.createElement('div');
       bubble.className = 'agent-task-bubble';
@@ -97,7 +119,7 @@ function renderLabels() {
 
     group.addEventListener('click', (e) => {
       e.stopPropagation();
-      toggleCard(agent.id, pos);
+      toggleCard(agent.id, { left: pos.left, top: pos.top });
     });
 
     container.appendChild(group);
@@ -106,10 +128,7 @@ function renderLabels() {
 
 // ===== INFO CARDS =====
 function toggleCard(agentId, pos) {
-  if (openCardId === agentId) {
-    closeAllCards();
-    return;
-  }
+  if (openCardId === agentId) { closeAllCards(); return; }
   closeAllCards();
   openCardId = agentId;
 
@@ -150,13 +169,16 @@ function toggleCard(agentId, pos) {
     </div>
   `;
 
-  // Position card near the label, avoid going off-screen
+  const rect = getImageRect();
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const cardW = Math.min(280, vw - 32);
 
-  let leftPx = (pos.left / 100) * vw - cardW / 2;
-  let topPx = (pos.top / 100) * vh - 20;
+  const absPx = rect.x + (pos.left / 100) * rect.w;
+  const absPy = rect.y + (pos.top / 100) * rect.h;
+
+  let leftPx = absPx - cardW / 2;
+  let topPx = absPy - 20;
 
   leftPx = Math.max(16, Math.min(leftPx, vw - cardW - 16));
   topPx = Math.max(60, Math.min(topPx, vh - 380));
@@ -174,44 +196,46 @@ function closeAllCards() {
   document.getElementById('backdrop').classList.add('hidden');
 }
 
-// ===== TASK BOARD =====
-let taskBoardOpen = false;
-
-function toggleTaskBoard() {
-  taskBoardOpen = !taskBoardOpen;
-  document.getElementById('taskBoard').classList.toggle('hidden', !taskBoardOpen);
-  if (taskBoardOpen) renderTaskBoard();
-}
-
+// ===== TASK BOARD (inline 3-column) =====
 function renderTaskBoard() {
-  if (!taskBoardOpen) return;
-  const list = document.getElementById('taskList');
+  const todoList    = document.getElementById('list-todo');
+  const workingList = document.getElementById('list-working');
+  const doneList    = document.getElementById('list-done');
 
-  // Sort: todo first, then done; within groups sort by priority
-  const sorted = [...tasks].sort((a, b) => {
-    if (a.status !== b.status) return a.status === 'todo' ? -1 : 1;
-    return (a.priority || 'Z').localeCompare(b.priority || 'Z');
+  if (!todoList) return;
+
+  const buckets = { todo: [], working: [], done: [] };
+  tasks.forEach(t => {
+    const key = buckets[t.status] ? t.status : 'todo';
+    buckets[key].push(t);
   });
 
-  list.innerHTML = sorted.map(task => {
-    const agent = agents.find(a => a.id === task.assignee);
-    const color = agent ? agent.color : '#888';
-    return `
-      <div class="task-item ${task.status}" style="border-left-color:${color}">
-        <div class="task-title">${task.title}</div>
-        <div class="task-meta">
-          <span style="color:${color}">${agent ? agent.emoji + ' ' + agent.name : task.assignee}</span>
-          <span class="task-status-badge ${task.status}">${task.status === 'done' ? '✅ Done' : task.status === 'working' ? '🔨 Working' : '📌 Todo'}</span>
-          <span>P${task.priority || '?'}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
+  function renderItems(list, items) {
+    list.innerHTML = items.length === 0
+      ? `<div style="font-size:0.7rem;color:rgba(255,255,255,0.25);padding:8px 4px;">—</div>`
+      : items.map(task => {
+          const agent = agents.find(a => a.id === task.assignee);
+          const color = agent ? agent.color : '#888';
+          return `
+            <div class="task-item ${task.status}" style="border-left-color:${color}">
+              <div class="task-title">${task.title}</div>
+              <div class="task-meta">
+                <span style="color:${color}">${agent ? agent.emoji + ' ' + agent.name : task.assignee}</span>
+                <span>P${task.priority || '?'}</span>
+              </div>
+            </div>`;
+        }).join('');
+  }
+
+  renderItems(todoList,    buckets.todo);
+  renderItems(workingList, buckets.working);
+  renderItems(doneList,    buckets.done);
 }
 
-// ===== MAIN LOOP =====
-document.getElementById('taskBoardBtn').addEventListener('click', toggleTaskBoard);
+// Re-render labels on resize so positions stay accurate
+window.addEventListener('resize', () => renderLabels());
 
+// ===== MAIN LOOP =====
 async function init() {
   await fetchData();
   render();
