@@ -1,67 +1,471 @@
 /* ========================================
-   Nivora AI Virtual Office — App Logic
+   Nivora AI Virtual Office — 3D Isometric App
    ======================================== */
 
 const DATA_DIR = 'data';
 let agents = [];
 let tasks = [];
-let editMode = false;
+let currentAgentId = null;
 
-// ── Admin Mode Detection ──
+// ── Admin Mode ──
 const isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
 
 // ── Init ──
 async function init() {
   await loadData();
   renderStats();
-  renderAgents();
+  renderIsoOffice();
+  renderMobileCards();
   renderTaskBoard();
+  renderWallScreen();
 
   if (isAdmin) {
     renderAddTaskForm();
     document.getElementById('add-task-section').style.display = 'block';
-  } else {
-    document.getElementById('add-task-section').style.display = 'none';
+    document.getElementById('admin-controls').style.display = 'flex';
   }
 
-  // Hide admin controls in public mode
-  document.getElementById('admin-controls').style.display = isAdmin ? 'flex' : 'none';
-
   startClock();
+
+  // Auto-refresh every 30 seconds
+  setInterval(async () => {
+    await loadData();
+    renderStats();
+    updateIsoStates();
+    renderMobileCards();
+    renderWallScreen();
+  }, 30000);
 }
 
 // ── Data Loading ──
 async function loadData() {
   try {
     const [agentsRes, tasksRes] = await Promise.all([
-      fetch(`${DATA_DIR}/agents.json`),
-      fetch(`${DATA_DIR}/tasks.json`)
+      fetch(`${DATA_DIR}/agents.json?t=${Date.now()}`),
+      fetch(`${DATA_DIR}/tasks.json?t=${Date.now()}`)
     ]);
-    agents = await agentsRes.json();
-    tasks = await tasksRes.json();
+    const freshAgents = await agentsRes.json();
+    const freshTasks = await tasksRes.json();
+
+    // Merge with localStorage overrides (admin edits)
+    const savedAgents = localStorage.getItem('nivora-agents');
+    const savedTasks = localStorage.getItem('nivora-tasks');
+    agents = savedAgents ? JSON.parse(savedAgents) : freshAgents;
+    tasks = savedTasks ? JSON.parse(savedTasks) : freshTasks;
   } catch (e) {
     console.error('Failed to load data:', e);
+    // fallback to localStorage
+    const savedAgents = localStorage.getItem('nivora-agents');
+    const savedTasks = localStorage.getItem('nivora-tasks');
+    if (savedAgents) agents = JSON.parse(savedAgents);
+    if (savedTasks) tasks = JSON.parse(savedTasks);
   }
 }
 
-// ── Auto-save to localStorage ──
-function saveAgents() {
-  localStorage.setItem('nivora-agents', JSON.stringify(agents));
+function saveAgents() { localStorage.setItem('nivora-agents', JSON.stringify(agents)); }
+function saveTasks() { localStorage.setItem('nivora-tasks', JSON.stringify(tasks)); }
+
+function resetLocal() {
+  localStorage.removeItem('nivora-agents');
+  localStorage.removeItem('nivora-tasks');
+  location.reload();
 }
 
-function saveTasks() {
-  localStorage.setItem('nivora-tasks', JSON.stringify(tasks));
+// ── Stats ──
+function renderStats() {
+  const active = agents.filter(a => a.status === 'working' || a.status === 'busy').length;
+  const todo = tasks.filter(t => t.status === 'todo' || t.status === 'in-progress').length;
+  const done = tasks.filter(t => t.status === 'done').length;
+  document.getElementById('stat-members').textContent = agents.length;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-tasks').textContent = todo;
+  document.getElementById('stat-completed').textContent = done;
 }
 
-// Load from localStorage if available (overrides JSON)
-function loadLocalStorage() {
-  const savedAgents = localStorage.getItem('nivora-agents');
-  const savedTasks = localStorage.getItem('nivora-tasks');
-  if (savedAgents) agents = JSON.parse(savedAgents);
-  if (savedTasks) tasks = JSON.parse(savedTasks);
+// ── Clock ──
+function startClock() {
+  function tick() {
+    const now = new Date();
+    const str = now.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
+    document.getElementById('clock').textContent = str;
+  }
+  tick();
+  setInterval(tick, 1000);
 }
 
-// ── Export data as JSON files ──
+// ── Wall Screen ──
+function renderWallScreen() {
+  const todo = tasks.filter(t => t.status === 'todo').length;
+  const inprog = tasks.filter(t => t.status === 'in-progress').length;
+  const done = tasks.filter(t => t.status === 'done').length;
+  const active = agents.filter(a => a.status === 'working').length;
+
+  const el = document.getElementById('screen-stats');
+  if (!el) return;
+  el.innerHTML = `
+    <div>✅ DONE &nbsp;&nbsp; ${done}</div>
+    <div>⚡ ACTIVE &nbsp; ${active} agents</div>
+    <div>📋 TODO &nbsp;&nbsp; ${todo}</div>
+    <div>🔄 IN PROG &nbsp;${inprog}</div>
+  `;
+}
+
+/* ───────────────────────────────────────────
+   ISOMETRIC OFFICE
+─────────────────────────────────────────── */
+
+// Layout positions for 5 agents in iso space
+// These are [isoX, isoY] "grid" coords in pixels
+// The scene is centered at 0,0; iso transform handles the tilt
+// Layout: Niva center-front, 2 left, 2 right
+const WORKSTATION_LAYOUT = [
+  { id: 'niva',  gridX:   0, gridY:  80, isCEO: true  }, // center front (CEO, bigger)
+  { id: 'muse',  gridX: -200, gridY: -30, isCEO: false },  // left front
+  { id: 'axel',  gridX:  200, gridY: -30, isCEO: false },  // right front
+  { id: 'sage',  gridX: -160, gridY: -140, isCEO: false }, // left back
+  { id: 'rex',   gridX:  160, gridY: -140, isCEO: false },  // right back
+];
+
+function renderIsoOffice() {
+  const container = document.getElementById('workstations-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  WORKSTATION_LAYOUT.forEach((slot, idx) => {
+    const agent = agents.find(a => a.id === slot.id);
+    if (!agent) return;
+
+    const ws = buildWorkstation(agent, slot, idx);
+    container.appendChild(ws);
+  });
+}
+
+function buildWorkstation(agent, slot, animIdx) {
+  const color = agent.color || '#00E5C0';
+  const isCEO = slot.isCEO;
+  const deskW = isCEO ? 110 : 80;
+  const deskH = isCEO ? 75 : 55;
+
+  const ws = document.createElement('div');
+  ws.className = 'workstation';
+  ws.id = `ws-${agent.id}`;
+  ws.style.cssText = `
+    left: ${slot.gridX}px;
+    top: ${slot.gridY}px;
+    animation-delay: ${animIdx * 0.1}s;
+  `;
+
+  // Convert flat x,y to isometric screen position
+  // We use CSS 3D transforms on the whole scene via iso-scene class
+  // But individual workstations need to be placed in the iso grid
+  // We'll apply rotateX(60deg) rotateZ(-45deg) from the scene perspective
+  // by placing them as flat elements that get transformed by the scene
+
+  ws.innerHTML = `
+    <!-- Desk -->
+    <div class="desk-top" style="width:${deskW}px;height:${deskH}px;
+      transform: rotateX(60deg) rotateZ(-45deg);">
+      <div class="desk-top-surface" style="
+        background: linear-gradient(135deg, ${hexToRgba(color, 0.08)}, #161c2e);
+        border-color: ${hexToRgba(color, 0.25)};
+      "></div>
+      <div class="desk-front" style="width:${deskW}px;"></div>
+      <div class="desk-right" style="height:${deskH}px;"></div>
+
+      <!-- Monitor -->
+      <div class="monitor" style="
+        width: ${isCEO ? 55 : 40}px;
+        height: ${isCEO ? 34 : 26}px;
+        left: ${Math.floor((deskW - (isCEO ? 55 : 40)) / 2)}px;
+        top: 4px;
+        transform: translateZ(${isCEO ? 32 : 28}px);
+      ">
+        <div class="monitor-screen" style="border-color:${hexToRgba(color, 0.4)};">
+          ${getMonitorContent(agent, color)}
+        </div>
+      </div>
+    </div>
+
+    <!-- Character -->
+    ${buildCharacter(agent, color, isCEO, deskW, deskH)}
+  `;
+
+  ws.addEventListener('click', () => openInfoCard(agent.id));
+  return ws;
+}
+
+function getMonitorContent(agent, color) {
+  if (agent.status === 'working' || agent.status === 'busy') {
+    return `<div class="monitor-code-lines">
+      <div class="code-line" style="width:80%;background:${hexToRgba(color,0.6)};animation:codeScroll 2s linear infinite;"></div>
+      <div class="code-line" style="width:60%;background:${hexToRgba(color,0.4)};animation:codeScroll 2s linear 0.3s infinite;"></div>
+      <div class="code-line" style="width:90%;background:${hexToRgba(color,0.5)};animation:codeScroll 2s linear 0.6s infinite;"></div>
+      <div class="code-line" style="width:50%;background:${hexToRgba(color,0.3)};animation:codeScroll 2s linear 0.9s infinite;"></div>
+    </div>`;
+  }
+  return `<div class="monitor-code-lines">
+    <div class="code-line" style="width:70%;background:rgba(100,100,120,0.4);"></div>
+    <div class="code-line" style="width:50%;background:rgba(100,100,120,0.3);"></div>
+    <div class="code-line" style="width:80%;background:rgba(100,100,120,0.35);"></div>
+  </div>`;
+}
+
+function buildCharacter(agent, color, isCEO, deskW, deskH) {
+  const isWorking = agent.status === 'working' || agent.status === 'busy';
+  const charLeft = Math.floor(deskW / 2) - 9;
+  const headColor = lightenColor(color, 20);
+  const bodyColor = hexToRgba(color, 0.85);
+
+  return `
+  <div class="character" style="
+    left: ${charLeft}px;
+    top: ${deskH - 10}px;
+    transform: rotateX(60deg) rotateZ(-45deg);
+  ">
+    <div class="char-body" style="background:${bodyColor};box-shadow:0 0 12px ${hexToRgba(color,0.3)};"></div>
+    <div class="char-head" style="background:${headColor};box-shadow:0 0 10px ${hexToRgba(color,0.4)};"></div>
+    ${isWorking ? `<div class="typing-bubble">...</div>` : ''}
+    ${agent.currentTask ? `<div class="task-bubble" style="
+      position:absolute;
+      transform: translateZ(72px) translateX(20px) translateY(-8px);
+      background: ${hexToRgba(color, 0.15)};
+      border: 1px solid ${hexToRgba(color, 0.4)};
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 8px;
+      color: ${color};
+      white-space: nowrap;
+      max-width: 90px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Inter', sans-serif;
+    ">${agent.currentTask.substring(0, 12)}…</div>` : ''}
+  </div>`;
+}
+
+function updateIsoStates() {
+  WORKSTATION_LAYOUT.forEach(slot => {
+    const agent = agents.find(a => a.id === slot.id);
+    if (!agent) return;
+    const ws = document.getElementById(`ws-${agent.id}`);
+    if (!ws) {
+      renderIsoOffice();
+      return;
+    }
+    const color = agent.color || '#00E5C0';
+    const isCEO = slot.isCEO;
+    // Re-render just the monitor and character
+    const monitorScreen = ws.querySelector('.monitor-screen');
+    if (monitorScreen) monitorScreen.innerHTML = getMonitorContent(agent, color);
+    const char = ws.querySelector('.character');
+    if (char) {
+      char.outerHTML = buildCharacter(agent, color, isCEO, isCEO ? 110 : 80, isCEO ? 75 : 55);
+    }
+  });
+}
+
+/* ───────────────────────────────────────────
+   INFO CARD
+─────────────────────────────────────────── */
+function openInfoCard(agentId) {
+  currentAgentId = agentId;
+  const agent = agents.find(a => a.id === agentId);
+  if (!agent) return;
+
+  const card = document.getElementById('agent-info-card');
+  const color = agent.color || '#00E5C0';
+
+  document.getElementById('ic-avatar').textContent = agent.emoji || '🤖';
+  document.getElementById('ic-avatar').style.background = hexToRgba(color, 0.15);
+  document.getElementById('ic-avatar').style.border = `2px solid ${hexToRgba(color, 0.4)}`;
+
+  document.getElementById('ic-name').textContent = agent.name;
+  document.getElementById('ic-role').textContent = agent.role;
+
+  const statusEl = document.getElementById('ic-status');
+  const statusMap = { idle: '🟢 待機中', working: '🟡 工作中', busy: '🔴 忙碌中' };
+  statusEl.textContent = statusMap[agent.status] || agent.status;
+  statusEl.style.background = hexToRgba(color, 0.1);
+  statusEl.style.border = `1px solid ${hexToRgba(color, 0.3)}`;
+  statusEl.style.color = color;
+
+  const taskEl = document.getElementById('ic-task');
+  taskEl.textContent = agent.currentTask || '目前無任務';
+  taskEl.className = `info-card-task${agent.currentTask ? ' has-task' : ''}`;
+  if (agent.currentTask) taskEl.style.borderColor = hexToRgba(color, 0.4);
+
+  const skillsEl = document.getElementById('ic-skills');
+  skillsEl.innerHTML = (agent.skills || []).map(s =>
+    `<span class="skill-tag" style="border-color:${hexToRgba(color,0.3)};color:${hexToRgba(color,0.9)};">${s}</span>`
+  ).join('');
+
+  document.getElementById('ic-stats').textContent = `已完成任務：${agent.completedTasks || 0}`;
+
+  // Admin controls
+  const adminCtrl = document.getElementById('ic-admin-controls');
+  if (isAdmin) {
+    adminCtrl.style.display = 'flex';
+    const taskInput = document.getElementById('ic-task-input');
+    if (taskInput) taskInput.value = agent.currentTask || '';
+  } else {
+    adminCtrl.style.display = 'none';
+  }
+
+  card.style.display = 'block';
+}
+
+function closeInfoCard() {
+  document.getElementById('agent-info-card').style.display = 'none';
+  currentAgentId = null;
+}
+
+function setAgentStatus(agentId, status) {
+  const agent = agents.find(a => a.id === agentId);
+  if (!agent) return;
+  agent.status = status;
+  saveAgents();
+  openInfoCard(agentId); // refresh card
+  updateIsoStates();
+  renderStats();
+  renderMobileCards();
+  renderWallScreen();
+}
+
+function setAgentTask(agentId, task) {
+  const agent = agents.find(a => a.id === agentId);
+  if (!agent) return;
+  agent.currentTask = task || null;
+  saveAgents();
+  updateIsoStates();
+  renderMobileCards();
+}
+
+/* ───────────────────────────────────────────
+   MOBILE 2D CARDS
+─────────────────────────────────────────── */
+function renderMobileCards() {
+  const grid = document.getElementById('agents-grid-mobile');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  agents.forEach(agent => {
+    const color = agent.color || '#00E5C0';
+    const card = document.createElement('div');
+    card.className = 'agent-card';
+    card.style.setProperty('--agent-color', color);
+    card.onclick = () => openInfoCard(agent.id);
+
+    const statusMap = { idle: '待機', working: '工作中', busy: '忙碌中' };
+
+    card.innerHTML = `
+      <div class="agent-header">
+        <div class="agent-avatar" style="border-color:${color};">
+          <img src="${agent.avatar}" alt="${agent.name}" loading="lazy" onerror="this.style.display='none'">
+        </div>
+        <div class="agent-info">
+          <h3><span class="status-dot ${agent.status}"></span>${agent.name}</h3>
+          <div class="role">${agent.role}</div>
+        </div>
+      </div>
+      <div class="agent-task ${agent.currentTask ? 'has-task' : ''}" style="${agent.currentTask ? `border-color:${hexToRgba(color,0.4)};` : ''}">
+        ${agent.currentTask ? `⚡ ${agent.currentTask}` : '— 待命中 —'}
+      </div>
+      <div class="agent-footer">
+        <span>${statusMap[agent.status] || agent.status}</span>
+        <span>✅ ${agent.completedTasks || 0} 任務</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ───────────────────────────────────────────
+   TASK BOARD
+─────────────────────────────────────────── */
+function renderTaskBoard() {
+  const board = document.getElementById('task-board');
+  if (!board) return;
+
+  const columns = [
+    { key: 'todo', label: '待辦', icon: '📋', color: '#6366f1' },
+    { key: 'in-progress', label: '進行中', icon: '⚡', color: '#f59e0b' },
+    { key: 'done', label: '已完成', icon: '✅', color: '#22c55e' },
+  ];
+
+  board.innerHTML = columns.map(col => {
+    const colTasks = tasks.filter(t => t.status === col.key);
+    const items = colTasks.map(t => {
+      const assignee = agents.find(a => a.id === t.assignee);
+      return `
+        <div class="task-item">
+          <div class="task-item-title">${escHtml(t.title)}</div>
+          <div class="task-item-meta">
+            <span>${assignee ? (assignee.emoji || '') + ' ' + assignee.name : t.assignee}</span>
+            <span class="task-priority ${t.priority || 'C'}">${t.priority || 'C'}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="task-column">
+        <div class="task-column-header">
+          <div class="task-column-title" style="color:${col.color};">${col.icon} ${col.label}</div>
+          <span class="task-count">${colTasks.length}</span>
+        </div>
+        ${items || `<div style="font-size:0.75rem;color:var(--text-muted);text-align:center;padding:1rem 0;">無任務</div>`}
+      </div>
+    `;
+  }).join('');
+}
+
+/* ───────────────────────────────────────────
+   ADD TASK (admin)
+─────────────────────────────────────────── */
+function renderAddTaskForm() {
+  const bar = document.getElementById('add-task-bar');
+  if (!bar) return;
+
+  const agentOptions = agents.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+  bar.innerHTML = `
+    <form class="add-task-form" onsubmit="addTask(event)">
+      <input type="text" id="new-task-title" placeholder="任務名稱..." required />
+      <select id="new-task-assignee">${agentOptions}</select>
+      <select id="new-task-priority">
+        <option value="A">A 優先</option>
+        <option value="B" selected>B 普通</option>
+        <option value="C">C 次要</option>
+      </select>
+      <button type="submit" class="btn btn-primary">➕ 新增</button>
+      <button type="button" class="btn btn-ghost" onclick="exportData()">📦 匯出</button>
+    </form>
+  `;
+}
+
+function addTask(e) {
+  e.preventDefault();
+  const title = document.getElementById('new-task-title').value.trim();
+  const assignee = document.getElementById('new-task-assignee').value;
+  const priority = document.getElementById('new-task-priority').value;
+  if (!title) return;
+
+  const newTask = {
+    id: `task-${Date.now()}`,
+    title,
+    assignee,
+    status: 'todo',
+    priority,
+    createdAt: new Date().toISOString(),
+    completedAt: null
+  };
+  tasks.push(newTask);
+  saveTasks();
+  renderTaskBoard();
+  renderStats();
+  renderWallScreen();
+  document.getElementById('new-task-title').value = '';
+}
+
 function exportData() {
   downloadJSON('agents.json', agents);
   downloadJSON('tasks.json', tasks);
@@ -71,275 +475,45 @@ function downloadJSON(filename, data) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
+  a.href = url; a.download = filename; a.click();
   URL.revokeObjectURL(url);
 }
 
-// ── Stats ──
-function renderStats() {
-  const totalCompleted = agents.reduce((sum, a) => sum + a.completedTasks, 0);
-  const activeCount = agents.filter(a => a.status !== 'idle').length;
-  const taskCount = tasks.filter(t => t.status !== 'done').length;
-
-  document.getElementById('stat-members').textContent = agents.length;
-  document.getElementById('stat-active').textContent = activeCount;
-  document.getElementById('stat-tasks').textContent = taskCount;
-  document.getElementById('stat-completed').textContent = totalCompleted;
+/* ───────────────────────────────────────────
+   UTILS
+─────────────────────────────────────────── */
+function hexToRgba(hex, alpha) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c+c).join('');
+  const r = parseInt(hex.substring(0,2), 16);
+  const g = parseInt(hex.substring(2,4), 16);
+  const b = parseInt(hex.substring(4,6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
-// ── Clock ──
-function startClock() {
-  const el = document.getElementById('clock');
-  function update() {
-    const now = new Date();
-    el.textContent = now.toLocaleString('zh-TW', {
-      timeZone: 'Asia/Taipei',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    });
-  }
-  update();
-  setInterval(update, 1000);
+function lightenColor(hex, amount) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c+c).join('');
+  let r = Math.min(255, parseInt(hex.substring(0,2), 16) + amount);
+  let g = Math.min(255, parseInt(hex.substring(2,4), 16) + amount);
+  let b = Math.min(255, parseInt(hex.substring(4,6), 16) + amount);
+  return `rgb(${r},${g},${b})`;
 }
 
-// ── Agent Cards ──
-function renderAgents() {
-  const grid = document.getElementById('agents-grid');
-  grid.innerHTML = agents.map(agent => {
-    const agentTask = tasks.find(t => t.assignee === agent.id && t.status === 'in-progress');
-    const taskDisplay = agent.currentTask || (agentTask ? agentTask.title : null);
-
-    // Only show edit controls in admin mode
-    const controlsHTML = isAdmin ? `
-        <div class="status-controls" id="controls-${agent.id}">
-          <button class="status-btn ${agent.status === 'idle' ? 'active' : ''}" 
-                  onclick="event.stopPropagation(); setStatus('${agent.id}', 'idle')">🟢 空閒</button>
-          <button class="status-btn ${agent.status === 'working' ? 'active' : ''}" 
-                  onclick="event.stopPropagation(); setStatus('${agent.id}', 'working')">🟡 執行中</button>
-          <button class="status-btn ${agent.status === 'busy' ? 'active' : ''}" 
-                  onclick="event.stopPropagation(); setStatus('${agent.id}', 'busy')">🔴 忙碌</button>
-          <input class="task-input" 
-                 type="text" 
-                 placeholder="輸入當前任務..." 
-                 value="${agent.currentTask || ''}"
-                 onclick="event.stopPropagation()"
-                 onchange="setCurrentTask('${agent.id}', this.value)"
-                 onkeydown="if(event.key==='Enter'){setCurrentTask('${agent.id}', this.value)}" />
-        </div>
-    ` : '';
-
-    return `
-      <div class="agent-card ${editMode ? 'editing' : ''}" 
-           style="--agent-color: ${agent.color}" 
-           data-id="${agent.id}"
-           ${isAdmin ? `onclick="toggleEdit('${agent.id}')"` : ''}>
-        <div class="agent-header">
-          <div class="agent-avatar">
-            <img src="${agent.avatar}" alt="${agent.name}" />
-          </div>
-          <div class="agent-info">
-            <h3>
-              <span class="status-dot ${agent.status}"></span>
-              ${agent.emoji} ${agent.name}
-            </h3>
-            <div class="role">${agent.role}</div>
-          </div>
-        </div>
-        <div class="agent-personality">${agent.personality}</div>
-        <div class="agent-skills">
-          ${agent.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
-        </div>
-        <div class="agent-task ${taskDisplay ? 'has-task' : ''}">
-          ${taskDisplay 
-            ? `⚡ ${taskDisplay}` 
-            : '💤 待命中'}
-        </div>
-        <div class="agent-footer">
-          <span>完成任務：${agent.completedTasks}</span>
-          <span>${statusLabel(agent.status)}</span>
-        </div>
-        ${controlsHTML}
-      </div>
-    `;
-  }).join('');
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function statusLabel(status) {
-  switch (status) {
-    case 'idle': return '🟢 空閒';
-    case 'working': return '🟡 執行中';
-    case 'busy': return '🔴 忙碌';
-    default: return status;
-  }
+// ── Inject CSS keyframe for code scroll ──
+const extraCSS = document.createElement('style');
+extraCSS.textContent = `
+@keyframes codeScroll {
+  0% { opacity: 0.3; width: 30%; }
+  50% { opacity: 1; width: 90%; }
+  100% { opacity: 0.3; width: 30%; }
 }
+`;
+document.head.appendChild(extraCSS);
 
-function toggleEdit(agentId) {
-  if (!editMode || !isAdmin) return;
-  const card = document.querySelector(`.agent-card[data-id="${agentId}"]`);
-  card.classList.toggle('editing');
-}
-
-function setStatus(agentId, status) {
-  const agent = agents.find(a => a.id === agentId);
-  if (agent) {
-    agent.status = status;
-    if (status === 'idle') agent.currentTask = null;
-    saveAgents();
-    renderAgents();
-    renderStats();
-  }
-}
-
-function setCurrentTask(agentId, task) {
-  const agent = agents.find(a => a.id === agentId);
-  if (agent) {
-    agent.currentTask = task || null;
-    if (task) agent.status = 'working';
-    saveAgents();
-    renderAgents();
-    renderStats();
-  }
-}
-
-// ── Edit Mode Toggle ──
-function toggleEditMode() {
-  if (!isAdmin) return;
-  editMode = !editMode;
-  document.getElementById('edit-mode-btn').textContent = editMode ? '🔒 鎖定' : '✏️ 編輯';
-  document.querySelectorAll('.agent-card').forEach(card => {
-    card.classList.toggle('editing', editMode);
-  });
-}
-
-// ── Task Board ──
-function renderTaskBoard() {
-  const columns = {
-    'in-progress': { title: '⚡ 進行中', items: [] },
-    'todo': { title: '📋 待辦', items: [] },
-    'done': { title: '✅ 已完成', items: [] }
-  };
-
-  tasks.forEach(task => {
-    const col = columns[task.status] || columns['todo'];
-    col.items.push(task);
-  });
-
-  const board = document.getElementById('task-board');
-  board.innerHTML = Object.entries(columns).map(([key, col]) => `
-    <div class="task-column">
-      <div class="task-column-header">
-        <span class="task-column-title">${col.title}</span>
-        <span class="task-count">${col.items.length}</span>
-      </div>
-      ${col.items.length === 0 
-        ? '<div style="text-align:center;color:var(--text-muted);font-size:0.75rem;padding:1rem;">無任務</div>'
-        : col.items.map(task => {
-          const agent = agents.find(a => a.id === task.assignee);
-          return `
-            <div class="task-item" ${isAdmin ? `ondblclick="cycleTaskStatus('${task.id}')"` : ''}>
-              <div class="task-item-title">${task.title}</div>
-              <div class="task-item-meta">
-                <span>${agent ? agent.emoji + ' ' + agent.name : '未指派'}</span>
-                <span class="task-priority ${task.priority}">${task.priority}</span>
-              </div>
-            </div>
-          `;
-        }).join('')
-      }
-    </div>
-  `).join('');
-}
-
-function cycleTaskStatus(taskId) {
-  if (!isAdmin) return;
-  const task = tasks.find(t => t.id === taskId);
-  if (!task) return;
-  const cycle = ['todo', 'in-progress', 'done'];
-  const idx = cycle.indexOf(task.status);
-  task.status = cycle[(idx + 1) % cycle.length];
-  if (task.status === 'done') {
-    task.completedAt = new Date().toISOString();
-    const agent = agents.find(a => a.id === task.assignee);
-    if (agent) {
-      agent.completedTasks++;
-      saveAgents();
-    }
-  } else {
-    task.completedAt = null;
-  }
-  saveTasks();
-  renderTaskBoard();
-  renderStats();
-  renderAgents();
-}
-
-// ── Add Task ──
-function renderAddTaskForm() {
-  const container = document.getElementById('add-task-bar');
-  if (!container) return;
-  container.innerHTML = `
-    <div class="add-task-form">
-      <input type="text" id="new-task-title" placeholder="新增任務..." />
-      <select id="new-task-assignee">
-        <option value="">指派給...</option>
-        ${agents.map(a => `<option value="${a.id}">${a.emoji} ${a.name}</option>`).join('')}
-      </select>
-      <select id="new-task-priority">
-        <option value="A">🔴 A 級</option>
-        <option value="B">🟡 B 級</option>
-        <option value="C">🟢 C 級</option>
-      </select>
-      <button class="btn btn-primary" onclick="addTask()">新增</button>
-      <button class="btn btn-ghost" onclick="exportData()">📥 匯出 JSON</button>
-    </div>
-  `;
-}
-
-function addTask() {
-  if (!isAdmin) return;
-  const title = document.getElementById('new-task-title').value.trim();
-  const assignee = document.getElementById('new-task-assignee').value;
-  const priority = document.getElementById('new-task-priority').value;
-
-  if (!title) return;
-
-  const task = {
-    id: `task-${String(Date.now()).slice(-6)}`,
-    title,
-    assignee: assignee || null,
-    status: 'todo',
-    priority,
-    createdAt: new Date().toISOString(),
-    completedAt: null
-  };
-
-  tasks.push(task);
-  saveTasks();
-  renderTaskBoard();
-  renderStats();
-  document.getElementById('new-task-title').value = '';
-}
-
-// ── Reset localStorage ──
-function resetLocal() {
-  if (!isAdmin) return;
-  if (confirm('確定要重置所有本機修改？將回到 JSON 檔案的初始狀態。')) {
-    localStorage.removeItem('nivora-agents');
-    localStorage.removeItem('nivora-tasks');
-    location.reload();
-  }
-}
-
-// ── Boot ──
-document.addEventListener('DOMContentLoaded', async () => {
-  await init();
-  loadLocalStorage();
-  renderStats();
-  renderAgents();
-  renderTaskBoard();
-  if (isAdmin) renderAddTaskForm();
-});
+// ── Start ──
+init();
