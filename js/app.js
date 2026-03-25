@@ -1,197 +1,224 @@
-/* Nivora AI — Virtual Office v3 */
+// ===== CONFIG =====
+const REFRESH_MS = 30000;
 
+// Agent positions (% of container, pointing at head)
 const AGENT_POSITIONS = {
-  niva:  { x: 50, y: 45 },
-  muse:  { x: 25, y: 35 },
-  axel:  { x: 75, y: 35 },
-  sage:  { x: 30, y: 55 },
-  rex:   { x: 70, y: 55 },
+  niva:  { left: 40, top: 58 },  // front center-left (purple hair)
+  axel:  { left: 65, top: 53 },  // front right (teal hair)
+  muse:  { left: 22, top: 31 },  // back left (pink)
+  sage:  { left: 48, top: 28 },  // back center (green)
+  rex:   { left: 72, top: 31 },  // back right (white)
 };
 
-let agentsData = [];
-let tasksData  = [];
-let selectedAgent = null;
-const isAdmin = new URLSearchParams(location.search).has('admin');
+// ===== STATE =====
+let agents = [];
+let tasks = [];
+let openCardId = null;
 
-// ── FETCH ─────────────────────────────────
+// ===== FETCH =====
 async function fetchData() {
   try {
-    const [aRes, tRes] = await Promise.all([
-      fetch('data/agents.json?_=' + Date.now()),
-      fetch('data/tasks.json?_='  + Date.now()),
+    const [agentsRes, tasksRes] = await Promise.all([
+      fetch('data/agents.json?t=' + Date.now()),
+      fetch('data/tasks.json?t=' + Date.now()),
     ]);
-    agentsData = await aRes.json();
-    tasksData  = tRes.ok ? await tRes.json() : [];
-  } catch(e) { console.warn('fetch error', e); }
-  render();
+    agents = await agentsRes.json();
+    tasks = await tasksRes.json();
+  } catch (e) {
+    console.warn('Fetch error:', e);
+  }
 }
 
-// ── CLOCK ─────────────────────────────────
-function tickClock() {
-  const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  document.getElementById('clock').textContent = `${h}:${m}`;
-}
-setInterval(tickClock, 1000);
-tickClock();
-
-// ── HEADER STATS ──────────────────────────
-function updateStats() {
-  document.getElementById('stat-members').textContent = agentsData.length;
-  const active = agentsData.filter(a => a.status === 'working').length;
-  document.getElementById('stat-active').textContent = active;
-  const done = agentsData.reduce((s,a) => s + (a.completedTasks||0), 0);
-  document.getElementById('stat-done').textContent = done;
+// ===== RENDER =====
+function render() {
+  renderLabels();
+  renderHeader();
+  renderTaskBoard();
 }
 
-// ── MARKERS ───────────────────────────────
-function renderMarkers() {
-  const container = document.getElementById('markers-container');
+function renderHeader() {
+  const idle = agents.filter(a => a.status === 'idle').length;
+  const working = agents.filter(a => a.status === 'working').length;
+  const done = tasks.filter(t => t.status === 'done').length;
+  document.getElementById('idleCount').textContent = idle;
+  document.getElementById('workingCount').textContent = working;
+  document.getElementById('doneCount').textContent = done;
+}
+
+function renderLabels() {
+  const container = document.getElementById('agentLabels');
   container.innerHTML = '';
 
-  agentsData.forEach(agent => {
+  agents.forEach(agent => {
     const pos = AGENT_POSITIONS[agent.id];
     if (!pos) return;
 
-    const wrap = document.createElement('div');
-    wrap.className = 'agent-marker' + (agent.status === 'working' ? ' working' : '');
-    wrap.style.left = pos.x + '%';
-    wrap.style.top  = pos.y + '%';
-    wrap.style.setProperty('--agent-color', agent.color || '#00E5C0');
-    wrap.dataset.id = agent.id;
+    const isWorking = agent.status === 'working';
 
-    const dot = document.createElement('div');
-    dot.className = 'marker-dot';
-    wrap.appendChild(dot);
+    const group = document.createElement('div');
+    group.className = 'agent-label-group';
+    group.style.left = pos.left + '%';
+    group.style.top = pos.top + '%';
+    // Offset float animation per agent for organic feel
+    const agentIdx = agents.indexOf(agent);
+    group.style.animationDelay = (agentIdx * 0.6) + 's';
 
+    // Label pill
     const label = document.createElement('div');
-    label.className = 'marker-label';
-    label.textContent = agent.emoji + ' ' + agent.name;
-    wrap.appendChild(label);
+    label.className = 'agent-label';
 
-    if (agent.status === 'working' && agent.currentTask) {
+    // Status dot
+    const dot = document.createElement('span');
+    dot.className = 'dot ' + (isWorking ? 'yellow pulse' : 'green');
+    label.appendChild(dot);
+
+    // Name
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.style.color = agent.color || '#fff';
+    name.textContent = agent.name;
+    label.appendChild(name);
+
+    // Role
+    const role = document.createElement('span');
+    role.className = 'role-text';
+    role.textContent = agent.role;
+    label.appendChild(role);
+
+    group.appendChild(label);
+
+    // Task bubble (working only)
+    if (isWorking && agent.currentTask) {
       const bubble = document.createElement('div');
-      bubble.className = 'marker-task-bubble';
+      bubble.className = 'agent-task-bubble';
       bubble.textContent = agent.currentTask;
-      wrap.appendChild(bubble);
+      group.appendChild(bubble);
     }
 
-    wrap.addEventListener('click', () => openCard(agent.id));
-    container.appendChild(wrap);
-  });
-}
-
-// ── MOBILE LIST ───────────────────────────
-function renderMobile() {
-  const el = document.getElementById('mobile-agents');
-  el.innerHTML = '';
-  agentsData.forEach(agent => {
-    const div = document.createElement('div');
-    div.className = 'mobile-agent';
-    div.innerHTML = `
-      <div class="mobile-agent-dot" style="background:${agent.color}"></div>
-      <div>${agent.emoji}</div>
-      <div class="mobile-agent-name">${agent.name}</div>
-    `;
-    div.addEventListener('click', () => openCard(agent.id));
-    el.appendChild(div);
-  });
-}
-
-// ── INFO CARD ─────────────────────────────
-function openCard(id) {
-  const agent = agentsData.find(a => a.id === id);
-  if (!agent) return;
-  selectedAgent = id;
-
-  document.getElementById('info-avatar').src = agent.avatar || '';
-  document.getElementById('info-emoji').textContent = agent.emoji || '';
-  document.getElementById('info-name').textContent = agent.name;
-  document.getElementById('info-role').textContent = agent.role;
-
-  const dot = document.getElementById('info-status-dot');
-  dot.className = 'info-status-dot ' + (agent.status || 'idle');
-
-  const taskWrap = document.getElementById('info-task-wrap');
-  if (agent.status === 'working' && agent.currentTask) {
-    document.getElementById('info-task').textContent = agent.currentTask;
-    taskWrap.style.display = 'block';
-  } else {
-    taskWrap.style.display = 'none';
-  }
-
-  document.getElementById('info-done').textContent = agent.completedTasks || 0;
-
-  const skillsEl = document.getElementById('info-skills');
-  skillsEl.innerHTML = (agent.skills || []).map(s =>
-    `<span class="skill-pill">${s}</span>`).join('');
-
-  document.getElementById('info-card').classList.add('visible');
-}
-
-function closeCard() {
-  document.getElementById('info-card').classList.remove('visible');
-  selectedAgent = null;
-}
-
-document.getElementById('info-close').addEventListener('click', closeCard);
-document.getElementById('info-card').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeCard();
-});
-
-// ── TASK BOARD ────────────────────────────
-function renderBoard() {
-  const cols = { todo: [], doing: [], done: [] };
-  (tasksData || []).forEach(t => {
-    const col = t.status === 'todo' ? cols.todo
-              : t.status === 'done' ? cols.done
-              : cols.doing;
-    col.push(t);
-  });
-
-  // also inject working agents as pseudo-tasks if no tasks file
-  if (!tasksData.length) {
-    agentsData.filter(a => a.status === 'working' && a.currentTask).forEach(a => {
-      cols.doing.push({ title: a.currentTask, assignee: a.name });
+    group.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleCard(agent.id, pos);
     });
-  }
 
-  ['todo','doing','done'].forEach(key => {
-    const el = document.getElementById('tasks-' + key);
-    if (!cols[key].length) {
-      el.innerHTML = '<div class="task-empty">—</div>';
-    } else {
-      el.innerHTML = cols[key].map(t => `
-        <div class="task-card">
-          <div class="task-title">${t.title || t.name || '?'}</div>
-          ${t.assignee ? `<div class="task-assign">→ ${t.assignee}</div>` : ''}
-        </div>
-      `).join('');
-    }
+    container.appendChild(group);
   });
 }
 
-const boardFab   = document.getElementById('board-fab');
-const taskBoard  = document.getElementById('task-board');
-const boardClose = document.getElementById('board-close');
+// ===== INFO CARDS =====
+function toggleCard(agentId, pos) {
+  if (openCardId === agentId) {
+    closeAllCards();
+    return;
+  }
+  closeAllCards();
+  openCardId = agentId;
 
-boardFab.addEventListener('click', () => {
-  taskBoard.classList.toggle('visible');
-});
-boardClose.addEventListener('click', () => taskBoard.classList.remove('visible'));
+  const agent = agents.find(a => a.id === agentId);
+  if (!agent) return;
 
-// ── RENDER ALL ────────────────────────────
-function render() {
-  updateStats();
-  renderMarkers();
-  renderMobile();
-  renderBoard();
+  document.getElementById('backdrop').classList.remove('hidden');
 
-  // keep card in sync
-  if (selectedAgent) openCard(selectedAgent);
+  const card = document.createElement('div');
+  card.className = 'info-card';
+  card.id = 'card-' + agentId;
+
+  const isWorking = agent.status === 'working';
+  const agentTasks = tasks.filter(t => t.assignee === agentId);
+  const doneTasks = agentTasks.filter(t => t.status === 'done');
+
+  card.innerHTML = `
+    <div class="card-header">
+      <img class="card-avatar" src="${agent.avatar}" onerror="this.style.display='none'" alt="">
+      <div class="card-name-block" style="margin-left:0">
+        <div class="card-name" style="color:${agent.color}">${agent.emoji} ${agent.name}</div>
+        <div class="card-role">${agent.role}</div>
+      </div>
+      <button class="card-close" onclick="closeAllCards()">✕</button>
+    </div>
+    <div class="card-status-row">
+      <span class="dot ${isWorking ? 'yellow pulse' : 'green'}"></span>
+      <span style="font-size:0.72rem">${isWorking ? '🔨 ' + (agent.currentTask || 'Working...') : 'Idle'}</span>
+    </div>
+    <div class="card-personality">"${agent.personality}"</div>
+    <div class="card-section-title">Skills</div>
+    <div class="card-skills">
+      ${agent.skills.map(s => `<span class="skill-tag" style="border-color:${agent.color}44;color:${agent.color}">${s}</span>`).join('')}
+    </div>
+    <div class="card-stats-row">
+      <span>✅ ${doneTasks.length} 完成</span>
+      <span>📋 ${agentTasks.filter(t=>t.status==='todo').length} 待辦</span>
+    </div>
+  `;
+
+  // Position card near the label, avoid going off-screen
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const cardW = Math.min(280, vw - 32);
+
+  let leftPx = (pos.left / 100) * vw - cardW / 2;
+  let topPx = (pos.top / 100) * vh - 20;
+
+  leftPx = Math.max(16, Math.min(leftPx, vw - cardW - 16));
+  topPx = Math.max(60, Math.min(topPx, vh - 380));
+
+  card.style.left = leftPx + 'px';
+  card.style.top = topPx + 'px';
+  card.style.width = cardW + 'px';
+
+  document.getElementById('infoCards').appendChild(card);
 }
 
-// ── INIT ──────────────────────────────────
-fetchData();
-setInterval(fetchData, 30000);
+function closeAllCards() {
+  openCardId = null;
+  document.getElementById('infoCards').innerHTML = '';
+  document.getElementById('backdrop').classList.add('hidden');
+}
+
+// ===== TASK BOARD =====
+let taskBoardOpen = false;
+
+function toggleTaskBoard() {
+  taskBoardOpen = !taskBoardOpen;
+  document.getElementById('taskBoard').classList.toggle('hidden', !taskBoardOpen);
+  if (taskBoardOpen) renderTaskBoard();
+}
+
+function renderTaskBoard() {
+  if (!taskBoardOpen) return;
+  const list = document.getElementById('taskList');
+
+  // Sort: todo first, then done; within groups sort by priority
+  const sorted = [...tasks].sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'todo' ? -1 : 1;
+    return (a.priority || 'Z').localeCompare(b.priority || 'Z');
+  });
+
+  list.innerHTML = sorted.map(task => {
+    const agent = agents.find(a => a.id === task.assignee);
+    const color = agent ? agent.color : '#888';
+    return `
+      <div class="task-item ${task.status}" style="border-left-color:${color}">
+        <div class="task-title">${task.title}</div>
+        <div class="task-meta">
+          <span style="color:${color}">${agent ? agent.emoji + ' ' + agent.name : task.assignee}</span>
+          <span class="task-status-badge ${task.status}">${task.status === 'done' ? '✅ Done' : task.status === 'working' ? '🔨 Working' : '📌 Todo'}</span>
+          <span>P${task.priority || '?'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===== MAIN LOOP =====
+document.getElementById('taskBoardBtn').addEventListener('click', toggleTaskBoard);
+
+async function init() {
+  await fetchData();
+  render();
+  setInterval(async () => {
+    await fetchData();
+    render();
+  }, REFRESH_MS);
+}
+
+init();

@@ -7,93 +7,44 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-  <!-- HEADER -->
-  <header class="hud-header">
+  <!-- Header -->
+  <header id="header">
     <div class="header-left">
-      <div class="logo-mark">N</div>
-      <span class="logo-text">Nivora AI</span>
+      <span class="logo">🏢 Nivora AI</span>
+      <span class="tagline">Virtual Office</span>
     </div>
-    <div class="header-right">
-      <div class="stat-item">
-        <span class="stat-label">MEMBERS</span>
-        <span class="stat-value" id="stat-members">5</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-label">ACTIVE</span>
-        <span class="stat-value teal" id="stat-active">0</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-label">DONE</span>
-        <span class="stat-value" id="stat-done">0</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item clock-item">
-        <span class="stat-value" id="clock">--:--</span>
-      </div>
+    <div class="header-stats" id="headerStats">
+      <span class="stat"><span class="dot green"></span><span id="idleCount">0</span> Idle</span>
+      <span class="stat"><span class="dot yellow pulse"></span><span id="workingCount">0</span> Working</span>
+      <span class="stat">✅ <span id="doneCount">0</span> Done</span>
     </div>
   </header>
 
-  <!-- SCENE -->
-  <div class="scene">
-    <div class="bg-layer"></div>
-    <!-- Agent markers injected by JS -->
-    <div id="markers-container"></div>
+  <!-- Office Scene -->
+  <div id="office">
+    <img id="officeBg" src="assets/office-pixel-v1.png" alt="Office">
+
+    <!-- Agent Labels (positioned over characters) -->
+    <div id="agentLabels"></div>
+
+    <!-- Info Cards -->
+    <div id="infoCards"></div>
   </div>
 
-  <!-- INFO CARD -->
-  <div class="info-card" id="info-card">
-    <button class="info-close" id="info-close">✕</button>
-    <div class="info-avatar-wrap">
-      <img class="info-avatar" id="info-avatar" src="" alt="">
-      <div class="info-status-dot" id="info-status-dot"></div>
+  <!-- Task Board Toggle -->
+  <button id="taskBoardBtn" title="Task Board">📋</button>
+
+  <!-- Task Board Panel -->
+  <div id="taskBoard" class="hidden">
+    <div class="panel-header">
+      <span>📋 Task Board</span>
+      <button onclick="toggleTaskBoard()">✕</button>
     </div>
-    <div class="info-body">
-      <div class="info-name-row">
-        <span class="info-emoji" id="info-emoji"></span>
-        <span class="info-name" id="info-name"></span>
-      </div>
-      <div class="info-role" id="info-role"></div>
-      <div class="info-task-wrap" id="info-task-wrap">
-        <div class="info-task-label">現在任務</div>
-        <div class="info-task" id="info-task"></div>
-      </div>
-      <div class="info-meta">
-        <span>已完成 <strong id="info-done"></strong> 任務</span>
-      </div>
-      <div class="info-skills" id="info-skills"></div>
-    </div>
+    <div id="taskList"></div>
   </div>
 
-  <!-- TASK BOARD TOGGLE -->
-  <button class="board-fab" id="board-fab">📋</button>
-
-  <!-- TASK BOARD -->
-  <div class="task-board" id="task-board">
-    <div class="board-header">
-      <span>任務看板</span>
-      <button class="board-close" id="board-close">✕</button>
-    </div>
-    <div class="board-columns">
-      <div class="board-col">
-        <div class="col-header todo">待辦</div>
-        <div class="col-tasks" id="tasks-todo"></div>
-      </div>
-      <div class="board-col">
-        <div class="col-header doing">進行中</div>
-        <div class="col-tasks" id="tasks-doing"></div>
-      </div>
-      <div class="board-col">
-        <div class="col-header done">已完成</div>
-        <div class="col-tasks" id="tasks-done"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MOBILE AGENT LIST -->
-  <div class="mobile-agents" id="mobile-agents"></div>
+  <!-- Overlay backdrop for info cards -->
+  <div id="backdrop" class="hidden" onclick="closeAllCards()"></div>
 
   <script src="js/app.js"></script>
 </body>
