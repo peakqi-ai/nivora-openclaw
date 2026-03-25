@@ -3,7 +3,7 @@
     "id": "niva",
     "name": "Niva",
     "role": "CEO",
-    "status": "working",
+    "status": "idle",
     "skills": [
       "策略規劃",
       "任務拆解",
@@ -11,8 +11,8 @@
       "團隊調度",
       "商業分析"
     ],
-    "currentTask": "任務調度與進度管理",
-    "completedTasks": 10,
+    "currentTask": null,
+    "completedTasks": 11,
     "personality": "冷靜決斷，全局思維，用結果說話。",
     "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Niva&backgroundColor=0a0a0f",
     "emoji": "🏢",
@@ -22,7 +22,7 @@
     "id": "muse",
     "name": "Muse",
     "role": "Content Lead",
-    "status": "working",
+    "status": "idle",
     "skills": [
       "社群文案",
       "影片腳本",
@@ -30,8 +30,8 @@
       "品牌內容",
       "視覺企劃"
     ],
-    "currentTask": "第 2 篇 IG 貼文配圖製作",
-    "completedTasks": 4,
+    "currentTask": null,
+    "completedTasks": 5,
     "personality": "創意敏銳，有品味，把轉換率當藝術。",
     "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Muse&backgroundColor=0a0a0f",
     "emoji": "🎨",
