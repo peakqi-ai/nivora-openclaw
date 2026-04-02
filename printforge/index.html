@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrintForge — 3D 列印客製化平台</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0C0F;
+      --bg2:       #111418;
+      --bg3:       #181C22;
+      --bg4:       #1E242D;
+      --border:    #242B36;
+      --accent:    #00E5C0;
+      --accent2:   #00B89A;
+      --text:      #E8ECF0;
+      --text2:     #8A95A3;
+      --text3:     #4A5568;
+      --danger:    #FF4D6A;
+      --warning:   #F5A623;
+      --radius:    12px;
+      --radius-sm: 8px;
+      --shadow:    0 4px 24px rgba(0,0,0,.5);
+      --glow:      0 0 20px rgba(0,229,192,.15);
+    }
+
+    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+
+    /* ─── TOP BAR ─── */
+    #topbar {
+      height: 56px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 24px;
+      position: relative;
+      z-index: 10;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      color: var(--bg);
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    .logo-text { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -.4px; }
+    .logo-text span { color: var(--accent); }
+
+    .topbar-nav { display: flex; gap: 4px; margin-left: auto; }
+    .topbar-nav a {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      color: var(--text2);
+      text-decoration: none;
+      font-size: 13px;
+      transition: all .15s;
+    }
+    .topbar-nav a:hover { background: var(--bg4); color: var(--text); }
+    .topbar-nav a.active { background: rgba(0,229,192,.12); color: var(--accent); }
+
+    .topbar-actions { display: flex; gap: 8px; }
+    .btn-sm {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all .15s;
+    }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-accent { background: var(--accent); color: var(--bg); }
+    .btn-accent:hover { background: var(--accent2); }
+
+    /* ─── LAYOUT ─── */
+    #app {
+      height: calc(100vh - 56px - 64px);
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ─── LEFT PANEL ─── */
+    #panel-left {
+      width: 220px;
+      min-width: 220px;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    #panel-left::-webkit-scrollbar { width: 4px; }
+    #panel-left::-webkit-scrollbar-track { background: transparent; }
+    #panel-left::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .panel-header {
+      padding: 16px 16px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .template-grid { padding: 0 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+
+    .template-card {
+      background: var(--bg3);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .template-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,229,192,.05), transparent);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .template-card:hover { border-color: rgba(0,229,192,.4); transform: translateX(2px); }
+    .template-card:hover::before { opacity: 1; }
+    .template-card.active {
+      border-color: var(--accent);
+      background: rgba(0,229,192,.06);
+      box-shadow: var(--glow);
+    }
+    .template-card.active::before { opacity: 1; }
+
+    .template-thumb {
+      width: 40px; height: 40px;
+      background: var(--bg4);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .template-info { flex: 1; min-width: 0; }
+    .template-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .template-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .template-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0,229,192,.15);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ─── CENTER ─── */
+    #panel-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #canvas-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    #three-canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    .canvas-overlay-info {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,12,15,.8);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 12px;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .canvas-overlay-info span { display: flex; align-items: center; gap: 4px; }
+
+    .canvas-toolbar {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .icon-btn {
+      width: 36px; height: 36px;
+      background: rgba(17,20,24,.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text2);
+      font-size: 16px;
+      transition: all .15s;
+      backdrop-filter: blur(8px);
+    }
+    .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .model-label {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(17,20,24,.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+    }
+    .model-label-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .model-label-size { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    /* ─── RIGHT PANEL ─── */
+    #panel-right {
+      width: 280px;
+      min-width: 280px;
+      background: var(--bg2);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    #panel-right::-webkit-scrollbar { width: 4px; }
+    #panel-right::-webkit-scrollbar-track { background: transparent; }
+    #panel-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .section { padding: 16px; border-bottom: 1px solid var(--border); }
+    .section:last-child { border-bottom: none; }
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    /* upload */
+    .upload-zone {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .upload-zone:hover { border-color: var(--accent); background: rgba(0,229,192,.04); }
+    .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .upload-icon { font-size: 24px; margin-bottom: 8px; }
+    .upload-text { font-size: 12px; color: var(--text2); }
+    .upload-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
+    .upload-preview {
+      width: 100%;
+      border-radius: var(--radius-sm);
+      margin-top: 10px;
+      display: none;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border: 1px solid var(--border);
+    }
+
+    /* color */
+    .color-row { display: flex; align-items: center; gap: 10px; }
+    .color-presets { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .color-swatch {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all .15s;
+      position: relative;
+    }
+    .color-swatch.active, .color-swatch:hover { border-color: var(--accent); transform: scale(1.15); }
+    .color-picker-wrap { position: relative; }
+    .color-picker-wrap input[type=color] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .color-picker-btn {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--bg4);
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* material */
+    .material-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .material-card {
+      background: var(--bg3);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center;
+    }
+    .material-card:hover { border-color: rgba(0,229,192,.4); }
+    .material-card.active { border-color: var(--accent); background: rgba(0,229,192,.06); }
+    .material-icon { font-size: 18px; margin-bottom: 4px; }
+    .material-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .material-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+    /* size slider */
+    .slider-wrap { padding: 4px 0; }
+    .slider-label { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .slider-label span { font-size: 12px; color: var(--text2); }
+    .slider-val { font-size: 13px; font-weight: 700; color: var(--accent); }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--bg4);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(0,229,192,.5);
+      transition: transform .15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .size-presets { display: flex; gap: 6px; margin-top: 10px; }
+    .size-preset-btn {
+      flex: 1;
+      padding: 5px;
+      border-radius: 6px;
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+    }
+    .size-preset-btn:hover, .size-preset-btn.active { background: rgba(0,229,192,.1); border-color: var(--accent); color: var(--accent); }
+
+    /* ─── BOTTOM BAR ─── */
+    #bottombar {
+      height: 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+    }
+    .price-block { display: flex; align-items: baseline; gap: 8px; }
+    .price-label { font-size: 12px; color: var(--text3); }
+    .price-value { font-size: 24px; font-weight: 800; color: var(--accent); letter-spacing: -.5px; }
+    .price-unit { font-size: 13px; color: var(--text2); }
+    .price-details { font-size: 11px; color: var(--text3); margin-left: 4px; }
+
+    .bottom-spacer { flex: 1; }
+    .bottom-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn-lg {
+      padding: 10px 24px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text2);
+    }
+    .btn-outline:hover { border-color: var(--text2); color: var(--text); }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      box-shadow: 0 4px 16px rgba(0,229,192,.25);
+    }
+    .btn-primary:hover { background: var(--accent2); box-shadow: 0 4px 24px rgba(0,229,192,.4); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* ─── TOAST ─── */
+    #toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 20px;
+      font-size: 13px;
+      color: var(--text);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transition: all .3s;
+      pointer-events: none;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.success { border-color: var(--accent); color: var(--accent); }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header id="topbar">
+  <a class="logo" href="#">
+    <div class="logo-icon">PF</div>
+    <span class="logo-text">Print<span>Forge</span></span>
+  </a>
+  <nav class="topbar-nav">
+    <a href="#" class="active">設計工作室</a>
+    <a href="#">作品集</a>
+    <a href="#">訂單紀錄</a>
+    <a href="#">定價方案</a>
+  </nav>
+  <div class="topbar-actions">
+    <button class="btn-sm btn-ghost">登入</button>
+    <button class="btn-sm btn-accent">免費試用</button>
+  </div>
+</header>
+
+<!-- MAIN LAYOUT -->
+<div id="app">
+
+  <!-- LEFT: Templates -->
+  <aside id="panel-left">
+    <div class="panel-header">產品模板</div>
+    <div class="template-grid" id="template-grid">
+      <!-- injected by JS -->
+    </div>
+  </aside>
+
+  <!-- CENTER: 3D Preview -->
+  <main id="panel-center">
+    <div id="canvas-wrap">
+      <canvas id="three-canvas"></canvas>
+
+      <div class="model-label" id="model-label">
+        <div class="model-label-name" id="label-name">手機殼</div>
+        <div class="model-label-size" id="label-size">尺寸：100%　材質：PLA</div>
+      </div>
+
+      <div class="canvas-toolbar">
+        <div class="icon-btn" title="重置視角" onclick="resetCamera()">↺</div>
+        <div class="icon-btn" title="線框模式" onclick="toggleWireframe()">⬡</div>
+        <div class="icon-btn" title="截圖" onclick="takeScreenshot()">📷</div>
+      </div>
+
+      <div class="canvas-overlay-info">
+        <span>🖱 拖曳旋轉</span>
+        <span style="color:var(--border)">|</span>
+        <span>🔍 滾輪縮放</span>
+        <span style="color:var(--border)">|</span>
+        <span>⌨ 右鍵平移</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT: Customization -->
+  <aside id="panel-right">
+
+    <!-- Upload -->
+    <div class="section">
+      <div class="section-title">圖案 / 紋理上傳</div>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="texture-upload" accept="image/*" onchange="handleTextureUpload(event)" />
+        <div class="upload-icon">🖼</div>
+        <div class="upload-text">點擊或拖曳上傳圖案</div>
+        <div class="upload-hint">支援 PNG、JPG、SVG（最大 10MB）</div>
+      </div>
+      <img id="upload-preview" class="upload-preview" alt="預覽" />
+    </div>
+
+    <!-- Color -->
+    <div class="section">
+      <div class="section-title">基底顏色</div>
+      <div class="color-row">
+        <div class="color-presets" id="color-presets">
+          <!-- injected -->
+        </div>
+        <div class="color-picker-wrap">
+          <div class="color-picker-btn" title="自訂顏色">＋</div>
+          <input type="color" id="custom-color" value="#00E5C0" oninput="setCustomColor(this.value)" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Material -->
+    <div class="section">
+      <div class="section-title">列印材質</div>
+      <div class="material-grid" id="material-grid">
+        <!-- injected -->
+      </div>
+    </div>
+
+    <!-- Size -->
+    <div class="section">
+      <div class="section-title">尺寸調整</div>
+      <div class="slider-wrap">
+        <div class="slider-label">
+          <span>縮放比例</span>
+          <span class="slider-val" id="size-val">100%</span>
+        </div>
+        <input type="range" id="size-slider" min="50" max="200" value="100" oninput="updateSize(this.value)" />
+        <div class="size-presets">
+          <div class="size-preset-btn active" onclick="setSize(75,'小')">小</div>
+          <div class="size-preset-btn" onclick="setSize(100,'標準')">標準</div>
+          <div class="size-preset-btn" onclick="setSize(150,'大')">大</div>
+          <div class="size-preset-btn" onclick="setSize(200,'特大')">特大</div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- BOTTOM BAR -->
+<footer id="bottombar">
+  <div class="price-block">
+    <span class="price-label">預估價格</span>
+    <span class="price-value" id="price-val">NT$280</span>
+    <span class="price-unit">含稅</span>
+    <span class="price-details" id="price-details">（PLA・標準尺寸）</span>
+  </div>
+  <div class="bottom-spacer"></div>
+  <div class="bottom-actions">
+    <button class="btn-lg btn-outline" onclick="showToast('STL 匯出功能即將上線 🚀', '')">
+      <span>⬇</span> 匯出 STL
+    </button>
+    <button class="btn-lg btn-primary" onclick="showToast('訂單已送出！我們將於 24 小時內確認 ✅', 'success')">
+      <span>🛒</span> 立即下單
+    </button>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- THREE.JS from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════
+const TEMPLATES = [
+  { id: 'phone',     name: '手機殼',   sub: 'iPhone / Android', emoji: '📱', badge: '熱門',  basePrice: 280 },
+  { id: 'keychain',  name: '鑰匙圈',   sub: '小型吊飾',           emoji: '🔑', badge: null,   basePrice: 120 },
+  { id: 'coaster',   name: '杯墊',     sub: '圓形 / 方形',        emoji: '☕', badge: null,   basePrice: 180 },
+  { id: 'vase',      name: '花瓶',     sub: '裝飾花器',           emoji: '🏺', badge: '新',   basePrice: 450 },
+  { id: 'figurine',  name: '公仔',     sub: '客製造型',           emoji: '🗿', badge: null,   basePrice: 680 },
+];
+
+const COLORS = [
+  { hex: '#FFFFFF', name: '純白' },
+  { hex: '#1C1C1E', name: '曜石黑' },
+  { hex: '#00E5C0', name: '青碧' },
+  { hex: '#FF4D6A', name: '珊瑚紅' },
+  { hex: '#F5A623', name: '琥珀金' },
+  { hex: '#6E56CF', name: '紫晶' },
+  { hex: '#4CD964', name: '翠綠' },
+  { hex: '#5AC8FA', name: '天藍' },
+];
+
+const MATERIALS = [
+  { id: 'PLA',   name: 'PLA',   sub: '環保首選',  emoji: '🌿', mult: 1.0,  rough: 0.7, metal: 0   },
+  { id: 'ABS',   name: 'ABS',   sub: '耐衝擊',    emoji: '🔩', mult: 1.3,  rough: 0.5, metal: 0   },
+  { id: 'Resin', name: '光固化', sub: '高精度',    emoji: '💎', mult: 2.0,  rough: 0.1, metal: 0.3 },
+  { id: 'Metal', name: '金屬',  sub: '工業級',    emoji: '⚙️', mult: 5.0,  rough: 0.2, metal: 0.9 },
+];
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let state = {
+  template:  TEMPLATES[0],
+  color:     '#FFFFFF',
+  material:  MATERIALS[0],
+  size:      100,
+  texture:   null,
+};
+
+// ═══════════════════════════════════════════════════
+//  THREE.JS SETUP
+// ═══════════════════════════════════════════════════
+const canvas  = document.getElementById('three-canvas');
+const wrap    = document.getElementById('canvas-wrap');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0A0C0F);
+scene.fog = new THREE.Fog(0x0A0C0F, 20, 60);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+camera.position.set(0, 1.5, 5);
+
+// Lights
+const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambient);
+
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+dirLight.position.set(5, 8, 5);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.width = 2048;
+dirLight.shadow.mapSize.height = 2048;
+scene.add(dirLight);
+
+const fillLight = new THREE.DirectionalLight(0x00e5c0, 0.3);
+fillLight.position.set(-5, -2, -3);
+scene.add(fillLight);
+
+const rimLight = new THREE.PointLight(0x00e5c0, 0.8, 20);
+rimLight.position.set(-3, 3, -3);
+scene.add(rimLight);
+
+// Grid
+const gridHelper = new THREE.GridHelper(10, 20, 0x1E242D, 0x1E242D);
+gridHelper.position.y = -1.5;
+scene.add(gridHelper);
+
+// Orbit controls (manual implementation)
+let isDragging = false, isRightDrag = false;
+let prevMouse = { x: 0, y: 0 };
+let spherical = { theta: 0.3, phi: 1.1, r: 5 };
+let panOffset = { x: 0, y: 0 };
+
+canvas.addEventListener('mousedown', e => {
+  isDragging = true;
+  isRightDrag = e.button === 2;
+  prevMouse = { x: e.clientX, y: e.clientY };
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+window.addEventListener('mouseup', () => { isDragging = false; });
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const dx = (e.clientX - prevMouse.x) * 0.008;
+  const dy = (e.clientY - prevMouse.y) * 0.008;
+  if (isRightDrag) {
+    panOffset.x -= dx;
+    panOffset.y += dy;
+  } else {
+    spherical.theta -= dx;
+    spherical.phi = Math.max(0.2, Math.min(Math.PI - 0.2, spherical.phi + dy));
+  }
+  prevMouse = { x: e.clientX, y: e.clientY };
+});
+canvas.addEventListener('wheel', e => {
+  spherical.r = Math.max(2, Math.min(12, spherical.r + e.deltaY * 0.01));
+}, { passive: true });
+
+// Touch
+let lastTouch = null;
+canvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) { isDragging = true; lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }
+}, { passive: true });
+canvas.addEventListener('touchend', () => isDragging = false, { passive: true });
+canvas.addEventListener('touchmove', e => {
+  if (!isDragging || e.touches.length !== 1) return;
+  const dx = (e.touches[0].clientX - lastTouch.x) * 0.01;
+  const dy = (e.touches[0].clientY - lastTouch.y) * 0.01;
+  spherical.theta -= dx;
+  spherical.phi = Math.max(0.2, Math.min(Math.PI - 0.2, spherical.phi + dy));
+  lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: true });
+
+function updateCamera() {
+  const x = spherical.r * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+  const y = spherical.r * Math.cos(spherical.phi);
+  const z = spherical.r * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+  camera.position.set(x + panOffset.x, y + panOffset.y, z);
+  camera.lookAt(panOffset.x, panOffset.y, 0);
+}
+
+function resetCamera() {
+  spherical = { theta: 0.3, phi: 1.1, r: 5 };
+  panOffset = { x: 0, y: 0 };
+}
+
+// ─── Geometries per template ───
+function makeGeometry(id) {
+  switch(id) {
+    case 'phone':
+      // Rounded box → phone case
+      return new THREE.BoxGeometry(1.1, 2.2, 0.18, 4, 8, 2);
+    case 'keychain': {
+      const g = new THREE.TorusGeometry(0.55, 0.15, 12, 48);
+      return g;
+    }
+    case 'coaster':
+      return new THREE.CylinderGeometry(1.2, 1.2, 0.15, 64);
+    case 'vase': {
+      const pts = [];
+      for (let i = 0; i <= 20; i++) {
+        const t = i / 20;
+        const y = t * 3 - 1.5;
+        const r = 0.5 + 0.5 * Math.sin(t * Math.PI) + 0.2 * Math.sin(t * Math.PI * 3);
+        pts.push(new THREE.Vector2(r, y));
+      }
+      return new THREE.LatheGeometry(pts, 64);
+    }
+    case 'figurine': {
+      // Simple humanoid made of merged spheres via group trick — use OctahedronGeometry as placeholder
+      return new THREE.OctahedronGeometry(1.0, 3);
+    }
+    default:
+      return new THREE.BoxGeometry(1, 1, 1);
+  }
+}
+
+let currentMesh = null;
+let wireframeMode = false;
+
+function buildMesh() {
+  if (currentMesh) { scene.remove(currentMesh); currentMesh.geometry.dispose(); }
+
+  const geo = makeGeometry(state.template.id);
+  const mat = buildMaterial();
+  currentMesh = new THREE.Mesh(geo, mat);
+  currentMesh.castShadow = true;
+  currentMesh.receiveShadow = true;
+  scene.add(currentMesh);
+}
+
+function buildMaterial() {
+  const m = state.material;
+  const params = {
+    color: new THREE.Color(state.color),
+    roughness: m.rough,
+    metalness: m.metal,
+    envMapIntensity: 1.0,
+  };
+  if (state.texture) params.map = state.texture;
+  if (wireframeMode) params.wireframe = true;
+  return new THREE.MeshStandardMaterial(params);
+}
+
+function updateMaterial() {
+  if (!currentMesh) return;
+  const oldMat = currentMesh.material;
+  currentMesh.material = buildMaterial();
+  oldMat.dispose();
+}
+
+function toggleWireframe() {
+  wireframeMode = !wireframeMode;
+  updateMaterial();
+}
+
+function takeScreenshot() {
+  renderer.render(scene, camera);
+  const url = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = url; a.download = 'printforge-preview.png'; a.click();
+  showToast('截圖已儲存 📷', 'success');
+}
+
+// Resize
+function resizeRenderer() {
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resizeRenderer).observe(wrap);
+resizeRenderer();
+
+// Animate
+let autoRotate = true;
+let rotationY = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  if (autoRotate && !isDragging) rotationY += 0.004;
+  if (currentMesh) {
+    currentMesh.rotation.y = rotationY;
+    // Subtle float
+    currentMesh.position.y = Math.sin(Date.now() * 0.001) * 0.08;
+  }
+  updateCamera();
+  renderer.render(scene, camera);
+}
+
+canvas.addEventListener('mousedown', () => { autoRotate = false; });
+canvas.addEventListener('touchstart', () => { autoRotate = false; }, { passive: true });
+
+// ═══════════════════════════════════════════════════
+//  UI RENDERING
+// ═══════════════════════════════════════════════════
+
+function renderTemplates() {
+  const grid = document.getElementById('template-grid');
+  grid.innerHTML = TEMPLATES.map(t => `
+    <div class="template-card ${t.id === state.template.id ? 'active' : ''}" onclick="selectTemplate('${t.id}')">
+      <div class="template-thumb">${t.emoji}</div>
+      <div class="template-info">
+        <div class="template-name">${t.name}</div>
+        <div class="template-sub">${t.sub}</div>
+      </div>
+      ${t.badge ? `<div class="template-badge">${t.badge}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderColors() {
+  const el = document.getElementById('color-presets');
+  el.innerHTML = COLORS.map(c => `
+    <div class="color-swatch ${c.hex === state.color ? 'active' : ''}"
+         style="background:${c.hex};${c.hex==='#FFFFFF'?'border:1.5px solid #333':''}"
+         title="${c.name}"
+         onclick="selectColor('${c.hex}')"></div>
+  `).join('');
+}
+
+function renderMaterials() {
+  const el = document.getElementById('material-grid');
+  el.innerHTML = MATERIALS.map(m => `
+    <div class="material-card ${m.id === state.material.id ? 'active' : ''}" onclick="selectMaterial('${m.id}')">
+      <div class="material-icon">${m.emoji}</div>
+      <div class="material-name">${m.name}</div>
+      <div class="material-sub">${m.sub}</div>
+    </div>
+  `).join('');
+}
+
+function updatePriceBar() {
+  const base = state.template.basePrice;
+  const sizeMult = state.size / 100;
+  const matMult = state.material.mult;
+  const price = Math.round(base * sizeMult * matMult);
+  document.getElementById('price-val').textContent = `NT$${price.toLocaleString()}`;
+  document.getElementById('price-details').textContent =
+    `（${state.material.name}・${getSizeLabel(state.size)}）`;
+}
+
+function getSizeLabel(s) {
+  if (s <= 75) return '小尺寸';
+  if (s <= 125) return '標準尺寸';
+  if (s <= 175) return '大尺寸';
+  return '特大尺寸';
+}
+
+function updateModelLabel() {
+  document.getElementById('label-name').textContent = state.template.name;
+  document.getElementById('label-size').textContent =
+    `尺寸：${state.size}%　材質：${state.material.name}`;
+}
+
+// ═══════════════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════════════
+
+function selectTemplate(id) {
+  state.template = TEMPLATES.find(t => t.id === id);
+  buildMesh();
+  renderTemplates();
+  updateModelLabel();
+  updatePriceBar();
+}
+
+function selectColor(hex) {
+  state.color = hex;
+  renderColors();
+  updateMaterial();
+  updatePriceBar();
+}
+
+function setCustomColor(hex) {
+  state.color = hex;
+  renderColors(); // will deselect presets
+  updateMaterial();
+}
+
+function selectMaterial(id) {
+  state.material = MATERIALS.find(m => m.id === id);
+  renderMaterials();
+  updateMaterial();
+  updateModelLabel();
+  updatePriceBar();
+}
+
+function updateSize(val) {
+  state.size = parseInt(val);
+  document.getElementById('size-val').textContent = `${state.size}%`;
+  if (currentMesh) {
+    const s = state.size / 100;
+    currentMesh.scale.set(s, s, s);
+  }
+  // Update presets
+  document.querySelectorAll('.size-preset-btn').forEach(b => b.classList.remove('active'));
+  updateModelLabel();
+  updatePriceBar();
+}
+
+function setSize(val, label) {
+  state.size = val;
+  document.getElementById('size-slider').value = val;
+  document.getElementById('size-val').textContent = `${val}%`;
+  if (currentMesh) {
+    const s = val / 100;
+    currentMesh.scale.set(s, s, s);
+  }
+  document.querySelectorAll('.size-preset-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === label);
+  });
+  updateModelLabel();
+  updatePriceBar();
+}
+
+function handleTextureUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById('upload-preview');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+
+    const loader = new THREE.TextureLoader();
+    loader.load(ev.target.result, tex => {
+      state.texture = tex;
+      updateMaterial();
+      showToast('紋理已套用 ✅', 'success');
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+// Drag-drop on upload zone
+const uploadZone = document.getElementById('upload-zone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.style.borderColor = 'var(--accent)'; });
+uploadZone.addEventListener('dragleave', () => { uploadZone.style.borderColor = ''; });
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    document.getElementById('texture-upload').files = dt.files;
+    handleTextureUpload({ target: { files: [file] } });
+  }
+});
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type ? `show ${type}` : 'show';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+renderTemplates();
+renderColors();
+renderMaterials();
+buildMesh();
+updatePriceBar();
+animate();
+</script>
+</body>
+</html>
