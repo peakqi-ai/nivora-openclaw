@@ -1,1755 +1,2215 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PrintForge — AI 驅動的 3D 列印平台</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrintForge - AI 驅動的 3D 列印平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  :root {
-    --bg: #0A0C0F;
-    --bg2: #111418;
-    --bg3: #181D23;
-    --bg4: #1E252E;
-    --accent: #00E5C0;
-    --accent2: #00B89A;
-    --accent-dim: rgba(0,229,192,0.12);
-    --accent-dim2: rgba(0,229,192,0.06);
-    --text: #E8EDF2;
-    --text2: #8A96A3;
-    --text3: #4A5568;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --glass: rgba(14,18,24,0.85);
-    --radius: 12px;
-    --radius2: 8px;
-    --shadow: 0 8px 32px rgba(0,0,0,0.4);
-    --shadow2: 0 2px 12px rgba(0,0,0,0.3);
-  }
+        :root {
+            --bg-dark: #0A0C0F;
+            --accent: #00E5C0;
+            --accent-purple: #7B61FF;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B8C1;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
-  html, body {
-    height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
 
-  /* ===== SCROLLBAR ===== */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 12, 15, 0.8);
+            border-bottom: 1px solid var(--glass-border);
+        }
 
-  /* ===== TOP BAR ===== */
-  #topbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    height: 58px;
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 24px;
-    border-bottom: 1px solid var(--border);
-  }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-  #topbar::after {
-    content: '';
-    position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), #7B61FF, var(--accent), transparent);
-    background-size: 200% 100%;
-    animation: gradientSlide 4s linear infinite;
-    opacity: 0.7;
-  }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-  @keyframes gradientSlide {
-    0% { background-position: 0% 0%; }
-    100% { background-position: 200% 0%; }
-  }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
 
-  .logo {
-    display: flex; align-items: baseline; gap: 10px; cursor: pointer;
-  }
-  .logo-name {
-    font-size: 20px; font-weight: 700; letter-spacing: -0.5px;
-    background: linear-gradient(135deg, var(--accent), #7B61FF);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .logo-tag {
-    font-size: 11px; color: var(--text2); font-weight: 400;
-    white-space: nowrap;
-  }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
 
-  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+        .nav-links a:hover {
+            color: var(--accent);
+        }
 
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 14px; border-radius: var(--radius2);
-    font-size: 13px; font-weight: 500; cursor: pointer;
-    transition: all 0.2s; border: none; text-decoration: none;
-    white-space: nowrap;
-  }
-  .btn-ghost {
-    background: transparent; color: var(--text2); border: 1px solid transparent;
-  }
-  .btn-ghost:hover { background: var(--bg4); color: var(--text); border-color: var(--border2); }
-  .btn-outline {
-    background: transparent; color: var(--accent); border: 1px solid var(--accent);
-  }
-  .btn-outline:hover { background: var(--accent-dim); }
-  .btn-primary {
-    background: var(--accent); color: #0A0C0F; border: 1px solid transparent; font-weight: 600;
-  }
-  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,229,192,0.3); }
-  .btn-primary:active { transform: translateY(0); }
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
 
-  /* ===== STATES ===== */
-  #state-landing, #state-editor {
-    position: fixed; inset: 58px 0 0 0;
-    transition: opacity 0.4s, transform 0.4s;
-  }
-  #state-landing { overflow-y: auto; }
-  #state-editor { display: none; }
-  #state-editor.active { display: flex; }
-  #state-landing.hidden { opacity: 0; pointer-events: none; transform: translateY(-16px); }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
 
-  /* ===== LANDING STATE ===== */
-  .landing-inner {
-    max-width: 1100px; margin: 0 auto;
-    padding: 72px 24px 48px;
-  }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
 
-  .landing-hero { text-align: center; margin-bottom: 56px; }
-  .landing-hero h1 {
-    font-size: clamp(32px, 5vw, 54px); font-weight: 800;
-    letter-spacing: -1.5px; line-height: 1.15;
-    background: linear-gradient(135deg, #fff 40%, var(--accent));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 16px;
-  }
-  .landing-hero p {
-    font-size: clamp(15px, 2vw, 18px); color: var(--text2);
-    max-width: 600px; margin: 0 auto;
-  }
+        .btn-ghost:hover {
+            background: var(--glass-bg);
+        }
 
-  /* Upload cards */
-  .upload-cards {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-    margin-bottom: 20px;
-  }
-  @media (max-width: 768px) { .upload-cards { grid-template-columns: 1fr; } }
+        .btn-accent {
+            background: var(--accent);
+            color: var(--bg-dark);
+            font-weight: 600;
+        }
 
-  .upload-card {
-    background: var(--bg2);
-    border: 1.5px dashed var(--border2);
-    border-radius: var(--radius);
-    padding: 28px 24px;
-    cursor: pointer;
-    transition: all 0.25s;
-    position: relative; overflow: hidden;
-  }
-  .upload-card::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, var(--accent-dim2), transparent 70%);
-    opacity: 0; transition: opacity 0.3s;
-  }
-  .upload-card:hover { border-color: var(--accent); background: var(--bg3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,229,192,0.1); }
-  .upload-card:hover::before { opacity: 1; }
-  .upload-card.drag-over { border-color: var(--accent); background: var(--accent-dim); }
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 229, 192, 0.3);
+        }
 
-  .upload-card-icon { font-size: 36px; margin-bottom: 12px; display: block; }
-  .upload-card-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
-  .upload-card-hint { font-size: 12px; color: var(--text3); margin-top: 8px; }
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 2rem 80px;
+            position: relative;
+            overflow: hidden;
+        }
 
-  .upload-card-dropzone {
-    border: 1px dashed var(--text3); border-radius: var(--radius2);
-    padding: 16px; text-align: center; margin-top: 14px;
-    color: var(--text2); font-size: 13px;
-    transition: all 0.2s;
-    position: relative;
-  }
-  .upload-card-dropzone input[type=file] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-  }
-  .upload-card:hover .upload-card-dropzone { border-color: var(--accent); color: var(--accent); }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0, 229, 192, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(123, 97, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
 
-  .text-gen-area { margin-top: 14px; }
-  .text-gen-area textarea {
-    width: 100%; background: var(--bg3); border: 1px solid var(--border2);
-    border-radius: var(--radius2); color: var(--text); padding: 12px;
-    font-size: 13px; resize: none; height: 90px;
-    font-family: inherit; transition: border-color 0.2s;
-    outline: none;
-  }
-  .text-gen-area textarea:focus { border-color: var(--accent); }
-  .text-gen-area .btn-primary { width: 100%; justify-content: center; margin-top: 10px; }
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 60% 40%;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
 
-  .examples-link {
-    text-align: center; margin-bottom: 36px;
-    color: var(--text2); font-size: 13px;
-  }
-  .examples-link a { color: var(--accent); text-decoration: none; cursor: pointer; }
-  .examples-link a:hover { text-decoration: underline; }
+        .hero-content {
+            animation: fadeInUp 1s ease;
+        }
 
-  /* Example cards */
-  .examples-section { margin-top: 8px; }
-  .examples-section h3 {
-    font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--text2);
-    letter-spacing: 0.5px; text-transform: uppercase; font-size: 12px;
-  }
-  .examples-scroll {
-    display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
-    scrollbar-width: thin;
-  }
-  .example-card {
-    flex: 0 0 180px; background: var(--bg2); border-radius: var(--radius);
-    border: 1px solid var(--border); overflow: hidden;
-    transition: all 0.25s; cursor: pointer;
-  }
-  .example-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,229,192,0.12); }
-  .example-thumb {
-    width: 100%; height: 120px; background: var(--bg3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 48px; position: relative; overflow: hidden;
-  }
-  .example-thumb::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, var(--bg2));
-  }
-  .example-info { padding: 12px; }
-  .example-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
-  .example-material { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
-  .example-card .btn-outline { width: 100%; justify-content: center; padding: 6px 12px; font-size: 12px; }
+        .eyebrow {
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
 
-  /* ===== EDITOR STATE ===== */
-  #state-editor {
-    flex-direction: row;
-    background: var(--bg);
-  }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
 
-  /* Left toolbar */
-  .editor-toolbar {
-    width: 58px; flex-shrink: 0;
-    background: var(--bg2); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; align-items: center;
-    padding: 12px 0; gap: 4px;
-  }
-  .toolbar-btn {
-    width: 40px; height: 40px; border-radius: var(--radius2);
-    background: transparent; border: none; color: var(--text2);
-    cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; position: relative;
-  }
-  .toolbar-btn:hover { background: var(--bg4); color: var(--accent); }
-  .toolbar-btn.active { background: var(--accent-dim); color: var(--accent); }
-  .toolbar-btn[title]:hover::after {
-    content: attr(title); position: absolute; left: 52px; top: 50%;
-    transform: translateY(-50%); background: var(--bg4); color: var(--text);
-    padding: 4px 10px; border-radius: 6px; font-size: 12px;
-    white-space: nowrap; pointer-events: none; z-index: 50;
-    border: 1px solid var(--border2);
-  }
-  .toolbar-divider { width: 28px; height: 1px; background: var(--border); margin: 4px 0; }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-  /* Center canvas */
-  .editor-canvas-wrap {
-    flex: 1; position: relative; overflow: hidden;
-    background: radial-gradient(ellipse at 50% 40%, #0D1820, var(--bg));
-  }
-  #three-canvas { width: 100%; height: 100%; display: block; }
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
 
-  .model-info-overlay {
-    position: absolute; top: 16px; left: 16px;
-    background: var(--glass); backdrop-filter: blur(12px);
-    border: 1px solid var(--border2); border-radius: var(--radius2);
-    padding: 10px 14px; font-size: 12px; color: var(--text2);
-    pointer-events: none;
-  }
-  .model-info-name { color: var(--text); font-weight: 600; margin-bottom: 2px; font-size: 13px; }
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
 
-  .canvas-hint {
-    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
-    background: var(--glass); backdrop-filter: blur(12px);
-    border: 1px solid var(--border); border-radius: 20px;
-    padding: 6px 16px; font-size: 11px; color: var(--text3);
-    pointer-events: none; white-space: nowrap;
-  }
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
 
-  /* AI Progress overlay */
-  #ai-progress {
-    position: absolute; inset: 0;
-    background: rgba(10,12,15,0.85); backdrop-filter: blur(8px);
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 24px; z-index: 20;
-    transition: opacity 0.5s;
-  }
-  #ai-progress.done { opacity: 0; pointer-events: none; }
+        .trust-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
 
-  .progress-ring-wrap { position: relative; width: 100px; height: 100px; }
-  .progress-ring-wrap svg { transform: rotate(-90deg); }
-  .progress-circle-bg { fill: none; stroke: var(--bg4); stroke-width: 6; }
-  .progress-circle { fill: none; stroke: var(--accent); stroke-width: 6;
-    stroke-linecap: round;
-    stroke-dasharray: 283;
-    stroke-dashoffset: 283;
-    transition: stroke-dashoffset 0.3s ease;
-    filter: drop-shadow(0 0 6px var(--accent));
-  }
-  .progress-pct {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    font-size: 22px; font-weight: 700; color: var(--accent);
-  }
-  .progress-step {
-    font-size: 15px; color: var(--text2); text-align: center;
-  }
-  .progress-steps-list {
-    display: flex; flex-direction: column; gap: 8px; align-items: center;
-  }
-  .ps-item {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 12px; color: var(--text3); transition: color 0.3s;
-  }
-  .ps-item.active { color: var(--accent); }
-  .ps-item.done-step { color: var(--text2); }
-  .ps-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--text3); transition: background 0.3s, box-shadow 0.3s;
-  }
-  .ps-item.active .ps-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-  .ps-item.done-step .ps-dot { background: var(--accent2); }
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-  /* Right panel */
-  .editor-panel {
-    width: 300px; flex-shrink: 0;
-    background: var(--bg2); border-left: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    overflow: hidden;
-  }
-  .panel-scroll { flex: 1; overflow-y: auto; padding: 16px; }
+        .trust-badge::before {
+            content: '✓';
+            color: var(--accent);
+            font-weight: bold;
+        }
 
-  .panel-section { margin-bottom: 20px; }
-  .panel-section-title {
-    font-size: 11px; font-weight: 600; color: var(--text3);
-    text-transform: uppercase; letter-spacing: 0.8px;
-    margin-bottom: 10px;
-  }
+        #hero-3d {
+            width: 100%;
+            height: 500px;
+            border-radius: 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
 
-  /* Materials */
-  .material-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .material-card {
-    background: var(--bg3); border: 1.5px solid var(--border);
-    border-radius: var(--radius2); padding: 10px;
-    cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: flex-start; gap: 8px;
-  }
-  .material-card:hover { border-color: var(--border2); background: var(--bg4); }
-  .material-card.selected { border-color: var(--accent); background: var(--accent-dim); }
-  .material-dot {
-    width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
-  }
-  .material-name { font-size: 12px; font-weight: 600; }
-  .material-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+        /* Stats Bar */
+        .stats {
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, transparent, rgba(0, 229, 192, 0.03), transparent);
+        }
 
-  /* Color swatches */
-  .color-swatches { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
-  .color-swatch {
-    width: 24px; height: 24px; border-radius: 50%;
-    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
-    border: 2px solid transparent;
-  }
-  .color-swatch:hover { transform: scale(1.15); }
-  .color-swatch.selected { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); }
-  .color-picker-wrap { display: flex; align-items: center; gap: 8px; }
-  .color-picker-wrap input[type=color] {
-    width: 36px; height: 36px; border: none; background: none;
-    cursor: pointer; padding: 0; border-radius: 50%; overflow: hidden;
-  }
-  .color-picker-wrap label { font-size: 12px; color: var(--text2); }
+        .stats-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3rem;
+            text-align: center;
+        }
 
-  /* Size */
-  .size-input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
-  .size-input-row input {
-    flex: 1; background: var(--bg3); border: 1px solid var(--border2);
-    border-radius: var(--radius2); color: var(--text); padding: 8px 10px;
-    font-size: 14px; outline: none; font-family: inherit;
-    transition: border-color 0.2s;
-  }
-  .size-input-row input:focus { border-color: var(--accent); }
-  .size-unit { color: var(--text3); font-size: 13px; }
-  .size-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-  .size-preset {
-    padding: 4px 10px; border-radius: 20px; font-size: 11px;
-    background: var(--bg3); border: 1px solid var(--border);
-    color: var(--text2); cursor: pointer; transition: all 0.15s;
-  }
-  .size-preset:hover { border-color: var(--accent); color: var(--accent); }
-  .size-dims { font-size: 12px; color: var(--text3); }
-  .size-dims span { color: var(--text2); }
+        .stat-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s;
+        }
 
-  /* Print info */
-  .info-rows { display: flex; flex-direction: column; gap: 7px; }
-  .info-row { display: flex; justify-content: space-between; font-size: 12px; }
-  .info-label { color: var(--text2); }
-  .info-value { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
-  .info-note {
-    margin-top: 8px; padding: 8px 10px;
-    background: rgba(255,180,0,0.08); border-radius: var(--radius2);
-    border: 1px solid rgba(255,180,0,0.2);
-    font-size: 11px; color: #FFBA00; line-height: 1.5;
-  }
+        .stat-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-  /* Notes textarea */
-  .notes-textarea {
-    width: 100%; background: var(--bg3); border: 1px solid var(--border2);
-    border-radius: var(--radius2); color: var(--text); padding: 10px;
-    font-size: 12px; resize: none; height: 80px;
-    font-family: inherit; outline: none; transition: border-color 0.2s;
-  }
-  .notes-textarea:focus { border-color: var(--accent); }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
 
-  /* Quote panel */
-  .quote-panel {
-    padding: 14px 16px; border-top: 1px solid var(--border);
-    background: var(--bg2);
-    flex-shrink: 0;
-  }
-  .quote-rows { margin-bottom: 12px; }
-  .quote-row {
-    display: flex; justify-content: space-between;
-    font-size: 12px; color: var(--text2); padding: 3px 0;
-  }
-  .quote-total {
-    display: flex; justify-content: space-between; align-items: baseline;
-    padding: 8px 0 2px; border-top: 1px solid var(--border);
-  }
-  .quote-total-label { font-size: 13px; color: var(--text); font-weight: 600; }
-  .quote-total-price {
-    font-size: 24px; font-weight: 800; color: var(--accent);
-    font-variant-numeric: tabular-nums;
-  }
-  .quote-delivery { font-size: 11px; color: var(--text3); margin-bottom: 12px; text-align: right; }
-  .quote-actions { display: flex; gap: 8px; }
-  .quote-actions .btn { flex: 1; justify-content: center; font-size: 12px; padding: 9px 8px; }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
 
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    position: fixed; inset: 0; z-index: 200;
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s;
-  }
-  .modal-overlay.open { opacity: 1; pointer-events: auto; }
-  .modal {
-    background: var(--bg2); border: 1px solid var(--border2);
-    border-radius: 16px; width: 100%; max-width: 520px;
-    max-height: 85vh; overflow-y: auto;
-    transform: translateY(20px) scale(0.97);
-    transition: transform 0.3s;
-  }
-  .modal-overlay.open .modal { transform: none; }
-  .modal-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 20px 24px 16px;
-    border-bottom: 1px solid var(--border);
-  }
-  .modal-header h2 { font-size: 18px; font-weight: 700; }
-  .modal-close {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: var(--bg3); border: none; color: var(--text2);
-    cursor: pointer; font-size: 16px; transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .modal-close:hover { background: var(--bg4); color: var(--text); }
-  .modal-body { padding: 20px 24px 24px; }
+        /* Section */
+        section {
+            padding: 6rem 2rem;
+        }
 
-  .order-number {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--accent-dim); border: 1px solid rgba(0,229,192,0.3);
-    border-radius: 6px; padding: 6px 12px;
-    font-size: 12px; color: var(--accent); margin-bottom: 16px;
-    font-family: monospace; letter-spacing: 1px;
-  }
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 4rem;
+        }
 
-  .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-  .summary-table th {
-    text-align: left; font-size: 11px; color: var(--text3);
-    text-transform: uppercase; letter-spacing: 0.5px;
-    padding: 6px 8px; border-bottom: 1px solid var(--border);
-  }
-  .summary-table td {
-    padding: 8px; font-size: 13px; color: var(--text2);
-    border-bottom: 1px solid var(--border);
-  }
-  .summary-table td:last-child { color: var(--text); font-weight: 500; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-  .form-field { margin-bottom: 14px; }
-  .form-field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
-  .form-field input, .form-field textarea {
-    width: 100%; background: var(--bg3); border: 1px solid var(--border2);
-    border-radius: var(--radius2); color: var(--text); padding: 9px 12px;
-    font-size: 13px; font-family: inherit; outline: none;
-    transition: border-color 0.2s;
-  }
-  .form-field input:focus, .form-field textarea:focus { border-color: var(--accent); }
-  .form-field textarea { resize: none; height: 70px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .form-label-opt { color: var(--text3); font-size: 10px; margin-left: 4px; }
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
 
-  .modal-footer {
-    padding: 16px 24px; border-top: 1px solid var(--border);
-    display: flex; justify-content: flex-end; gap: 10px;
-  }
+        .feature-card {
+            padding: 2.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
 
-  /* Success screen */
-  .success-screen {
-    display: none; text-align: center; padding: 20px 0;
-  }
-  .success-screen.show { display: block; }
-  .success-emoji { font-size: 64px; margin-bottom: 16px; animation: popIn 0.6s; }
-  @keyframes popIn {
-    0% { transform: scale(0); }
-    70% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-  }
-  .success-screen h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  .success-screen p { color: var(--text2); font-size: 14px; }
-  .confetti-row { font-size: 28px; letter-spacing: 8px; margin-top: 16px; animation: confettiFall 1s ease; }
-  @keyframes confettiFall {
-    0% { opacity: 0; transform: translateY(-20px); }
-    100% { opacity: 1; transform: none; }
-  }
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-  /* ===== TOAST ===== */
-  #toast-container {
-    position: fixed; bottom: 24px; right: 24px; z-index: 300;
-    display: flex; flex-direction: column; gap: 8px;
-    pointer-events: none;
-  }
-  .toast {
-    background: var(--bg4); border: 1px solid var(--border2);
-    border-radius: var(--radius2); padding: 10px 16px;
-    font-size: 13px; color: var(--text);
-    animation: slideInToast 0.3s ease, fadeOutToast 0.3s ease 2.7s forwards;
-    pointer-events: auto;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .toast.success { border-color: rgba(0,229,192,0.3); }
-  .toast.success::before { content: '✓'; color: var(--accent); font-weight: 700; }
-  .toast.info::before { content: 'ℹ'; color: #7B61FF; font-weight: 700; }
-  .toast.warn::before { content: '⚠'; color: #FFBA00; font-weight: 700; }
-  @keyframes slideInToast {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: none; }
-  }
-  @keyframes fadeOutToast {
-    to { opacity: 0; transform: translateX(20px); }
-  }
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 12px 40px rgba(0, 229, 192, 0.2);
+        }
 
-  /* ===== FOOTER ===== */
-  #footer {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
-    height: 32px;
-    background: var(--bg2);
-    border-top: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; color: var(--text3);
-    pointer-events: none;
-  }
-  #footer span { color: var(--text2); }
-  #footer a { color: var(--accent); text-decoration: none; pointer-events: auto; }
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
 
-  /* Adjust state bottom for footer */
-  #state-landing, #state-editor { bottom: 32px; }
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
 
-  /* Mobile adjustments */
-  @media (max-width: 900px) {
-    #state-editor { flex-direction: column; }
-    .editor-toolbar { width: 100%; height: 48px; flex-direction: row; padding: 0 12px; border-right: none; border-bottom: 1px solid var(--border); }
-    .toolbar-divider { width: 1px; height: 24px; margin: 0 4px; }
-    .editor-panel { width: 100%; height: 280px; border-left: none; border-top: 1px solid var(--border); }
-    .editor-canvas-wrap { flex: 1; min-height: 240px; }
-  }
+        .feature-desc {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
 
-  /* Utility */
-  .hidden { display: none !important; }
-  .sep { height: 1px; background: var(--border); margin: 4px 0 12px; }
-</style>
+        /* How It Works */
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-purple));
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+        }
+
+        /* Cases */
+        .cases-scroll {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--glass-bg);
+        }
+
+        .case-card {
+            min-width: 300px;
+            padding: 2rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+
+        .case-card:hover {
+            border-color: var(--accent);
+        }
+
+        .case-thumb {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .case-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .case-tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: rgba(0, 229, 192, 0.1);
+            color: var(--accent);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .case-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .case-btn:hover {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        /* Pricing */
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .material-card {
+            padding: 2rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .material-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .material-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .material-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-feature {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-note {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 4rem 2rem;
+        }
+
+        .cta-card {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem;
+            background: var(--glass-bg);
+            border: 2px solid transparent;
+            background-image: linear-gradient(var(--bg-dark), var(--bg-dark)),
+                              linear-gradient(135deg, var(--accent), var(--accent-purple));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            border-radius: 24px;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta-desc {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 2rem 2rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-tagline {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links h4 {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* 3D Editor Overlay */
+        .editor-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-dark);
+            z-index: 2000;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .editor-overlay.active {
+            display: flex;
+        }
+
+        .editor-toolbar {
+            width: 60px;
+            background: rgba(10, 12, 15, 0.95);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            gap: 1rem;
+        }
+
+        .toolbar-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        .editor-main {
+            flex: 1;
+            display: flex;
+        }
+
+        .viewer-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #viewer-3d {
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 12, 15, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .progress-overlay.hidden {
+            display: none;
+        }
+
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 4;
+            transform-origin: center;
+            transform: rotate(-90deg);
+        }
+
+        .progress-bg {
+            stroke: var(--glass-border);
+        }
+
+        .progress-fill {
+            stroke: var(--accent);
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.3s;
+        }
+
+        .progress-text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .editor-panel {
+            width: 320px;
+            background: rgba(10, 12, 15, 0.95);
+            border-left: 1px solid var(--glass-border);
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .panel-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .panel-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .material-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .material-option {
+            padding: 1rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .material-option:hover {
+            border-color: var(--accent);
+        }
+
+        .material-option.active {
+            border-color: var(--accent);
+            background: rgba(0, 229, 192, 0.1);
+        }
+
+        .material-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: 0 auto 0.5rem;
+        }
+
+        .material-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .material-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .color-swatches {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-swatch {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .color-swatch:hover, .color-swatch.active {
+            border-color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .size-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .size-presets {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .size-preset {
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .size-preset:hover {
+            border-color: var(--accent);
+        }
+
+        .size-display {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: var(--glass-bg);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 0.75rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .quote-panel {
+            position: sticky;
+            bottom: 0;
+            background: rgba(10, 12, 15, 0.98);
+            border-top: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            margin: 0 -2rem -2rem;
+        }
+
+        .quote-breakdown {
+            margin-bottom: 1rem;
+        }
+
+        .quote-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .quote-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .delivery-info {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .quote-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .order-summary {
+            background: var(--glass-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .success-screen {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            z-index: 4000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            border-color: #ff4444;
+        }
+
+        .toast.success {
+            border-color: var(--accent);
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--glass-border);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 2rem 0;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: rgba(0, 229, 192, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-hint {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid,
+            .materials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-top {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .cases-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .cases-scroll::-webkit-scrollbar-track {
+            background: var(--glass-bg);
+            border-radius: 3px;
+        }
+
+        .cases-scroll::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+    </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<header id="topbar">
-  <div class="logo" onclick="goToLanding()">
-    <span class="logo-name">PrintForge</span>
-    <span class="logo-tag">AI 驅動的 3D 列印平台</span>
-  </div>
-  <div class="topbar-actions">
-    <button class="btn btn-ghost" onclick="scrollToExamples()">案例展示</button>
-    <button class="btn btn-ghost">我的訂單</button>
-    <button class="btn btn-outline">登入</button>
-  </div>
-</header>
-
-<!-- ============ STATE 1: LANDING ============ -->
-<div id="state-landing">
-  <div class="landing-inner">
-
-    <div class="landing-hero">
-      <h1>將你的創意變成實體</h1>
-      <p>上傳圖片、3D 檔案，或輸入文字描述 — AI 幫你生成 3D 模型，直接進入列印</p>
-    </div>
-
-    <div class="upload-cards">
-
-      <!-- Card 1: Image upload -->
-      <div class="upload-card" id="img-card">
-        <span class="upload-card-icon">📷</span>
-        <div class="upload-card-title">上傳圖片</div>
-        <div style="font-size:13px;color:var(--text2);">提供正面、側面照片讓 AI 更準確重建 3D</div>
-        <div class="upload-card-dropzone" id="img-drop">
-          <input type="file" accept=".jpg,.jpeg,.png,.svg" multiple id="img-input" onchange="handleImageUpload(this)">
-          <div>📎 拖曳或點擊選擇圖片</div>
-          <div id="img-preview-count" style="color:var(--accent);margin-top:4px;font-size:12px;"></div>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">PrintForge</div>
+            <ul class="nav-links">
+                <li><a href="#hero">首頁</a></li>
+                <li><a href="#features">功能介紹</a></li>
+                <li><a href="#cases">案例展示</a></li>
+                <li><a href="#pricing">定價方案</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="#" class="btn btn-ghost">登入</a>
+                <a href="#" class="btn btn-accent" onclick="openEditor(); return false;">免費開始</a>
+            </div>
         </div>
-        <div class="upload-card-hint">支援 JPG、PNG、SVG</div>
-      </div>
+    </nav>
 
-      <!-- Card 2: 3D file upload -->
-      <div class="upload-card" id="file-card">
-        <span class="upload-card-icon">📁</span>
-        <div class="upload-card-title">上傳 3D 檔案</div>
-        <div style="font-size:13px;color:var(--text2);">已有 3D 模型？直接上傳並進入客製化</div>
-        <div class="upload-card-dropzone" id="file-drop">
-          <input type="file" accept=".stl,.obj,.3mf" id="file-input" onchange="handle3DUpload(this)">
-          <div>📎 拖曳或點擊選擇檔案</div>
-          <div id="file-name-preview" style="color:var(--accent);margin-top:4px;font-size:12px;"></div>
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="eyebrow">AI 驅動的 3D 列印平台</div>
+                <h1 class="hero-title">
+                    從圖片到實體<br>
+                    只需要<span class="gradient-text">一步</span>
+                </h1>
+                <p class="hero-subtitle">
+                    上傳任何圖片或 3D 檔案,AI 自動生成列印就緒的 3D 模型。選擇材質、即時報價、一鍵下單。
+                </p>
+                <div class="hero-cta">
+                    <a href="#" class="btn btn-accent btn-large" onclick="openEditor(); return false;">開始製作 →</a>
+                    <a href="#features" class="btn btn-ghost btn-large">了解更多</a>
+                </div>
+                <div class="trust-badges">
+                    <div class="trust-badge">AI 即時生成</div>
+                    <div class="trust-badge">6 種工業材質</div>
+                    <div class="trust-badge">48 小時交付</div>
+                    <div class="trust-badge">免費試用</div>
+                </div>
+            </div>
+            <div>
+                <canvas id="hero-3d"></canvas>
+            </div>
         </div>
-        <div class="upload-card-hint">已有 3D 模型？直接上傳 STL / OBJ / 3MF</div>
-      </div>
+    </section>
 
-      <!-- Card 3: Text description -->
-      <div class="upload-card" id="text-card">
-        <span class="upload-card-icon">✏️</span>
-        <div class="upload-card-title">文字描述</div>
-        <div style="font-size:13px;color:var(--text2);">用文字告訴 AI 你想要什麼</div>
-        <div class="text-gen-area">
-          <textarea id="text-prompt" placeholder="描述你想製作的物品，例如：一個有龍紋浮雕的圓形杯墊"></textarea>
-          <button class="btn btn-primary" onclick="handleTextGenerate()">✨ 生成 3D 模型</button>
+    <!-- Stats Bar -->
+    <section class="stats">
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number" data-target="10000">0</div>
+                <div class="stat-label">模型已生成</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="98">0</div>
+                <div class="stat-label">客戶滿意度</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="48">0</div>
+                <div class="stat-label">最快交付</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="6">0</div>
+                <div class="stat-label">工業級材質</div>
+            </div>
         </div>
-      </div>
+    </section>
 
-    </div>
-
-    <div class="examples-link">
-      <a onclick="scrollToExamples()">或參考我們的案例 →</a>
-    </div>
-
-    <!-- EXAMPLES SECTION -->
-    <div class="examples-section" id="examples-section">
-      <h3>精選案例</h3>
-      <div class="examples-scroll" id="examples-scroll">
-        <!-- filled by JS -->
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ============ STATE 2: EDITOR ============ -->
-<div id="state-editor">
-
-  <!-- Left toolbar -->
-  <div class="editor-toolbar">
-    <button class="toolbar-btn" title="重設視角" onclick="resetView()">⟳</button>
-    <button class="toolbar-btn" title="線框模式" id="wireframe-btn" onclick="toggleWireframe()">⬡</button>
-    <button class="toolbar-btn" title="截圖" onclick="takeScreenshot()">📷</button>
-    <button class="toolbar-btn" title="全螢幕" onclick="toggleFullscreen()">⛶</button>
-    <div class="toolbar-divider"></div>
-    <button class="toolbar-btn" title="返回上傳" onclick="goToLanding()" style="font-size:18px;">←</button>
-  </div>
-
-  <!-- Center: 3D canvas -->
-  <div class="editor-canvas-wrap" id="canvas-wrap">
-    <canvas id="three-canvas"></canvas>
-
-    <!-- Model info -->
-    <div class="model-info-overlay" id="model-info">
-      <div class="model-info-name" id="model-name">—</div>
-      <div id="model-polys" style="font-size:11px;"></div>
-    </div>
-
-    <div class="canvas-hint">拖曳旋轉 | 滾輪縮放 | 右鍵平移</div>
-
-    <!-- AI Progress overlay -->
-    <div id="ai-progress">
-      <div class="progress-ring-wrap">
-        <svg width="100" height="100" viewBox="0 0 100 100">
-          <circle class="progress-circle-bg" cx="50" cy="50" r="45"/>
-          <circle class="progress-circle" id="progress-circle" cx="50" cy="50" r="45"/>
-        </svg>
-        <div class="progress-pct" id="progress-pct">0%</div>
-      </div>
-      <div class="progress-steps-list" id="progress-steps"></div>
-    </div>
-
-  </div>
-
-  <!-- Right panel -->
-  <div class="editor-panel">
-    <div class="panel-scroll">
-
-      <!-- Material -->
-      <div class="panel-section">
-        <div class="panel-section-title">材質選擇</div>
-        <div class="material-grid" id="material-grid"></div>
-      </div>
-
-      <!-- Color -->
-      <div class="panel-section" id="color-section">
-        <div class="panel-section-title">顏色</div>
-        <div class="color-swatches" id="color-swatches"></div>
-        <div class="color-picker-wrap">
-          <input type="color" id="custom-color" value="#00E5C0" onchange="applyCustomColor(this.value)">
-          <label for="custom-color" style="cursor:pointer;">自訂顏色</label>
+    <!-- Features Section -->
+    <section id="features">
+        <div class="container">
+            <h2 class="section-title">一站式 3D 列印解決方案</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📷</div>
+                    <h3 class="feature-title">AI 圖像轉 3D</h3>
+                    <p class="feature-desc">上傳產品照片、設計稿或概念圖，AI 在 30 秒內生成精確的 3D 模型</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3 class="feature-title">工業級材質選擇</h3>
+                    <p class="feature-desc">支援 PLA、ABS、PolyJet、SLA、SLS、SLM 六種工業級 3D 列印材質</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3 class="feature-title">即時報價、快速交付</h3>
+                    <p class="feature-desc">自動計算材料用量與成本，最快 48 小時完成製造並寄出</p>
+                </div>
+            </div>
         </div>
-      </div>
+    </section>
 
-      <!-- Size -->
-      <div class="panel-section">
-        <div class="panel-section-title">尺寸設定</div>
-        <div class="size-input-row">
-          <input type="number" id="size-input" value="100" min="10" max="500" oninput="updateCalcs()">
-          <span class="size-unit">mm</span>
+    <!-- How It Works -->
+    <section>
+        <div class="container">
+            <h2 class="section-title">三步完成製作</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">上傳</h3>
+                    <p class="step-desc">圖片、3D 檔案或文字描述</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">客製化</h3>
+                    <p class="step-desc">選擇材質、調整尺寸、即時預覽</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">下單製造</h3>
+                    <p class="step-desc">確認報價、填寫資料、等待收件</p>
+                </div>
+            </div>
         </div>
-        <div class="size-presets">
-          <span class="size-preset" onclick="setSize(50)">50mm</span>
-          <span class="size-preset" onclick="setSize(100)">100mm</span>
-          <span class="size-preset" onclick="setSize(150)">150mm</span>
-          <span class="size-preset" onclick="setSize(200)">200mm</span>
-          <span class="size-preset" onclick="setSize(300)">300mm</span>
+    </section>
+
+    <!-- Cases -->
+    <section id="cases">
+        <div class="container">
+            <h2 class="section-title">精選案例</h2>
+            <div class="cases-scroll">
+                <div class="case-card">
+                    <div class="case-thumb">🏆</div>
+                    <h3 class="case-title">客製化獎盃</h3>
+                    <span class="case-tag">PLA</span>
+                    <button class="case-btn">查看</button>
+                </div>
+                <div class="case-card">
+                    <div class="case-thumb">🎭</div>
+                    <h3 class="case-title">品牌公仔</h3>
+                    <span class="case-tag">PolyJet</span>
+                    <button class="case-btn">查看</button>
+                </div>
+                <div class="case-card">
+                    <div class="case-thumb">🏛️</div>
+                    <h3 class="case-title">建築模型</h3>
+                    <span class="case-tag">SLA</span>
+                    <button class="case-btn">查看</button>
+                </div>
+                <div class="case-card">
+                    <div class="case-thumb">⚙️</div>
+                    <h3 class="case-title">機械零件</h3>
+                    <span class="case-tag">SLS</span>
+                    <button class="case-btn">查看</button>
+                </div>
+                <div class="case-card">
+                    <div class="case-thumb">🎨</div>
+                    <h3 class="case-title">藝術擺飾</h3>
+                    <span class="case-tag">ABS</span>
+                    <button class="case-btn">查看</button>
+                </div>
+                <div class="case-card">
+                    <div class="case-thumb">📱</div>
+                    <h3 class="case-title">產品原型</h3>
+                    <span class="case-tag">SLM</span>
+                    <button class="case-btn">查看</button>
+                </div>
+            </div>
         </div>
-        <div class="size-dims" id="size-dims">W × H × D: <span>—</span></div>
-      </div>
+    </section>
 
-      <!-- Print info -->
-      <div class="panel-section">
-        <div class="panel-section-title">列印資訊</div>
-        <div class="info-rows">
-          <div class="info-row"><span class="info-label">體積</span><span class="info-value" id="info-vol">—</span></div>
-          <div class="info-row"><span class="info-label">重量</span><span class="info-value" id="info-weight">—</span></div>
-          <div class="info-row"><span class="info-label">預估列印時間</span><span class="info-value" id="info-time">—</span></div>
+    <!-- Pricing -->
+    <section id="pricing">
+        <div class="container">
+            <h2 class="section-title">材質與定價</h2>
+            <div class="materials-grid">
+                <div class="material-card">
+                    <div class="material-name">PLA</div>
+                    <div class="material-price">NT$8/cm³</div>
+                    <div class="material-feature">經濟實惠</div>
+                    <button class="btn btn-accent" onclick="openEditor(); return false;">選擇</button>
+                </div>
+                <div class="material-card">
+                    <div class="material-name">ABS</div>
+                    <div class="material-price">NT$10/cm³</div>
+                    <div class="material-feature">工程塑料</div>
+                    <button class="btn btn-accent" onclick="openEditor(); return false;">選擇</button>
+                </div>
+                <div class="material-card">
+                    <div class="material-name">PolyJet</div>
+                    <div class="material-price">NT$20/cm³</div>
+                    <div class="material-feature">全彩高精</div>
+                    <button class="btn btn-accent" onclick="openEditor(); return false;">選擇</button>
+                </div>
+                <div class="material-card">
+                    <div class="material-name">SLA</div>
+                    <div class="material-price">NT$16/cm³</div>
+                    <div class="material-feature">光固化精密</div>
+                    <button class="btn btn-accent" onclick="openEditor(); return false;">選擇</button>
+                </div>
+                <div class="material-card">
+                    <div class="material-name">SLS</div>
+                    <div class="material-price">NT$24/cm³</div>
+                    <div class="material-feature">尼龍強韌</div>
+                    <button class="btn btn-accent" onclick="openEditor(); return false;">選擇</button>
+                </div>
+                <div class="material-card">
+                    <div class="material-name">SLM</div>
+                    <div class="material-price">NT$64/cm³</div>
+                    <div class="material-feature">金屬工業</div>
+                    <button class="btn btn-accent" onclick="openEditor(); return false;">選擇</button>
+                </div>
+            </div>
+            <p class="pricing-note">實際價格依模型體積與複雜度計算，以上為基礎費率</p>
         </div>
-        <div class="info-note" id="info-note">⚠️ 最小壁厚建議：0.8mm</div>
-      </div>
+    </section>
 
-      <!-- Notes -->
-      <div class="panel-section">
-        <div class="panel-section-title">附加需求</div>
-        <textarea class="notes-textarea" placeholder="有任何特殊需求？例如：表面需要拋光、內部需要中空..."></textarea>
-      </div>
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-card">
+            <h2 class="cta-title">準備好將你的創意變成實體了嗎？</h2>
+            <p class="cta-desc">立即上傳你的圖片或 3D 檔案，30 秒內獲得 3D 模型預覽</p>
+            <a href="#" class="btn btn-accent btn-large" onclick="openEditor(); return false;">免費開始 →</a>
+        </div>
+    </section>
 
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-top">
+                <div>
+                    <div class="footer-brand">PrintForge</div>
+                    <p class="footer-tagline">AI 驅動的 3D 列印平台</p>
+                </div>
+                <div>
+                    <ul class="footer-links">
+                        <h4>產品</h4>
+                        <li><a href="#">AI 模型生成</a></li>
+                        <li><a href="#">材質選擇</a></li>
+                        <li><a href="#">即時報價</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <ul class="footer-links">
+                        <h4>資源</h4>
+                        <li><a href="#">使用教學</a></li>
+                        <li><a href="#">案例展示</a></li>
+                        <li><a href="#">技術文件</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <ul class="footer-links">
+                        <h4>公司</h4>
+                        <li><a href="#">關於我們</a></li>
+                        <li><a href="#">聯絡我們</a></li>
+                        <li><a href="#">隱私政策</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>Powered by Nivora AI × FORMFTY</p>
+                <p>© 2026 PrintForge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 3D Editor Overlay -->
+    <div class="editor-overlay" id="editorOverlay">
+        <div class="editor-toolbar">
+            <div class="toolbar-btn" onclick="closeEditor()" title="返回">←</div>
+            <div class="toolbar-btn" onclick="resetView()" title="重置視角">⟲</div>
+            <div class="toolbar-btn" onclick="toggleWireframe()" title="線框模式">▦</div>
+            <div class="toolbar-btn" onclick="screenshot()" title="截圖">📷</div>
+            <div class="toolbar-btn" onclick="toggleFullscreen()" title="全螢幕">⛶</div>
+        </div>
+
+        <div class="editor-main">
+            <div class="viewer-container">
+                <canvas id="viewer-3d"></canvas>
+                
+                <div class="progress-overlay" id="progressOverlay">
+                    <svg class="progress-ring" viewBox="0 0 120 120">
+                        <circle class="progress-bg" cx="60" cy="60" r="45"></circle>
+                        <circle class="progress-fill" id="progressCircle" cx="60" cy="60" r="45"></circle>
+                    </svg>
+                    <div class="progress-text" id="progressText">準備中...</div>
+                </div>
+
+                <div class="upload-zone" id="uploadZone" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 500px;">
+                    <div class="upload-icon">📤</div>
+                    <div class="upload-text">拖曳圖片至此或點擊上傳</div>
+                    <div class="upload-hint">支援 JPG, PNG, 或輸入文字描述</div>
+                    <input type="file" id="fileInput" accept="image/*" style="display:none">
+                    <button class="btn btn-accent" style="margin-top: 1rem" onclick="document.getElementById('fileInput').click()">選擇圖片</button>
+                    <div style="margin: 1rem 0; color: var(--text-secondary);">或</div>
+                    <input type="text" id="promptInput" placeholder="輸入文字描述，例如：一隻可愛的貓咪" style="width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: white;">
+                    <button class="btn btn-accent" onclick="generateFromText()">從文字生成</button>
+                </div>
+            </div>
+
+            <div class="editor-panel">
+                <div class="panel-section">
+                    <h3>材質選擇</h3>
+                    <div class="material-options">
+                        <div class="material-option active" data-material="pla" onclick="selectMaterial('pla')">
+                            <div class="material-dot" style="background: #4CAF50"></div>
+                            <div class="material-label">PLA</div>
+                            <div class="material-sub">經濟實惠</div>
+                        </div>
+                        <div class="material-option" data-material="abs" onclick="selectMaterial('abs')">
+                            <div class="material-dot" style="background: #2196F3"></div>
+                            <div class="material-label">ABS</div>
+                            <div class="material-sub">工程塑料</div>
+                        </div>
+                        <div class="material-option" data-material="polyjet" onclick="selectMaterial('polyjet')">
+                            <div class="material-dot" style="background: #FF9800"></div>
+                            <div class="material-label">PolyJet</div>
+                            <div class="material-sub">全彩高精</div>
+                        </div>
+                        <div class="material-option" data-material="sla" onclick="selectMaterial('sla')">
+                            <div class="material-dot" style="background: #9C27B0"></div>
+                            <div class="material-label">SLA</div>
+                            <div class="material-sub">光固化精密</div>
+                        </div>
+                        <div class="material-option" data-material="sls" onclick="selectMaterial('sls')">
+                            <div class="material-dot" style="background: #F44336"></div>
+                            <div class="material-label">SLS</div>
+                            <div class="material-sub">尼龍強韌</div>
+                        </div>
+                        <div class="material-option" data-material="slm" onclick="selectMaterial('slm')">
+                            <div class="material-dot" style="background: #607D8B"></div>
+                            <div class="material-label">SLM</div>
+                            <div class="material-sub">金屬工業</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>顏色選擇</h3>
+                    <div class="color-swatches">
+                        <div class="color-swatch active" style="background: #FFFFFF" data-color="#FFFFFF" onclick="selectColor('#FFFFFF')"></div>
+                        <div class="color-swatch" style="background: #000000" data-color="#000000" onclick="selectColor('#000000')"></div>
+                        <div class="color-swatch" style="background: #FF0000" data-color="#FF0000" onclick="selectColor('#FF0000')"></div>
+                        <div class="color-swatch" style="background: #00FF00" data-color="#00FF00" onclick="selectColor('#00FF00')"></div>
+                        <div class="color-swatch" style="background: #0000FF" data-color="#0000FF" onclick="selectColor('#0000FF')"></div>
+                        <div class="color-swatch" style="background: #FFFF00" data-color="#FFFF00" onclick="selectColor('#FFFF00')"></div>
+                        <div class="color-swatch" style="background: #FF00FF" data-color="#FF00FF" onclick="selectColor('#FF00FF')"></div>
+                        <div class="color-swatch" style="background: #00FFFF" data-color="#00FFFF" onclick="selectColor('#00FFFF')"></div>
+                    </div>
+                    <input type="color" id="customColor" style="width: 100%; height: 40px; border: none; border-radius: 8px; cursor: pointer; margin-top: 0.5rem" onchange="selectColor(this.value)">
+                </div>
+
+                <div class="panel-section">
+                    <h3>尺寸設定</h3>
+                    <input type="number" class="size-input" id="sizeInput" placeholder="最長邊 (mm)" value="100" onchange="updateSize()">
+                    <div class="size-presets">
+                        <div class="size-preset" onclick="setSizePreset(50)">50</div>
+                        <div class="size-preset" onclick="setSizePreset(100)">100</div>
+                        <div class="size-preset" onclick="setSizePreset(150)">150</div>
+                        <div class="size-preset" onclick="setSizePreset(200)">200</div>
+                        <div class="size-preset" onclick="setSizePreset(300)">300</div>
+                    </div>
+                    <div class="size-display" id="sizeDisplay">
+                        100 × 100 × 100 mm
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>列印資訊</h3>
+                    <div class="info-row">
+                        <span class="info-label">體積</span>
+                        <span class="info-value" id="volumeInfo">1000 cm³</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">重量</span>
+                        <span class="info-value" id="weightInfo">120 g</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">預估列印時間</span>
+                        <span class="info-value" id="timeInfo">8 小時</span>
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);">
+                        實際數據以最終模型為準
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>附加需求</h3>
+                    <textarea id="notesInput" placeholder="請輸入特殊需求或備註..."></textarea>
+                </div>
+
+                <div class="quote-panel">
+                    <div class="quote-breakdown">
+                        <div class="quote-row">
+                            <span>材料費</span>
+                            <span id="materialCost">NT$ 800</span>
+                        </div>
+                        <div class="quote-row">
+                            <span>加工費</span>
+                            <span id="processCost">NT$ 500</span>
+                        </div>
+                        <div class="quote-row">
+                            <span>平台服務費</span>
+                            <span id="serviceCost">NT$ 200</span>
+                        </div>
+                    </div>
+                    <div class="quote-total">
+                        <span>總計</span>
+                        <span id="totalCost">NT$ 1,500</span>
+                    </div>
+                    <div class="delivery-info">預計交期：5-7 個工作天</div>
+                    <div class="quote-actions">
+                        <button class="btn btn-ghost" onclick="exportSTL()">⬇ 匯出 STL</button>
+                        <button class="btn btn-accent" onclick="openOrderModal()">🛒 立即下單</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Quote panel (sticky) -->
-    <div class="quote-panel">
-      <div class="quote-rows">
-        <div class="quote-row"><span>材料費用</span><span id="q-material">NT$ —</span></div>
-        <div class="quote-row"><span>加工費用</span><span id="q-process">NT$ —</span></div>
-        <div class="quote-row"><span>平台服務費</span><span id="q-platform">NT$ —</span></div>
-      </div>
-      <div class="quote-total">
-        <span class="quote-total-label">合計</span>
-        <span class="quote-total-price" id="q-total">NT$ —</span>
-      </div>
-      <div class="quote-delivery">📦 預計交期：5–7 個工作天</div>
-      <div class="quote-actions">
-        <button class="btn btn-outline" onclick="exportSTL()">⬇ 匯出 STL</button>
-        <button class="btn btn-primary" onclick="openOrderModal()">🛒 立即詢價 / 下單</button>
-      </div>
-    </div>
-  </div>
+    <!-- Order Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">確認訂單</h2>
+                <button class="modal-close" onclick="closeOrderModal()">×</button>
+            </div>
 
-</div>
+            <div id="orderForm">
+                <div class="order-summary">
+                    <h3 style="margin-bottom: 1rem;">訂單編號：<span id="orderNumber">PF-2026-0001</span></h3>
+                    <div class="info-row">
+                        <span>材質</span>
+                        <span id="orderMaterial">PLA</span>
+                    </div>
+                    <div class="info-row">
+                        <span>顏色</span>
+                        <span id="orderColor">#FFFFFF</span>
+                    </div>
+                    <div class="info-row">
+                        <span>尺寸</span>
+                        <span id="orderSize">100 × 100 × 100 mm</span>
+                    </div>
+                    <div class="info-row" style="font-size: 1.2rem; font-weight: 700; color: var(--accent); margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                        <span>總金額</span>
+                        <span id="orderTotal">NT$ 1,500</span>
+                    </div>
+                </div>
 
-<!-- ============ ORDER MODAL ============ -->
-<div class="modal-overlay" id="order-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2 id="modal-title">建立訂單</h2>
-      <button class="modal-close" onclick="closeOrderModal()">✕</button>
-    </div>
-    <div class="modal-body">
+                <div class="form-group">
+                    <label>姓名 *</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label>電話 *</label>
+                    <input type="tel" id="customerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="customerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>公司名稱</label>
+                    <input type="text" id="customerCompany">
+                </div>
+                <div class="form-group">
+                    <label>配送地址 *</label>
+                    <input type="text" id="customerAddress" required>
+                </div>
 
-      <!-- Form state -->
-      <div id="modal-form-state">
-        <div class="order-number" id="order-number-display">🔖 PF-2026-XXXX</div>
+                <button class="btn btn-accent" style="width: 100%; padding: 1rem; font-size: 1.1rem" onclick="submitOrder()">確認送出</button>
+            </div>
 
-        <table class="summary-table" id="summary-table">
-          <thead>
-            <tr><th>項目</th><th>詳情</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>品名</td><td id="s-name">—</td></tr>
-            <tr><td>材質</td><td id="s-material">—</td></tr>
-            <tr><td>尺寸</td><td id="s-size">—</td></tr>
-            <tr><td>重量</td><td id="s-weight">—</td></tr>
-            <tr><td>總價</td><td id="s-price" style="color:var(--accent);font-weight:700;">—</td></tr>
-          </tbody>
-        </table>
-
-        <div class="sep"></div>
-
-        <div class="form-row">
-          <div class="form-field">
-            <label>姓名 *</label>
-            <input type="text" id="f-name" placeholder="王小明">
-          </div>
-          <div class="form-field">
-            <label>電話 *</label>
-            <input type="tel" id="f-phone" placeholder="0912-345-678">
-          </div>
+            <div id="successScreen" style="display: none;">
+                <div class="success-screen">
+                    <div class="success-icon">🎉</div>
+                    <h2 class="success-title">訂單已送出！</h2>
+                    <p class="success-message">
+                        感謝您的訂購！我們已收到您的訂單 <strong id="successOrderNumber"></strong><br>
+                        將於 5-7 個工作天內完成製作並寄出<br>
+                        您將收到確認信件至 <strong id="successEmail"></strong>
+                    </p>
+                    <button class="btn btn-accent btn-large" onclick="closeOrderModal(); closeEditor();">返回首頁</button>
+                </div>
+            </div>
         </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Email *</label>
-            <input type="email" id="f-email" placeholder="your@email.com">
-          </div>
-          <div class="form-field">
-            <label>公司名稱 <span class="form-label-opt">（選填）</span></label>
-            <input type="text" id="f-company" placeholder="Nivora AI">
-          </div>
-        </div>
-        <div class="form-field">
-          <label>收貨地址 *</label>
-          <textarea id="f-address" placeholder="台北市信義區市府路1號"></textarea>
-        </div>
-      </div>
-
-      <!-- Success state -->
-      <div class="success-screen" id="modal-success-state">
-        <div class="success-emoji">🎉</div>
-        <h3>訂單已建立！</h3>
-        <p>我們將於 24 小時內與您聯繫確認訂單細節</p>
-        <div class="confetti-row">🎊 🥳 ✨ 🎈</div>
-      </div>
-
     </div>
-    <div class="modal-footer" id="modal-footer">
-      <button class="btn btn-ghost" onclick="closeOrderModal()">取消</button>
-      <button class="btn btn-primary" onclick="submitOrder()">確認下單</button>
-    </div>
-  </div>
-</div>
 
-<!-- TOAST CONTAINER -->
-<div id="toast-container"></div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
-<!-- FOOTER -->
-<footer id="footer">
-  Powered by <span style="margin:0 4px">Nivora AI</span> × <span style="margin:0 4px">FORMFTY</span>
-</footer>
+    <script>
+        // Global state
+        let scene, camera, renderer, controls;
+        let currentModel = null;
+        let currentMaterial = 'pla';
+        let currentColor = '#FFFFFF';
+        let currentSize = 100;
+        let currentTaskId = null;
+        let pollInterval = null;
 
-<script>
-// ====================================================
-// DATA & CONFIG
-// ====================================================
+        const materialPrices = {
+            pla: 8,
+            abs: 10,
+            polyjet: 20,
+            sla: 16,
+            sls: 24,
+            slm: 64
+        };
 
-const MATERIALS = [
-  { id:'PLA',     name:'PLA',     sub:'環保•易用',      mult:1.0,  density:1.24, color:'#4CAF50', metallic:false },
-  { id:'ABS',     name:'ABS',     sub:'耐用•工程',      mult:1.3,  density:1.04, color:'#FF9800', metallic:false },
-  { id:'PolyJet', name:'PolyJet', sub:'全彩•精細',      mult:2.5,  density:1.18, color:'#9C27B0', metallic:false },
-  { id:'SLA',     name:'SLA',     sub:'高精度•光固化',  mult:2.0,  density:1.20, color:'#2196F3', metallic:false },
-  { id:'SLS',     name:'SLS',     sub:'複雜幾何•尼龍',  mult:3.0,  density:1.01, color:'#FF5722', metallic:false },
-  { id:'SLM',     name:'SLM',     sub:'金屬•工業強度',  mult:8.0,  density:7.87, color:'#78909C', metallic:true  },
-];
+        const materialProperties = {
+            pla: { roughness: 0.7, metalness: 0 },
+            abs: { roughness: 0.5, metalness: 0 },
+            polyjet: { roughness: 0.1, metalness: 0 },
+            sla: { roughness: 0.15, metalness: 0 },
+            sls: { roughness: 0.6, metalness: 0 },
+            slm: { roughness: 0.2, metalness: 0.95 }
+        };
 
-const COLOR_SWATCHES = [
-  '#E8EDF2','#FF5252','#FF9800','#FFEB3B','#4CAF50','#2196F3',
-  '#9C27B0','#00E5C0','#795548','#607D8B','#0A0C0F',
-];
+        // Initialize hero 3D animation
+        function initHero3D() {
+            const canvas = document.getElementById('hero-3d');
+            const heroScene = new THREE.Scene();
+            const heroCamera = new THREE.PerspectiveCamera(50, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+            const heroRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+            
+            heroRenderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+            heroRenderer.setPixelRatio(window.devicePixelRatio);
 
-const EXAMPLES = [
-  { emoji:'🏆', title:'客製化獎盃',  material:'SLA', desc:'高精度光固化' },
-  { emoji:'🐉', title:'品牌公仔',    material:'PLA', desc:'全彩環保材料' },
-  { emoji:'🏗️', title:'建築模型',    material:'SLA', desc:'超精細縮比' },
-  { emoji:'⚙️', title:'機械零件',    material:'SLM', desc:'金屬工業強度' },
-  { emoji:'🗿', title:'藝術擺飾',    material:'PolyJet', desc:'全彩高精細' },
-  { emoji:'📦', title:'產品原型',    material:'ABS', desc:'耐用工程塑料' },
-  { emoji:'💍', title:'客製化飾品',  material:'SLM', desc:'不鏽鋼金屬' },
-  { emoji:'🔩', title:'工業夾具',    material:'SLS', desc:'複雜幾何尼龍' },
-];
+            const geometry = new THREE.IcosahedronGeometry(2, 0);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x00E5C0,
+                roughness: 0.3,
+                metalness: 0.8,
+                emissive: 0x00E5C0,
+                emissiveIntensity: 0.2
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            heroScene.add(mesh);
 
-const AI_STEPS = ['分析圖片中...','生成 3D 網格...','優化模型...','套用材質...','完成！'];
+            const light1 = new THREE.DirectionalLight(0xffffff, 1);
+            light1.position.set(5, 5, 5);
+            heroScene.add(light1);
 
-let state = {
-  currentMaterial: 'PLA',
-  currentColor: '#00E5C0',
-  sizeMax: 100,
-  modelName: '未命名模型',
-  polygons: 0,
-  wireframe: false,
-};
+            const light2 = new THREE.AmbientLight(0x404040, 1);
+            heroScene.add(light2);
 
-// ====================================================
-// THREE.JS SETUP
-// ====================================================
+            heroCamera.position.z = 5;
 
-let scene, camera, renderer, mesh, animFrameId;
-let isDragging = false, prevMouse = {x:0,y:0};
-let autoRotate = true;
-let isRightDrag = false;
-let rotateX = 0.3, rotateY = 0.5;
-let camZ = 5;
-let panX = 0, panY = 0;
-
-function initThree() {
-  const canvas = document.getElementById('three-canvas');
-  const wrap = document.getElementById('canvas-wrap');
-
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.shadowMap.enabled = true;
-
-  scene = new THREE.Scene();
-
-  camera = new THREE.PerspectiveCamera(45, wrap.clientWidth / wrap.clientHeight, 0.1, 1000);
-  camera.position.set(0, 0, 5);
-
-  // Lights
-  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
-  scene.add(ambient);
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  dirLight.position.set(5, 10, 5);
-  scene.add(dirLight);
-  const fillLight = new THREE.DirectionalLight(0x00E5C0, 0.3);
-  fillLight.position.set(-5, -5, -5);
-  scene.add(fillLight);
-  const pointLight = new THREE.PointLight(0x7B61FF, 0.5, 20);
-  pointLight.position.set(-3, 3, 3);
-  scene.add(pointLight);
-
-  // Grid helper (subtle)
-  const grid = new THREE.GridHelper(20, 40, 0x1a2030, 0x1a2030);
-  grid.position.y = -1.5;
-  scene.add(grid);
-
-  resizeRenderer();
-  window.addEventListener('resize', resizeRenderer);
-
-  // Orbit controls (manual)
-  setupControls(canvas);
-
-  renderLoop();
-}
-
-function resizeRenderer() {
-  const wrap = document.getElementById('canvas-wrap');
-  if (!wrap || !renderer) return;
-  const w = wrap.clientWidth, h = wrap.clientHeight;
-  renderer.setSize(w, h, false);
-  if (camera) { camera.aspect = w/h; camera.updateProjectionMatrix(); }
-}
-
-function renderLoop() {
-  animFrameId = requestAnimationFrame(renderLoop);
-  if (mesh && autoRotate) mesh.rotation.y += 0.004;
-  camera.position.set(
-    panX + camZ * Math.sin(rotateY) * Math.cos(rotateX),
-    panY + camZ * Math.sin(rotateX),
-    camZ * Math.cos(rotateY) * Math.cos(rotateX)
-  );
-  camera.lookAt(panX, panY, 0);
-  renderer.render(scene, camera);
-}
-
-function setupControls(canvas) {
-  canvas.addEventListener('mousedown', e => {
-    isDragging = true;
-    isRightDrag = e.button === 2;
-    prevMouse = { x: e.clientX, y: e.clientY };
-    autoRotate = false;
-  });
-  canvas.addEventListener('contextmenu', e => e.preventDefault());
-  window.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    const dx = e.clientX - prevMouse.x;
-    const dy = e.clientY - prevMouse.y;
-    if (isRightDrag) {
-      panX -= dx * 0.005;
-      panY += dy * 0.005;
-    } else {
-      rotateY += dx * 0.008;
-      rotateX += dy * 0.008;
-      rotateX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotateX));
-    }
-    prevMouse = { x: e.clientX, y: e.clientY };
-  });
-  window.addEventListener('mouseup', () => { isDragging = false; });
-  canvas.addEventListener('wheel', e => {
-    camZ += e.deltaY * 0.005;
-    camZ = Math.max(1, Math.min(20, camZ));
-    e.preventDefault();
-  }, { passive: false });
-
-  // Touch
-  let lastTouch = null, lastPinchDist = null;
-  canvas.addEventListener('touchstart', e => {
-    if (e.touches.length === 1) {
-      lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      autoRotate = false;
-    }
-    if (e.touches.length === 2) {
-      lastPinchDist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-    }
-  });
-  canvas.addEventListener('touchmove', e => {
-    e.preventDefault();
-    if (e.touches.length === 1 && lastTouch) {
-      const dx = e.touches[0].clientX - lastTouch.x;
-      const dy = e.touches[0].clientY - lastTouch.y;
-      rotateY += dx * 0.008;
-      rotateX += dy * 0.008;
-      rotateX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotateX));
-      lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    }
-    if (e.touches.length === 2) {
-      const d = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      if (lastPinchDist) camZ -= (d - lastPinchDist) * 0.03;
-      camZ = Math.max(1, Math.min(20, camZ));
-      lastPinchDist = d;
-    }
-  }, { passive: false });
-  canvas.addEventListener('touchend', () => { lastTouch = null; lastPinchDist = null; });
-}
-
-// ====================================================
-// 3D MODEL GENERATION
-// ====================================================
-
-function createOrganicMesh(color) {
-  if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
-
-  const geo = new THREE.IcosahedronGeometry(1.2, 4);
-  const pos = geo.attributes.position;
-  const n = new THREE.Vector3();
-
-  for (let i = 0; i < pos.count; i++) {
-    n.fromBufferAttribute(pos, i).normalize();
-    const noise = simplex(n.x * 2.5, n.y * 2.5, n.z * 2.5) * 0.35;
-    const scale = 1 + noise;
-    pos.setXYZ(i, n.x * scale * 1.2, n.y * scale * 1.2, n.z * scale * 1.2);
-  }
-  pos.needsUpdate = true;
-  geo.computeVertexNormals();
-
-  const mat = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(color || state.currentColor),
-    metalness: 0.3,
-    roughness: 0.5,
-    wireframe: state.wireframe,
-  });
-
-  mesh = new THREE.Mesh(geo, mat);
-  scene.add(mesh);
-
-  state.polygons = geo.index ? geo.index.count / 3 : pos.count / 3;
-  document.getElementById('model-polys').textContent = `${Math.round(state.polygons).toLocaleString()} 多邊形`;
-  updateMeshColor();
-}
-
-// Simple value noise (no external lib needed)
-function simplex(x, y, z) {
-  const hash = (n) => { let h = Math.sin(n) * 43758.5453; return h - Math.floor(h); };
-  const ix = Math.floor(x), iy = Math.floor(y), iz = Math.floor(z);
-  const fx = x-ix, fy = y-iy, fz = z-iz;
-  const ux = fx*fx*(3-2*fx), uy = fy*fy*(3-2*fy), uz = fz*fz*(3-2*fz);
-  const v = (x,y,z) => hash(x + y*57 + z*113);
-  return (
-    v(ix,iy,iz)*(1-ux)*(1-uy)*(1-uz) + v(ix+1,iy,iz)*ux*(1-uy)*(1-uz) +
-    v(ix,iy+1,iz)*(1-ux)*uy*(1-uz) + v(ix+1,iy+1,iz)*ux*uy*(1-uz) +
-    v(ix,iy,iz+1)*(1-ux)*(1-uy)*uz + v(ix+1,iy,iz+1)*ux*(1-uy)*uz +
-    v(ix,iy+1,iz+1)*(1-ux)*uy*uz + v(ix+1,iy+1,iz+1)*ux*uy*uz
-  ) * 2 - 1;
-}
-
-function updateMeshColor() {
-  if (!mesh) return;
-  const mat = state.currentMaterial;
-  const matData = MATERIALS.find(m => m.id === mat);
-  mesh.material.color.set(new THREE.Color(state.currentColor));
-  if (matData && matData.metallic) {
-    mesh.material.metalness = 0.8;
-    mesh.material.roughness = 0.2;
-  } else {
-    mesh.material.metalness = 0.1;
-    mesh.material.roughness = 0.6;
-  }
-  mesh.material.wireframe = state.wireframe;
-  mesh.material.needsUpdate = true;
-}
-
-// ====================================================
-// AI PROGRESS SIMULATION
-// ====================================================
-
-function runAIProgress(callback) {
-  showEditorState();
-
-  const overlay = document.getElementById('ai-progress');
-  const circle = document.getElementById('progress-circle');
-  const pctEl = document.getElementById('progress-pct');
-  const stepsEl = document.getElementById('progress-steps');
-  const circumference = 2 * Math.PI * 45;
-
-  overlay.classList.remove('done');
-  overlay.style.display = '';
-  overlay.style.opacity = '1';
-  overlay.style.pointerEvents = 'auto';
-
-  // Render steps
-  stepsEl.innerHTML = AI_STEPS.map((s, i) =>
-    `<div class="ps-item" id="ps-${i}"><div class="ps-dot"></div>${s}</div>`
-  ).join('');
-
-  let pct = 0;
-  const stepAt = [0, 20, 45, 70, 90];
-  const totalMs = 6000;
-  const tick = 50;
-  const steps = totalMs / tick;
-  let step = 0;
-
-  const timer = setInterval(() => {
-    step++;
-    pct = Math.min(100, Math.round((step / steps) * 100));
-    circle.style.strokeDasharray = circumference;
-    circle.style.strokeDashoffset = circumference * (1 - pct / 100);
-    pctEl.textContent = pct + '%';
-
-    // Highlight steps
-    for (let i = 0; i < stepAt.length; i++) {
-      const el = document.getElementById('ps-' + i);
-      if (!el) continue;
-      if (pct >= (stepAt[i+1] || 95)) {
-        el.className = 'ps-item done-step';
-      } else if (pct >= stepAt[i]) {
-        el.className = 'ps-item active';
-      }
-    }
-
-    if (pct >= 100) {
-      clearInterval(timer);
-      setTimeout(() => {
-        overlay.classList.add('done');
-        setTimeout(() => { overlay.style.display = 'none'; }, 500);
-        createOrganicMesh();
-        callback && callback();
-      }, 400);
-    }
-  }, tick);
-}
-
-// ====================================================
-// STATE TRANSITIONS
-// ====================================================
-
-function showEditorState() {
-  document.getElementById('state-landing').classList.add('hidden');
-  const editor = document.getElementById('state-editor');
-  editor.style.display = 'flex';
-  editor.classList.add('active');
-  if (!renderer) {
-    initThree();
-  } else {
-    setTimeout(resizeRenderer, 50);
-  }
-}
-
-function goToLanding() {
-  document.getElementById('state-landing').classList.remove('hidden');
-  const editor = document.getElementById('state-editor');
-  editor.style.display = 'none';
-  editor.classList.remove('active');
-  autoRotate = true;
-}
-
-function scrollToExamples() {
-  if (document.getElementById('state-editor').classList.contains('active')) {
-    goToLanding();
-  }
-  setTimeout(() => {
-    document.getElementById('examples-section').scrollIntoView({ behavior:'smooth', block:'start' });
-  }, 100);
-}
-
-// ====================================================
-// UPLOAD HANDLERS
-// ====================================================
-
-// ====================================================
-// REAL API INTEGRATION (with fallback to simulation)
-// ====================================================
-const USE_REAL_API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
-let gltfLoader = null;
-
-function getGLTFLoader() {
-  if (!gltfLoader && THREE.GLTFLoader) {
-    gltfLoader = new THREE.GLTFLoader();
-  }
-  return gltfLoader;
-}
-
-function loadGLBModel(url) {
-  const loader = getGLTFLoader();
-  if (!loader) { showToast('GLTFLoader 未載入', 'warn'); return; }
-  loader.load(url, (gltf) => {
-    if (mesh) { scene.remove(mesh); }
-    mesh = gltf.scene;
-    // Apply material settings
-    const matData = MATERIALS.find(m => m.id === state.currentMaterial);
-    mesh.traverse(child => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        if (matData) {
-          child.material.roughness = matData.rough || 0.5;
-          child.material.metalness = matData.metal || 0;
+            function animateHero() {
+                requestAnimationFrame(animateHero);
+                mesh.rotation.x += 0.005;
+                mesh.rotation.y += 0.01;
+                heroRenderer.render(heroScene, heroCamera);
+            }
+            animateHero();
         }
-      }
-    });
-    // Center and scale
-    const box = new THREE.Box3().setFromObject(mesh);
-    const center = box.getCenter(new THREE.Vector3());
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2 / maxDim;
-    mesh.scale.multiplyScalar(scale);
-    mesh.position.sub(center.multiplyScalar(scale));
-    scene.add(mesh);
-    autoRotate = true;
-    showToast('3D 模型載入完成！', 'success');
-  }, undefined, (err) => {
-    console.error('GLB load error:', err);
-    showToast('模型載入失敗，使用預設模型', 'warn');
-    createOrganicMesh();
-  });
-}
-
-async function callRealAPI(formData, isText) {
-  try {
-    let resp;
-    if (isText) {
-      resp = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: formData })
-      });
-    } else {
-      resp = await fetch('/api/generate', { method: 'POST', body: formData });
-    }
-    const data = await resp.json();
-    if (!data.task_id) throw new Error(data.detail || 'No task_id');
-    return data.task_id;
-  } catch (e) {
-    console.error('API error:', e);
-    return null;
-  }
-}
-
-async function pollTask(taskId, progressCallback) {
-  const maxAttempts = 120; // 4 minutes max
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      const resp = await fetch(`/api/task/${taskId}`);
-      const data = await resp.json();
-      if (data.status === 'success' && data.output) {
-        progressCallback(100, '完成！');
-        return data.output.model_url || data.output.model;
-      } else if (data.status === 'failed') {
-        throw new Error('Generation failed');
-      }
-      // Update progress
-      const pct = Math.min(90, Math.round((i / 30) * 90));
-      const step = i < 5 ? 'AI 分析圖像...' : i < 15 ? '生成 3D 網格...' : i < 25 ? '套用材質紋理...' : '模型優化中...';
-      progressCallback(pct, step);
-    } catch (e) {
-      if (e.message === 'Generation failed') throw e;
-    }
-    await new Promise(r => setTimeout(r, 2000));
-  }
-  throw new Error('Timeout');
-}
-
-function handleImageUpload(input) {
-  const files = input.files;
-  if (!files.length) return;
-  const preview = document.getElementById('img-preview-count');
-  preview.textContent = `✓ 已選擇 ${files.length} 張圖片`;
-  state.modelName = files[0].name.replace(/\.[^.]+$/, '') || '上傳圖片模型';
-  document.getElementById('model-name').textContent = state.modelName;
-  showToast(`已選擇 ${files.length} 張圖片，開始 AI 生成`, 'success');
-
-  if (USE_REAL_API) {
-    // Real API call
-    const formData = new FormData();
-    formData.append('image', files[0]);
-    showEditorState();
-    startRealGeneration(formData, false);
-  } else {
-    runAIProgress(() => {
-      updateCalcs();
-      showToast('3D 模型生成完成！（Demo 模式）', 'success');
-    });
-  }
-}
-
-function handle3DUpload(input) {
-  const file = input.files[0];
-  if (!file) return;
-  document.getElementById('file-name-preview').textContent = '✓ ' + file.name;
-  state.modelName = file.name.replace(/\.[^.]+$/, '') || '上傳 3D 檔案';
-  document.getElementById('model-name').textContent = state.modelName;
-  showToast(`已載入 ${file.name}`, 'success');
-  
-  // For 3D files, try to load directly if it's GLB
-  if (file.name.toLowerCase().endsWith('.glb') || file.name.toLowerCase().endsWith('.gltf')) {
-    showEditorState();
-    const url = URL.createObjectURL(file);
-    loadGLBModel(url);
-    updateCalcs();
-  } else {
-    runAIProgress(() => {
-      updateCalcs();
-      showToast('3D 模型已載入完成！', 'success');
-    });
-  }
-}
-
-function handleTextGenerate() {
-  const txt = document.getElementById('text-prompt').value.trim();
-  if (!txt) { showToast('請先輸入文字描述', 'warn'); return; }
-  state.modelName = txt.slice(0, 20) + (txt.length > 20 ? '...' : '');
-  document.getElementById('model-name').textContent = state.modelName;
-  showToast('AI 正在理解您的描述...', 'info');
-
-  if (USE_REAL_API) {
-    showEditorState();
-    startRealGeneration(txt, true);
-  } else {
-    runAIProgress(() => {
-      updateCalcs();
-      showToast('3D 模型生成完成！（Demo 模式）', 'success');
-    });
-  }
-}
-
-async function startRealGeneration(data, isText) {
-  const overlay = document.getElementById('ai-progress');
-  const circle = document.getElementById('progress-circle');
-  const pctEl = document.getElementById('progress-pct');
-  const stepsEl = document.getElementById('progress-steps');
-  const circumference = 2 * Math.PI * 45;
-
-  overlay.classList.remove('done');
-  overlay.style.display = '';
-  overlay.style.opacity = '1';
-  overlay.style.pointerEvents = 'auto';
-  stepsEl.innerHTML = '<div class="ps-item active"><div class="ps-dot"></div>上傳中...</div>';
-  pctEl.textContent = '5%';
-  circle.style.strokeDasharray = circumference;
-  circle.style.strokeDashoffset = circumference * 0.95;
-
-  try {
-    const taskId = await callRealAPI(data, isText);
-    if (!taskId) {
-      throw new Error('API 呼叫失敗');
-    }
-
-    const modelUrl = await pollTask(taskId, (pct, stepText) => {
-      pctEl.textContent = pct + '%';
-      circle.style.strokeDashoffset = circumference * (1 - pct / 100);
-      stepsEl.innerHTML = `<div class="ps-item active"><div class="ps-dot"></div>${stepText}</div>`;
-    });
-
-    overlay.classList.add('done');
-    setTimeout(() => { overlay.style.display = 'none'; }, 500);
-    
-    loadGLBModel(modelUrl);
-    updateCalcs();
-  } catch (e) {
-    console.error('Generation failed:', e);
-    overlay.classList.add('done');
-    setTimeout(() => { overlay.style.display = 'none'; }, 500);
-    showToast('AI 生成失敗，使用預設模型展示', 'warn');
-    createOrganicMesh();
-    updateCalcs();
-  }
-}
-
-function loadExampleModel(ex) {
-  state.modelName = ex.title;
-  document.getElementById('model-name').textContent = ex.title;
-  const matId = ex.material;
-  state.currentMaterial = matId;
-  document.querySelectorAll('.material-card').forEach(c => c.classList.remove('selected'));
-  const card = document.querySelector(`[data-mat="${matId}"]`);
-  if (card) card.classList.add('selected');
-  showToast(`載入案例：${ex.title}`, 'info');
-  runAIProgress(() => {
-    updateCalcs();
-    showToast(`${ex.title} 已載入！`, 'success');
-  });
-}
-
-// ====================================================
-// TOOLBAR ACTIONS
-// ====================================================
-
-function resetView() {
-  rotateX = 0.3; rotateY = 0.5; camZ = 5; panX = 0; panY = 0;
-  autoRotate = true;
-  showToast('視角已重設', 'info');
-}
-
-function toggleWireframe() {
-  state.wireframe = !state.wireframe;
-  if (mesh) { mesh.material.wireframe = state.wireframe; }
-  const btn = document.getElementById('wireframe-btn');
-  btn.classList.toggle('active', state.wireframe);
-  showToast(state.wireframe ? '線框模式開啟' : '線框模式關閉', 'info');
-}
-
-function takeScreenshot() {
-  if (!renderer) return;
-  renderer.render(scene, camera);
-  const url = renderer.domElement.toDataURL('image/png');
-  const a = document.createElement('a');
-  a.href = url; a.download = 'printforge-model.png'; a.click();
-  showToast('截圖已儲存', 'success');
-}
-
-function toggleFullscreen() {
-  const wrap = document.getElementById('canvas-wrap');
-  if (!document.fullscreenElement) {
-    wrap.requestFullscreen().catch(() => showToast('無法進入全螢幕', 'warn'));
-  } else {
-    document.exitFullscreen();
-  }
-}
-
-// ====================================================
-// MATERIAL & COLOR UI
-// ====================================================
-
-function buildMaterialGrid() {
-  const grid = document.getElementById('material-grid');
-  grid.innerHTML = MATERIALS.map(m => `
-    <div class="material-card ${m.id === state.currentMaterial ? 'selected' : ''}"
-         data-mat="${m.id}" onclick="selectMaterial('${m.id}')">
-      <div class="material-dot" style="background:${m.color}"></div>
-      <div>
-        <div class="material-name">${m.name}</div>
-        <div class="material-sub">${m.sub}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function selectMaterial(id) {
-  state.currentMaterial = id;
-  document.querySelectorAll('.material-card').forEach(c => c.classList.remove('selected'));
-  document.querySelector(`[data-mat="${id}"]`)?.classList.add('selected');
-  updateMeshColor();
-  updateCalcs();
-  updateColorSection();
-}
-
-function updateColorSection() {
-  const mat = MATERIALS.find(m => m.id === state.currentMaterial);
-  const section = document.getElementById('color-section');
-  section.style.opacity = mat?.metallic ? '0.4' : '1';
-  section.style.pointerEvents = mat?.metallic ? 'none' : 'auto';
-}
-
-function buildColorSwatches() {
-  const wrap = document.getElementById('color-swatches');
-  wrap.innerHTML = COLOR_SWATCHES.map(c => `
-    <div class="color-swatch ${c === state.currentColor ? 'selected' : ''}"
-         style="background:${c}" onclick="applyCustomColor('${c}', this)"
-         title="${c}"></div>
-  `).join('');
-}
-
-function applyCustomColor(color, el) {
-  state.currentColor = color;
-  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-  if (el) el.classList.add('selected');
-  document.getElementById('custom-color').value = color;
-  updateMeshColor();
-}
-
-// ====================================================
-// CALCULATIONS
-// ====================================================
-
-function setSize(val) {
-  document.getElementById('size-input').value = val;
-  updateCalcs();
-}
-
-function updateCalcs() {
-  const sizeMax = parseFloat(document.getElementById('size-input').value) || 100;
-  state.sizeMax = sizeMax;
-  // Calculate dimensions in mm based on longest edge
-  const wMm = sizeMax;
-  const hMm = Math.round(sizeMax * 0.8);
-  const dMm = Math.round(sizeMax * 0.7);
-
-  document.getElementById('size-dims').innerHTML =
-    `W × H × D: <span>${wMm}×${hMm}×${dMm} mm</span>`;
-
-  // Volume in cm³ (bounding box × fill ratio ~35% for typical 3D prints)
-  const volume = (wMm / 10) * (hMm / 10) * (dMm / 10) * 0.35;
-  const mat = MATERIALS.find(m => m.id === state.currentMaterial) || MATERIALS[0];
-  const weight = volume * mat.density;
-  const printTime = Math.max(0.5, volume * 0.04 * mat.mult);
-
-  document.getElementById('info-vol').textContent = volume.toFixed(1) + ' cm³';
-  document.getElementById('info-weight').textContent = weight.toFixed(1) + ' g';
-  document.getElementById('info-time').textContent = printTime.toFixed(1) + ' 小時';
-
-  // Note
-  const noteEl = document.getElementById('info-note');
-  if (sizeMax < 80) noteEl.textContent = '⚠️ 尺寸較小，最小壁厚建議：0.8mm';
-  else if (mat.id === 'SLA') noteEl.textContent = '⚠️ 此尺寸適合 SLA 技術，精度極佳';
-  else if (mat.id === 'SLM') noteEl.textContent = '⚠️ 金屬列印需考量支撐移除';
-  else noteEl.textContent = '⚠️ 最小壁厚建議：0.8mm';
-
-  // Pricing (NT$/cm³ base rate)
-  const baseRate = 8; // NT$ per cm³
-  const materialCost = Math.round(volume * baseRate * mat.mult);
-  const processFee = Math.round(materialCost * 0.2 + 150); // 20% + base processing
-  const platformFee = Math.round((materialCost + processFee) * 0.05); // 5% platform
-  const total = materialCost + processFee + platformFee;
-
-  document.getElementById('q-material').textContent = `NT$ ${materialCost.toLocaleString()}`;
-  document.getElementById('q-process').textContent = `NT$ ${processFee.toLocaleString()}`;
-  document.getElementById('q-platform').textContent = `NT$ ${platformFee.toLocaleString()}`;
-  document.getElementById('q-total').textContent = `NT$ ${total.toLocaleString()}`;
-
-  // Scale mesh
-  if (mesh) {
-    const scale = sizeMax / 150;
-    mesh.scale.set(scale, scale, scale);
-  }
-}
-
-// ====================================================
-// STL EXPORT (Binary)
-// ====================================================
-
-function exportSTL() {
-  if (!mesh) { showToast('請先載入或生成 3D 模型', 'warn'); return; }
-
-  const geo = mesh.geometry.clone();
-  geo.applyMatrix4(mesh.matrixWorld);
-  const posAttr = geo.attributes.position;
-  const index = geo.index;
-
-  const triCount = index ? index.count / 3 : posAttr.count / 3;
-  const buffer = new ArrayBuffer(80 + 4 + triCount * 50);
-  const view = new DataView(buffer);
-
-  // Header (80 bytes)
-  const enc = new TextEncoder();
-  const header = enc.encode('PrintForge STL Export - Nivora AI');
-  for (let i = 0; i < Math.min(80, header.length); i++) view.setUint8(i, header[i]);
-
-  // Triangle count
-  view.setUint32(80, triCount, true);
-
-  const n = new THREE.Vector3();
-  const va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3();
-  const edge1 = new THREE.Vector3(), edge2 = new THREE.Vector3();
-
-  let offset = 84;
-  for (let t = 0; t < triCount; t++) {
-    const ia = index ? index.getX(t*3) : t*3;
-    const ib = index ? index.getX(t*3+1) : t*3+1;
-    const ic = index ? index.getX(t*3+2) : t*3+2;
-
-    va.fromBufferAttribute(posAttr, ia);
-    vb.fromBufferAttribute(posAttr, ib);
-    vc.fromBufferAttribute(posAttr, ic);
-
-    edge1.subVectors(vb, va);
-    edge2.subVectors(vc, va);
-    n.crossVectors(edge1, edge2).normalize();
-
-    // Normal
-    view.setFloat32(offset, n.x, true); offset += 4;
-    view.setFloat32(offset, n.y, true); offset += 4;
-    view.setFloat32(offset, n.z, true); offset += 4;
-    // Vertices
-    for (const v of [va, vb, vc]) {
-      view.setFloat32(offset, v.x * state.sizeMax, true); offset += 4;
-      view.setFloat32(offset, v.y * state.sizeMax, true); offset += 4;
-      view.setFloat32(offset, v.z * state.sizeMax, true); offset += 4;
-    }
-    // Attr byte count
-    view.setUint16(offset, 0, true); offset += 2;
-  }
-
-  const blob = new Blob([buffer], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = (state.modelName || 'model') + '.stl'; a.click();
-  URL.revokeObjectURL(url);
-  showToast('STL 檔案已匯出', 'success');
-}
-
-// ====================================================
-// ORDER MODAL
-// ====================================================
-
-function openOrderModal() {
-  if (!mesh) { showToast('請先載入或生成 3D 模型', 'warn'); return; }
-
-  const num = 'PF-2026-' + Math.floor(1000 + Math.random() * 9000);
-  document.getElementById('order-number-display').textContent = '🔖 ' + num;
-
-  const mat = MATERIALS.find(m => m.id === state.currentMaterial);
-  const s = state.sizeMax;
-  const vol = parseFloat(document.getElementById('info-vol').textContent);
-  const wt = document.getElementById('info-weight').textContent;
-  const total = document.getElementById('q-total').textContent;
-
-  document.getElementById('s-name').textContent = state.modelName;
-  document.getElementById('s-material').textContent = mat ? `${mat.name}（${mat.sub}）` : '—';
-  document.getElementById('s-size').textContent = `最長邊 ${s}mm`;
-  document.getElementById('s-weight').textContent = wt;
-  document.getElementById('s-price').textContent = total;
-
-  // Reset form state
-  document.getElementById('modal-form-state').style.display = '';
-  document.getElementById('modal-success-state').classList.remove('show');
-  document.getElementById('modal-footer').style.display = '';
-  document.getElementById('modal-title').textContent = '建立訂單';
-
-  document.getElementById('order-modal').classList.add('open');
-}
-
-function closeOrderModal() {
-  document.getElementById('order-modal').classList.remove('open');
-}
-
-function submitOrder() {
-  const name = document.getElementById('f-name').value.trim();
-  const phone = document.getElementById('f-phone').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const address = document.getElementById('f-address').value.trim();
-
-  if (!name || !phone || !email || !address) {
-    showToast('請填寫所有必填欄位', 'warn'); return;
-  }
-
-  document.getElementById('modal-form-state').style.display = 'none';
-  document.getElementById('modal-footer').style.display = 'none';
-  document.getElementById('modal-title').textContent = '訂單確認';
-  document.getElementById('modal-success-state').classList.add('show');
-  showToast('訂單已建立！', 'success');
-}
-
-// ====================================================
-// DRAG & DROP
-// ====================================================
-
-function setupDropZones() {
-  setupDrop('img-drop', 'img-input', (files) => {
-    document.getElementById('img-input').files = files;
-    handleImageUpload(document.getElementById('img-input'));
-  });
-  setupDrop('file-drop', 'file-input', (files) => {
-    document.getElementById('file-input').files = files;
-    handle3DUpload(document.getElementById('file-input'));
-  });
-}
-
-function setupDrop(zoneId, inputId, cb) {
-  const zone = document.getElementById(zoneId);
-  if (!zone) return;
-  zone.addEventListener('dragover', e => {
-    e.preventDefault();
-    zone.closest('.upload-card').classList.add('drag-over');
-  });
-  zone.addEventListener('dragleave', () => {
-    zone.closest('.upload-card').classList.remove('drag-over');
-  });
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.closest('.upload-card').classList.remove('drag-over');
-    const dt = e.dataTransfer;
-    if (dt.files.length) cb(dt.files);
-  });
-}
-
-// ====================================================
-// EXAMPLE CARDS
-// ====================================================
-
-function buildExamples() {
-  const scroll = document.getElementById('examples-scroll');
-  scroll.innerHTML = EXAMPLES.map((ex, i) => `
-    <div class="example-card" onclick='loadExampleModel(${JSON.stringify(ex)})'>
-      <div class="example-thumb">${ex.emoji}</div>
-      <div class="example-info">
-        <div class="example-title">${ex.title}</div>
-        <div class="example-material">${ex.material} · ${ex.desc}</div>
-        <button class="btn btn-outline">查看詳情</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ====================================================
-// TOAST
-// ====================================================
-
-function showToast(msg, type = 'info') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3200);
-}
-
-// ====================================================
-// INIT
-// ====================================================
-
-document.addEventListener('DOMContentLoaded', () => {
-  buildMaterialGrid();
-  buildColorSwatches();
-  buildExamples();
-  setupDropZones();
-  updateColorSection();
-});
-
-window.addEventListener('resize', () => {
-  if (renderer) resizeRenderer();
-});
-</script>
+
+        // Initialize 3D viewer
+        function initViewer() {
+            const canvas = document.getElementById('viewer-3d');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0A0C0F);
+
+            camera = new THREE.PerspectiveCamera(45, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+            camera.position.set(0, 2, 5);
+
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5);
+            scene.add(directionalLight);
+
+            const rimLight = new THREE.DirectionalLight(0x00E5C0, 0.3);
+            rimLight.position.set(-5, 5, -5);
+            scene.add(rimLight);
+
+            // Grid
+            const gridHelper = new THREE.GridHelper(10, 10, 0x00E5C0, 0x444444);
+            scene.add(gridHelper);
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Editor functions
+        function openEditor() {
+            document.getElementById('editorOverlay').classList.add('active');
+            if (!scene) {
+                initViewer();
+            }
+        }
+
+        function closeEditor() {
+            document.getElementById('editorOverlay').classList.remove('active');
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+        }
+
+        function resetView() {
+            if (camera && controls) {
+                camera.position.set(0, 2, 5);
+                controls.target.set(0, 0, 0);
+                controls.update();
+            }
+        }
+
+        function toggleWireframe() {
+            if (currentModel) {
+                currentModel.traverse(child => {
+                    if (child.isMesh) {
+                        child.material.wireframe = !child.material.wireframe;
+                    }
+                });
+            }
+        }
+
+        function screenshot() {
+            if (renderer) {
+                renderer.render(scene, camera);
+                const dataURL = renderer.domElement.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = 'printforge-preview.png';
+                link.href = dataURL;
+                link.click();
+                showToast('截圖已儲存', 'success');
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.getElementById('editorOverlay').requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Material selection
+        function selectMaterial(material) {
+            currentMaterial = material;
+            document.querySelectorAll('.material-option').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`[data-material="${material}"]`).classList.add('active');
+            
+            updateModelMaterial();
+            updatePricing();
+        }
+
+        function selectColor(color) {
+            currentColor = color;
+            document.querySelectorAll('.color-swatch').forEach(el => {
+                el.classList.remove('active');
+            });
+            const swatch = document.querySelector(`[data-color="${color}"]`);
+            if (swatch) {
+                swatch.classList.add('active');
+            }
+            
+            updateModelMaterial();
+        }
+
+        function updateModelMaterial() {
+            if (currentModel) {
+                const props = materialProperties[currentMaterial];
+                currentModel.traverse(child => {
+                    if (child.isMesh) {
+                        child.material = new THREE.MeshStandardMaterial({
+                            color: new THREE.Color(currentColor),
+                            roughness: props.roughness,
+                            metalness: props.metalness
+                        });
+                    }
+                });
+            }
+        }
+
+        function setSizePreset(size) {
+            currentSize = size;
+            document.getElementById('sizeInput').value = size;
+            updateSize();
+        }
+
+        function updateSize() {
+            currentSize = parseInt(document.getElementById('sizeInput').value) || 100;
+            document.getElementById('sizeDisplay').textContent = `${currentSize} × ${currentSize} × ${currentSize} mm`;
+            updatePricing();
+        }
+
+        function updatePricing() {
+            const volume = (currentSize / 10) ** 3; // Convert mm to cm
+            const materialCost = Math.round(volume * materialPrices[currentMaterial]);
+            const processCost = Math.round(materialCost * 0.6);
+            const serviceCost = 200;
+            const total = materialCost + processCost + serviceCost;
+
+            document.getElementById('volumeInfo').textContent = `${Math.round(volume)} cm³`;
+            document.getElementById('weightInfo').textContent = `${Math.round(volume * 1.2)} g`;
+            document.getElementById('timeInfo').textContent = `${Math.round(volume / 10)} 小時`;
+
+            document.getElementById('materialCost').textContent = `NT$ ${materialCost.toLocaleString()}`;
+            document.getElementById('processCost').textContent = `NT$ ${processCost.toLocaleString()}`;
+            document.getElementById('serviceCost').textContent = `NT$ ${serviceCost.toLocaleString()}`;
+            document.getElementById('totalCost').textContent = `NT$ ${total.toLocaleString()}`;
+        }
+
+        // File upload
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                uploadImage(file);
+            }
+        });
+
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = 'var(--accent)';
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.style.borderColor = 'var(--glass-border)';
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = 'var(--glass-border)';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                uploadImage(file);
+            }
+        });
+
+        const TRIPO_KEY = 'tsk_CMM5vpiooVmcZSHgxMebRV4cq3fI9AZr4-L8g2ws1Ki';
+        const TRIPO_BASE = 'https://api.tripo3d.ai/v2/openapi';
+
+        async function uploadImage(file) {
+            showProgress('上傳圖片中...');
+            
+            try {
+                // Step 1: Upload image to Tripo
+                const uploadForm = new FormData();
+                uploadForm.append('file', file);
+
+                const uploadResp = await fetch(TRIPO_BASE + '/upload', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + TRIPO_KEY },
+                    body: uploadForm
+                });
+                const uploadData = await uploadResp.json();
+                
+                if (!uploadData.data || !uploadData.data.image_token) {
+                    throw new Error('Image upload failed');
+                }
+
+                // Step 2: Create task
+                const taskResp = await fetch(TRIPO_BASE + '/task', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + TRIPO_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'image_to_model',
+                        file: { type: 'jpg', file_token: uploadData.data.image_token }
+                    })
+                });
+                const taskData = await taskResp.json();
+
+                if (taskData.data && taskData.data.task_id) {
+                    currentTaskId = taskData.data.task_id;
+                    pollTaskStatus();
+                } else {
+                    throw new Error('No task ID returned');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                hideProgress();
+                showToast('上傳失敗：' + error.message, 'error');
+                document.getElementById('uploadZone').style.display = 'block';
+            }
+        }
+
+        async function generateFromText() {
+            const prompt = document.getElementById('promptInput').value.trim();
+            if (!prompt) {
+                showToast('請輸入文字描述', 'error');
+                return;
+            }
+
+            showProgress('AI 分析描述...');
+
+            try {
+                const taskResp = await fetch(TRIPO_BASE + '/task', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + TRIPO_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'text_to_model',
+                        prompt: prompt
+                    })
+                });
+                const taskData = await taskResp.json();
+
+                if (taskData.data && taskData.data.task_id) {
+                    currentTaskId = taskData.data.task_id;
+                    pollTaskStatus();
+                } else {
+                    throw new Error('No task ID returned');
+                }
+            } catch (error) {
+                console.error('Generation error:', error);
+                hideProgress();
+                showToast('生成失敗：' + error.message, 'error');
+            }
+        }
+
+        const progressSteps = [
+            '上傳圖片中...',
+            'AI 分析圖像...',
+            '生成 3D 網格...',
+            '套用材質紋理...',
+            '模型優化中...',
+            '完成！'
+        ];
+
+        let currentStep = 0;
+
+        function showProgress(text) {
+            document.getElementById('uploadZone').style.display = 'none';
+            document.getElementById('progressOverlay').classList.remove('hidden');
+            document.getElementById('progressText').textContent = text || '處理中...';
+            currentStep = 0;
+        }
+
+        function hideProgress() {
+            document.getElementById('progressOverlay').classList.add('hidden');
+        }
+
+        function updateProgress(progress) {
+            const circle = document.getElementById('progressCircle');
+            const offset = 283 - (283 * progress / 100);
+            circle.style.strokeDashoffset = offset;
+
+            const stepIndex = Math.min(Math.floor(progress / 20), progressSteps.length - 1);
+            if (stepIndex !== currentStep) {
+                currentStep = stepIndex;
+                document.getElementById('progressText').textContent = progressSteps[stepIndex];
+            }
+        }
+
+        async function pollTaskStatus() {
+            if (!currentTaskId) return;
+            let pollCount = 0;
+
+            pollInterval = setInterval(async () => {
+                try {
+                    pollCount++;
+                    const response = await fetch(`${TRIPO_BASE}/task/${currentTaskId}`, {
+                        headers: { 'Authorization': 'Bearer ' + TRIPO_KEY }
+                    });
+                    const result = await response.json();
+                    const data = result.data || {};
+
+                    // Calculate progress from poll count (Tripo doesn't return %)
+                    const fakeProgress = Math.min(90, pollCount * 6);
+                    updateProgress(data.progress || fakeProgress);
+
+                    if (data.status === 'success' && data.output && data.output.model) {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        updateProgress(100);
+                        loadModel(data.output.model);
+                    } else if (data.status === 'failed') {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        hideProgress();
+                        showToast('模型生成失敗，請重試', 'error');
+                        document.getElementById('uploadZone').style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Poll error:', error);
+                }
+            }, 2000);
+        }
+
+        function loadModel(url) {
+            const loader = new THREE.GLTFLoader();
+            
+            loader.load(url, (gltf) => {
+                if (currentModel) {
+                    scene.remove(currentModel);
+                }
+
+                currentModel = gltf.scene;
+
+                // Center and scale model
+                const box = new THREE.Box3().setFromObject(currentModel);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 3 / maxDim;
+
+                currentModel.position.sub(center);
+                currentModel.scale.multiplyScalar(scale);
+
+                scene.add(currentModel);
+                
+                updateModelMaterial();
+                hideProgress();
+                showToast('模型載入成功！', 'success');
+
+            }, undefined, (error) => {
+                console.error('Model load error:', error);
+                hideProgress();
+                showToast('模型載入失敗', 'error');
+                document.getElementById('uploadZone').style.display = 'block';
+            });
+        }
+
+        // STL Export
+        function exportSTL() {
+            if (!currentModel) {
+                showToast('請先生成 3D 模型', 'error');
+                return;
+            }
+
+            // Simple binary STL export
+            let triangles = 0;
+            currentModel.traverse(child => {
+                if (child.isMesh) {
+                    triangles += child.geometry.attributes.position.count / 3;
+                }
+            });
+
+            const buffer = new ArrayBuffer(80 + 4 + triangles * 50);
+            const view = new DataView(buffer);
+            let offset = 80;
+
+            view.setUint32(offset, triangles, true);
+            offset += 4;
+
+            currentModel.traverse(child => {
+                if (child.isMesh) {
+                    const geo = child.geometry;
+                    const pos = geo.attributes.position;
+                    const normal = geo.attributes.normal;
+
+                    for (let i = 0; i < pos.count; i += 3) {
+                        // Normal
+                        view.setFloat32(offset, normal.getX(i), true); offset += 4;
+                        view.setFloat32(offset, normal.getY(i), true); offset += 4;
+                        view.setFloat32(offset, normal.getZ(i), true); offset += 4;
+
+                        // Vertices
+                        for (let j = 0; j < 3; j++) {
+                            view.setFloat32(offset, pos.getX(i + j), true); offset += 4;
+                            view.setFloat32(offset, pos.getY(i + j), true); offset += 4;
+                            view.setFloat32(offset, pos.getZ(i + j), true); offset += 4;
+                        }
+
+                        offset += 2; // Attribute byte count
+                    }
+                }
+            });
+
+            const blob = new Blob([buffer], { type: 'application/octet-stream' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'printforge-model.stl';
+            link.click();
+
+            showToast('STL 檔案已匯出', 'success');
+        }
+
+        // Order modal
+        function openOrderModal() {
+            if (!currentModel) {
+                showToast('請先生成 3D 模型', 'error');
+                return;
+            }
+
+            const orderNumber = 'PF-2026-' + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+            document.getElementById('orderNumber').textContent = orderNumber;
+            document.getElementById('orderMaterial').textContent = currentMaterial.toUpperCase();
+            document.getElementById('orderColor').textContent = currentColor;
+            document.getElementById('orderSize').textContent = document.getElementById('sizeDisplay').textContent;
+            document.getElementById('orderTotal').textContent = document.getElementById('totalCost').textContent;
+
+            document.getElementById('orderForm').style.display = 'block';
+            document.getElementById('successScreen').style.display = 'none';
+
+            document.getElementById('orderModal').classList.add('active');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.remove('active');
+        }
+
+        function submitOrder() {
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const email = document.getElementById('customerEmail').value.trim();
+            const address = document.getElementById('customerAddress').value.trim();
+
+            if (!name || !phone || !email || !address) {
+                showToast('請填寫所有必填欄位', 'error');
+                return;
+            }
+
+            // Simulate order submission
+            document.getElementById('successOrderNumber').textContent = document.getElementById('orderNumber').textContent;
+            document.getElementById('successEmail').textContent = email;
+
+            document.getElementById('orderForm').style.display = 'none';
+            document.getElementById('successScreen').style.display = 'block';
+
+            // Confetti effect (simple)
+            showToast('訂單已送出！', 'success');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Stats counter animation
+        function animateCounter(el) {
+            const target = parseInt(el.dataset.target);
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                el.textContent = Math.floor(current).toLocaleString() + (el.dataset.target.includes('%') ? '%' : '+');
+            }, 16);
+        }
+
+        // Intersection Observer for animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    if (entry.target.classList.contains('stat-item')) {
+                        const number = entry.target.querySelector('.stat-number');
+                        if (!number.dataset.animated) {
+                            number.dataset.animated = 'true';
+                            animateCounter(number);
+                        }
+                    }
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll('.stat-item, .feature-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            initHero3D();
+            updatePricing();
+        });
+
+        window.addEventListener('resize', () => {
+            if (renderer && camera) {
+                const canvas = document.getElementById('viewer-3d');
+                camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+            }
+        });
+    </script>
 </body>
 </html>
