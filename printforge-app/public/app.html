@@ -1846,9 +1846,8 @@
             }
         });
 
-        // API Backend - auto-detect: localhost uses local server, otherwise use deployed proxy
+        // API Backend
         const API_BASE = '';
-            ? '' : 'https://printforge-api.nivora-ai.workers.dev';
 
         async function uploadImage(file) {
             showProgress('上傳圖片中...');
