@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PrintForge — AI 驅動的 3D 列印平台</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1196,6 +1197,100 @@ function scrollToExamples() {
 // UPLOAD HANDLERS
 // ====================================================
 
+// ====================================================
+// REAL API INTEGRATION (with fallback to simulation)
+// ====================================================
+const USE_REAL_API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+let gltfLoader = null;
+
+function getGLTFLoader() {
+  if (!gltfLoader && THREE.GLTFLoader) {
+    gltfLoader = new THREE.GLTFLoader();
+  }
+  return gltfLoader;
+}
+
+function loadGLBModel(url) {
+  const loader = getGLTFLoader();
+  if (!loader) { showToast('GLTFLoader 未載入', 'warn'); return; }
+  loader.load(url, (gltf) => {
+    if (mesh) { scene.remove(mesh); }
+    mesh = gltf.scene;
+    // Apply material settings
+    const matData = MATERIALS.find(m => m.id === state.currentMaterial);
+    mesh.traverse(child => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        if (matData) {
+          child.material.roughness = matData.rough || 0.5;
+          child.material.metalness = matData.metal || 0;
+        }
+      }
+    });
+    // Center and scale
+    const box = new THREE.Box3().setFromObject(mesh);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2 / maxDim;
+    mesh.scale.multiplyScalar(scale);
+    mesh.position.sub(center.multiplyScalar(scale));
+    scene.add(mesh);
+    autoRotate = true;
+    showToast('3D 模型載入完成！', 'success');
+  }, undefined, (err) => {
+    console.error('GLB load error:', err);
+    showToast('模型載入失敗，使用預設模型', 'warn');
+    createOrganicMesh();
+  });
+}
+
+async function callRealAPI(formData, isText) {
+  try {
+    let resp;
+    if (isText) {
+      resp = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: formData })
+      });
+    } else {
+      resp = await fetch('/api/generate', { method: 'POST', body: formData });
+    }
+    const data = await resp.json();
+    if (!data.task_id) throw new Error(data.detail || 'No task_id');
+    return data.task_id;
+  } catch (e) {
+    console.error('API error:', e);
+    return null;
+  }
+}
+
+async function pollTask(taskId, progressCallback) {
+  const maxAttempts = 120; // 4 minutes max
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const resp = await fetch(`/api/task/${taskId}`);
+      const data = await resp.json();
+      if (data.status === 'success' && data.output) {
+        progressCallback(100, '完成！');
+        return data.output.model_url || data.output.model;
+      } else if (data.status === 'failed') {
+        throw new Error('Generation failed');
+      }
+      // Update progress
+      const pct = Math.min(90, Math.round((i / 30) * 90));
+      const step = i < 5 ? 'AI 分析圖像...' : i < 15 ? '生成 3D 網格...' : i < 25 ? '套用材質紋理...' : '模型優化中...';
+      progressCallback(pct, step);
+    } catch (e) {
+      if (e.message === 'Generation failed') throw e;
+    }
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  throw new Error('Timeout');
+}
+
 function handleImageUpload(input) {
   const files = input.files;
   if (!files.length) return;
@@ -1204,10 +1299,19 @@ function handleImageUpload(input) {
   state.modelName = files[0].name.replace(/\.[^.]+$/, '') || '上傳圖片模型';
   document.getElementById('model-name').textContent = state.modelName;
   showToast(`已選擇 ${files.length} 張圖片，開始 AI 生成`, 'success');
-  runAIProgress(() => {
-    updateCalcs();
-    showToast('3D 模型生成完成！', 'success');
-  });
+
+  if (USE_REAL_API) {
+    // Real API call
+    const formData = new FormData();
+    formData.append('image', files[0]);
+    showEditorState();
+    startRealGeneration(formData, false);
+  } else {
+    runAIProgress(() => {
+      updateCalcs();
+      showToast('3D 模型生成完成！（Demo 模式）', 'success');
+    });
+  }
 }
 
 function handle3DUpload(input) {
@@ -1217,10 +1321,19 @@ function handle3DUpload(input) {
   state.modelName = file.name.replace(/\.[^.]+$/, '') || '上傳 3D 檔案';
   document.getElementById('model-name').textContent = state.modelName;
   showToast(`已載入 ${file.name}`, 'success');
-  runAIProgress(() => {
+  
+  // For 3D files, try to load directly if it's GLB
+  if (file.name.toLowerCase().endsWith('.glb') || file.name.toLowerCase().endsWith('.gltf')) {
+    showEditorState();
+    const url = URL.createObjectURL(file);
+    loadGLBModel(url);
     updateCalcs();
-    showToast('3D 模型已載入完成！', 'success');
-  });
+  } else {
+    runAIProgress(() => {
+      updateCalcs();
+      showToast('3D 模型已載入完成！', 'success');
+    });
+  }
 }
 
 function handleTextGenerate() {
@@ -1229,10 +1342,59 @@ function handleTextGenerate() {
   state.modelName = txt.slice(0, 20) + (txt.length > 20 ? '...' : '');
   document.getElementById('model-name').textContent = state.modelName;
   showToast('AI 正在理解您的描述...', 'info');
-  runAIProgress(() => {
+
+  if (USE_REAL_API) {
+    showEditorState();
+    startRealGeneration(txt, true);
+  } else {
+    runAIProgress(() => {
+      updateCalcs();
+      showToast('3D 模型生成完成！（Demo 模式）', 'success');
+    });
+  }
+}
+
+async function startRealGeneration(data, isText) {
+  const overlay = document.getElementById('ai-progress');
+  const circle = document.getElementById('progress-circle');
+  const pctEl = document.getElementById('progress-pct');
+  const stepsEl = document.getElementById('progress-steps');
+  const circumference = 2 * Math.PI * 45;
+
+  overlay.classList.remove('done');
+  overlay.style.display = '';
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'auto';
+  stepsEl.innerHTML = '<div class="ps-item active"><div class="ps-dot"></div>上傳中...</div>';
+  pctEl.textContent = '5%';
+  circle.style.strokeDasharray = circumference;
+  circle.style.strokeDashoffset = circumference * 0.95;
+
+  try {
+    const taskId = await callRealAPI(data, isText);
+    if (!taskId) {
+      throw new Error('API 呼叫失敗');
+    }
+
+    const modelUrl = await pollTask(taskId, (pct, stepText) => {
+      pctEl.textContent = pct + '%';
+      circle.style.strokeDashoffset = circumference * (1 - pct / 100);
+      stepsEl.innerHTML = `<div class="ps-item active"><div class="ps-dot"></div>${stepText}</div>`;
+    });
+
+    overlay.classList.add('done');
+    setTimeout(() => { overlay.style.display = 'none'; }, 500);
+    
+    loadGLBModel(modelUrl);
     updateCalcs();
-    showToast('3D 模型生成完成！', 'success');
-  });
+  } catch (e) {
+    console.error('Generation failed:', e);
+    overlay.classList.add('done');
+    setTimeout(() => { overlay.style.display = 'none'; }, 500);
+    showToast('AI 生成失敗，使用預設模型展示', 'warn');
+    createOrganicMesh();
+    updateCalcs();
+  }
 }
 
 function loadExampleModel(ex) {
