@@ -760,6 +760,7 @@
       <div class="quote-rows">
         <div class="quote-row"><span>材料費用</span><span id="q-material">NT$ —</span></div>
         <div class="quote-row"><span>加工費用</span><span id="q-process">NT$ —</span></div>
+        <div class="quote-row"><span>平台服務費</span><span id="q-platform">NT$ —</span></div>
       </div>
       <div class="quote-total">
         <span class="quote-total-label">合計</span>
@@ -1348,17 +1349,19 @@ function setSize(val) {
 function updateCalcs() {
   const sizeMax = parseFloat(document.getElementById('size-input').value) || 100;
   state.sizeMax = sizeMax;
-  const s = sizeMax / 1000; // m
-  const ratio = 0.8;
-  const w = s, h = s * ratio, d = s * 0.7;
+  // Calculate dimensions in mm based on longest edge
+  const wMm = sizeMax;
+  const hMm = Math.round(sizeMax * 0.8);
+  const dMm = Math.round(sizeMax * 0.7);
 
   document.getElementById('size-dims').innerHTML =
-    `W × H × D: <span>${(w*1000).toFixed(0)}×${(h*1000).toFixed(0)}×${(d*1000).toFixed(0)} mm</span>`;
+    `W × H × D: <span>${wMm}×${hMm}×${dMm} mm</span>`;
 
-  const volume = w * h * d * 0.52 * 1e6; // cm³ (approximate fill ~52%)
+  // Volume in cm³ (bounding box × fill ratio ~35% for typical 3D prints)
+  const volume = (wMm / 10) * (hMm / 10) * (dMm / 10) * 0.35;
   const mat = MATERIALS.find(m => m.id === state.currentMaterial) || MATERIALS[0];
   const weight = volume * mat.density;
-  const printTime = volume * 0.12 * mat.mult;
+  const printTime = Math.max(0.5, volume * 0.04 * mat.mult);
 
   document.getElementById('info-vol').textContent = volume.toFixed(1) + ' cm³';
   document.getElementById('info-weight').textContent = weight.toFixed(1) + ' g';
@@ -1371,14 +1374,16 @@ function updateCalcs() {
   else if (mat.id === 'SLM') noteEl.textContent = '⚠️ 金屬列印需考量支撐移除';
   else noteEl.textContent = '⚠️ 最小壁厚建議：0.8mm';
 
-  // Pricing (NT$/cm³ base = 12)
-  const base = 12;
-  const materialCost = Math.round(volume * base * mat.mult);
-  const processFee = Math.round(materialCost * 0.25 + 180);
-  const total = materialCost + processFee;
+  // Pricing (NT$/cm³ base rate)
+  const baseRate = 8; // NT$ per cm³
+  const materialCost = Math.round(volume * baseRate * mat.mult);
+  const processFee = Math.round(materialCost * 0.2 + 150); // 20% + base processing
+  const platformFee = Math.round((materialCost + processFee) * 0.05); // 5% platform
+  const total = materialCost + processFee + platformFee;
 
   document.getElementById('q-material').textContent = `NT$ ${materialCost.toLocaleString()}`;
   document.getElementById('q-process').textContent = `NT$ ${processFee.toLocaleString()}`;
+  document.getElementById('q-platform').textContent = `NT$ ${platformFee.toLocaleString()}`;
   document.getElementById('q-total').textContent = `NT$ ${total.toLocaleString()}`;
 
   // Scale mesh
