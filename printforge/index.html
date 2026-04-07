@@ -322,7 +322,7 @@
     }
 
     /* material */
-    .material-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .material-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
     .material-card {
       background: var(--bg3);
       border: 1.5px solid var(--border);
@@ -544,6 +544,27 @@
       </div>
     </div>
 
+    <!-- AI 3D Generation -->
+    <div class="section">
+      <div class="section-title">🤖 AI 3D 生成</div>
+      <div class="upload-zone" id="ai-upload-zone" style="margin-bottom:10px">
+        <input type="file" id="ai-image-upload" accept="image/*" onchange="handleAIImageUpload(event)" />
+        <div class="upload-icon">🧠</div>
+        <div class="upload-text">上傳參考圖片</div>
+        <div class="upload-hint">AI 將根據圖片生成 3D 模型</div>
+      </div>
+      <img id="ai-preview" class="upload-preview" alt="AI 參考圖" />
+      <input type="text" id="ai-prompt" placeholder="或輸入文字描述（如：圓形花瓶、流線造型）" style="width:100%;padding:8px 12px;background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;margin:8px 0;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" />
+      <button class="btn-sm btn-accent" style="width:100%;padding:10px;font-size:13px;border-radius:var(--radius-sm)" onclick="startAIGeneration()" id="ai-gen-btn">✨ 生成 3D 模型</button>
+      <div id="ai-progress" style="display:none;margin-top:10px;">
+        <div style="background:var(--bg4);border-radius:4px;overflow:hidden;height:6px;">
+          <div id="ai-progress-bar" style="height:100%;width:0%;background:var(--accent);transition:width 0.5s;border-radius:4px;"></div>
+        </div>
+        <div id="ai-progress-text" style="font-size:11px;color:var(--text2);margin-top:6px;text-align:center;"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px;text-align:center;">由 Tripo AI 提供技術支援</div>
+    </div>
+
     <!-- Size -->
     <div class="section">
       <div class="section-title">尺寸調整</div>
@@ -562,7 +583,50 @@
       </div>
     </div>
 
+    <!-- Print Analysis -->
+    <div class="section">
+      <div class="section-title">📊 列印分析</div>
+      <div id="print-analysis" style="font-size:12px;color:var(--text2);display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;"><span>尺寸 (mm)</span><span id="pa-dims" style="color:var(--text);font-weight:600;">— × — × —</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>體積</span><span id="pa-vol" style="color:var(--text);font-weight:600;">— cm³</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>預估重量</span><span id="pa-weight" style="color:var(--text);font-weight:600;">— g</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>預估列印時間</span><span id="pa-time" style="color:var(--text);font-weight:600;">— 分鐘</span></div>
+        <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+        <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:2px;">成本明細</div>
+        <div style="display:flex;justify-content:space-between;"><span>材料費</span><span id="pa-mat-cost" style="color:var(--text);">—</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>加工費</span><span id="pa-proc-cost" style="color:var(--text);">—</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>平台服務費</span><span id="pa-plat-cost" style="color:var(--text);">—</span></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:6px;margin-top:2px;"><span style="font-weight:700;color:var(--accent);">總計</span><span id="pa-total" style="color:var(--accent);font-weight:700;">—</span></div>
+      </div>
+    </div>
+
   </aside>
+</div>
+
+<!-- ORDER MODAL -->
+<div id="order-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);width:480px;max-width:90vw;max-height:85vh;overflow-y:auto;padding:32px;">
+    <div id="order-step1">
+      <h2 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📋 訂單確認</h2>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:20px;" id="order-number"></div>
+      <div id="order-summary" style="background:var(--bg3);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;font-size:13px;color:var(--text2);display:flex;flex-direction:column;gap:6px;"></div>
+      <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;">聯絡資訊</div>
+      <input type="text" placeholder="姓名" style="width:100%;padding:10px;background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;margin-bottom:8px;outline:none;" />
+      <input type="tel" placeholder="電話" style="width:100%;padding:10px;background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;margin-bottom:8px;outline:none;" />
+      <input type="email" placeholder="Email" style="width:100%;padding:10px;background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;margin-bottom:16px;outline:none;" />
+      <div style="display:flex;gap:10px;">
+        <button class="btn-lg btn-outline" style="flex:1;" onclick="closeOrderModal()">返回編輯</button>
+        <button class="btn-lg btn-primary" style="flex:1;" onclick="confirmOrder()">確認下單</button>
+      </div>
+    </div>
+    <div id="order-step2" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:16px;">🎉</div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--accent);margin-bottom:8px;">訂單已建立！</h2>
+      <p style="font-size:14px;color:var(--text2);margin-bottom:24px;">我們將於 24 小時內與您聯繫確認訂單細節</p>
+      <div id="order-number2" style="font-size:13px;color:var(--text3);margin-bottom:24px;"></div>
+      <button class="btn-lg btn-primary" style="width:100%;" onclick="closeOrderModal()">返回平台</button>
+    </div>
+  </div>
 </div>
 
 <!-- BOTTOM BAR -->
@@ -575,10 +639,11 @@
   </div>
   <div class="bottom-spacer"></div>
   <div class="bottom-actions">
-    <button class="btn-lg btn-outline" onclick="showToast('STL 匯出功能即將上線 🚀', '')">
+    <span style="font-size:10px;color:var(--text3);">Powered by Nivora AI × FORMFTY</span>
+    <button class="btn-lg btn-outline" onclick="exportSTL()">
       <span>⬇</span> 匯出 STL
     </button>
-    <button class="btn-lg btn-primary" onclick="showToast('訂單已送出！我們將於 24 小時內確認 ✅', 'success')">
+    <button class="btn-lg btn-primary" onclick="openOrderModal()">
       <span>🛒</span> 立即下單
     </button>
   </div>
@@ -614,10 +679,12 @@ const COLORS = [
 ];
 
 const MATERIALS = [
-  { id: 'PLA',   name: 'PLA',   sub: '環保首選',  emoji: '🌿', mult: 1.0,  rough: 0.7, metal: 0   },
-  { id: 'ABS',   name: 'ABS',   sub: '耐衝擊',    emoji: '🔩', mult: 1.3,  rough: 0.5, metal: 0   },
-  { id: 'Resin', name: '光固化', sub: '高精度',    emoji: '💎', mult: 2.0,  rough: 0.1, metal: 0.3 },
-  { id: 'Metal', name: '金屬',  sub: '工業級',    emoji: '⚙️', mult: 5.0,  rough: 0.2, metal: 0.9 },
+  { id: 'PLA',     name: 'PLA',      sub: '經濟首選',    emoji: '🌿', mult: 1.0,  rough: 0.7, metal: 0,    density: 1.24, printRate: 2   },
+  { id: 'ABS',     name: 'ABS',      sub: '耐衝擊',      emoji: '🔩', mult: 1.3,  rough: 0.5, metal: 0,    density: 1.04, printRate: 2   },
+  { id: 'PolyJet', name: 'PolyJet',  sub: '光固化噴墨',  emoji: '💧', mult: 2.5,  rough: 0.1, metal: 0,    density: 1.18, printRate: 3   },
+  { id: 'SLA',     name: 'SLA',      sub: '光固化成型',  emoji: '💎', mult: 2.0,  rough: 0.15,metal: 0,    density: 1.20, printRate: 3   },
+  { id: 'SLS',     name: 'SLS',      sub: '尼龍燒結',    emoji: '🔥', mult: 3.0,  rough: 0.6, metal: 0,    density: 1.01, printRate: 4   },
+  { id: 'SLM',     name: 'SLM',      sub: '金屬熔融',    emoji: '⚙️', mult: 8.0,  rough: 0.2, metal: 0.95, density: 7.87, printRate: 6   },
 ];
 
 // ═══════════════════════════════════════════════════
@@ -932,6 +999,7 @@ function selectMaterial(id) {
   updateMaterial();
   updateModelLabel();
   updatePriceBar();
+  updatePrintAnalysis();
 }
 
 function updateSize(val) {
@@ -941,10 +1009,10 @@ function updateSize(val) {
     const s = state.size / 100;
     currentMesh.scale.set(s, s, s);
   }
-  // Update presets
   document.querySelectorAll('.size-preset-btn').forEach(b => b.classList.remove('active'));
   updateModelLabel();
   updatePriceBar();
+  updatePrintAnalysis();
 }
 
 function setSize(val, label) {
@@ -960,6 +1028,7 @@ function setSize(val, label) {
   });
   updateModelLabel();
   updatePriceBar();
+  updatePrintAnalysis();
 }
 
 function handleTextureUpload(e) {
@@ -1006,6 +1075,237 @@ function showToast(msg, type) {
 }
 
 // ═══════════════════════════════════════════════════
+//  AI 3D GENERATION (Simulated)
+// ═══════════════════════════════════════════════════
+function handleAIImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById('ai-preview');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function startAIGeneration() {
+  const btn = document.getElementById('ai-gen-btn');
+  const progress = document.getElementById('ai-progress');
+  const bar = document.getElementById('ai-progress-bar');
+  const text = document.getElementById('ai-progress-text');
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ 生成中...';
+  progress.style.display = 'block';
+  
+  const steps = [
+    { pct: 15, msg: '上傳圖片中...' },
+    { pct: 35, msg: 'AI 分析中...' },
+    { pct: 60, msg: '生成 3D 模型中...' },
+    { pct: 85, msg: '模型優化中...' },
+    { pct: 100, msg: '完成！' },
+  ];
+  
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i >= steps.length) {
+      clearInterval(interval);
+      btn.disabled = false;
+      btn.textContent = '✨ 生成 3D 模型';
+      // Swap to complex geometry
+      if (currentMesh) { scene.remove(currentMesh); currentMesh.geometry.dispose(); }
+      const geo = new THREE.IcosahedronGeometry(1.2, 3);
+      // Deform vertices for organic look
+      const pos = geo.attributes.position;
+      for (let v = 0; v < pos.count; v++) {
+        const x = pos.getX(v), y = pos.getY(v), z = pos.getZ(v);
+        const noise = 1 + 0.15 * Math.sin(x*5) * Math.cos(y*3) * Math.sin(z*4);
+        pos.setXYZ(v, x*noise, y*noise, z*noise);
+      }
+      geo.computeVertexNormals();
+      currentMesh = new THREE.Mesh(geo, buildMaterial());
+      currentMesh.castShadow = true;
+      const s = state.size / 100;
+      currentMesh.scale.set(s, s, s);
+      scene.add(currentMesh);
+      updatePrintAnalysis();
+      showToast('3D 模型已生成 ✅', 'success');
+      setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0%'; }, 2000);
+      return;
+    }
+    bar.style.width = steps[i].pct + '%';
+    text.textContent = steps[i].msg;
+    i++;
+  }, 1200);
+}
+
+// ═══════════════════════════════════════════════════
+//  PRINT ANALYSIS
+// ═══════════════════════════════════════════════════
+function updatePrintAnalysis() {
+  if (!currentMesh) return;
+  const geo = currentMesh.geometry;
+  geo.computeBoundingBox();
+  const bb = geo.boundingBox;
+  const scale = state.size / 100;
+  const baseUnit = 100; // mm
+  
+  const w = Math.abs(bb.max.x - bb.min.x) * scale * baseUnit;
+  const h = Math.abs(bb.max.y - bb.min.y) * scale * baseUnit;
+  const d = Math.abs(bb.max.z - bb.min.z) * scale * baseUnit;
+  
+  const volCm3 = (w * h * d) / 1000 * 0.6; // approximate fill ratio
+  const mat = state.material;
+  const weightG = volCm3 * mat.density;
+  const printMin = Math.round(volCm3 * mat.printRate);
+  
+  const matCost = Math.round(weightG * mat.mult * 0.8);
+  const procCost = Math.round(printMin * 2.5);
+  const platCost = Math.round((matCost + procCost) * 0.1);
+  const total = matCost + procCost + platCost;
+  
+  document.getElementById('pa-dims').textContent = `${w.toFixed(1)} × ${h.toFixed(1)} × ${d.toFixed(1)} mm`;
+  document.getElementById('pa-vol').textContent = `${volCm3.toFixed(1)} cm³`;
+  document.getElementById('pa-weight').textContent = `${weightG.toFixed(1)} g`;
+  document.getElementById('pa-time').textContent = `${printMin} 分鐘`;
+  document.getElementById('pa-mat-cost').textContent = `NT$${matCost}`;
+  document.getElementById('pa-proc-cost').textContent = `NT$${procCost}`;
+  document.getElementById('pa-plat-cost').textContent = `NT$${platCost}`;
+  document.getElementById('pa-total').textContent = `NT$${total}`;
+}
+
+// ═══════════════════════════════════════════════════
+//  STL EXPORT
+// ═══════════════════════════════════════════════════
+function exportSTL() {
+  if (!currentMesh) { showToast('請先選擇模型', ''); return; }
+  const geo = currentMesh.geometry;
+  const positions = geo.attributes.position;
+  const indices = geo.index;
+  
+  let triangles;
+  if (indices) {
+    triangles = indices.count / 3;
+  } else {
+    triangles = positions.count / 3;
+  }
+  
+  const bufferLength = 84 + 50 * triangles;
+  const buffer = new ArrayBuffer(bufferLength);
+  const dv = new DataView(buffer);
+  
+  // Header (80 bytes)
+  for (let i = 0; i < 80; i++) dv.setUint8(i, 0);
+  dv.setUint32(80, triangles, true);
+  
+  let offset = 84;
+  const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
+  const normal = new THREE.Vector3(), cb = new THREE.Vector3(), ab = new THREE.Vector3();
+  
+  for (let i = 0; i < triangles; i++) {
+    let a, b, c;
+    if (indices) {
+      a = indices.getX(i * 3);
+      b = indices.getX(i * 3 + 1);
+      c = indices.getX(i * 3 + 2);
+    } else {
+      a = i * 3; b = i * 3 + 1; c = i * 3 + 2;
+    }
+    
+    vA.fromBufferAttribute(positions, a).multiplyScalar(state.size / 100);
+    vB.fromBufferAttribute(positions, b).multiplyScalar(state.size / 100);
+    vC.fromBufferAttribute(positions, c).multiplyScalar(state.size / 100);
+    
+    cb.subVectors(vC, vB);
+    ab.subVectors(vA, vB);
+    normal.crossVectors(cb, ab).normalize();
+    
+    dv.setFloat32(offset, normal.x, true); offset += 4;
+    dv.setFloat32(offset, normal.y, true); offset += 4;
+    dv.setFloat32(offset, normal.z, true); offset += 4;
+    
+    dv.setFloat32(offset, vA.x, true); offset += 4;
+    dv.setFloat32(offset, vA.y, true); offset += 4;
+    dv.setFloat32(offset, vA.z, true); offset += 4;
+    dv.setFloat32(offset, vB.x, true); offset += 4;
+    dv.setFloat32(offset, vB.y, true); offset += 4;
+    dv.setFloat32(offset, vB.z, true); offset += 4;
+    dv.setFloat32(offset, vC.x, true); offset += 4;
+    dv.setFloat32(offset, vC.y, true); offset += 4;
+    dv.setFloat32(offset, vC.z, true); offset += 4;
+    
+    dv.setUint16(offset, 0, true); offset += 2;
+  }
+  
+  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `printforge-${state.template.id}-${state.material.id}-${state.size}pct.stl`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('STL 檔案已下載 ✅', 'success');
+}
+
+// ═══════════════════════════════════════════════════
+//  ORDER MODAL
+// ═══════════════════════════════════════════════════
+function openOrderModal() {
+  const modal = document.getElementById('order-modal');
+  modal.style.display = 'flex';
+  document.getElementById('order-step1').style.display = 'block';
+  document.getElementById('order-step2').style.display = 'none';
+  
+  const orderNum = 'PF-2026-' + String(Math.floor(1000 + Math.random() * 9000));
+  document.getElementById('order-number').textContent = '訂單編號：' + orderNum;
+  document.getElementById('order-number2').textContent = '訂單編號：' + orderNum;
+  
+  const price = document.getElementById('price-val').textContent;
+  const dims = document.getElementById('pa-dims').textContent;
+  const weight = document.getElementById('pa-weight').textContent;
+  
+  document.getElementById('order-summary').innerHTML = `
+    <div style="display:flex;justify-content:space-between;"><span>產品</span><span style="color:var(--text);font-weight:600;">${state.template.name}</span></div>
+    <div style="display:flex;justify-content:space-between;"><span>材質</span><span style="color:var(--text);font-weight:600;">${state.material.name} (${state.material.sub})</span></div>
+    <div style="display:flex;justify-content:space-between;"><span>尺寸</span><span style="color:var(--text);font-weight:600;">${dims}</span></div>
+    <div style="display:flex;justify-content:space-between;"><span>重量</span><span style="color:var(--text);font-weight:600;">${weight}</span></div>
+    <div style="display:flex;justify-content:space-between;"><span>縮放</span><span style="color:var(--text);font-weight:600;">${state.size}%</span></div>
+    <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+    <div style="display:flex;justify-content:space-between;"><span style="font-weight:700;color:var(--accent);">總計</span><span style="color:var(--accent);font-weight:700;font-size:16px;">${price}</span></div>
+  `;
+}
+
+function closeOrderModal() {
+  document.getElementById('order-modal').style.display = 'none';
+}
+
+function confirmOrder() {
+  document.getElementById('order-step1').style.display = 'none';
+  document.getElementById('order-step2').style.display = 'block';
+}
+
+// close modal on overlay click
+document.getElementById('order-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeOrderModal();
+});
+
+// ═══════════════════════════════════════════════════
+//  PATCH: Update print analysis on state changes
+// ═══════════════════════════════════════════════════
+const _origSelectTemplate = selectTemplate;
+const _origSelectMaterial = selectMaterial;
+const _origUpdateSize = updateSize;
+const _origSetSize = setSize;
+
+// Override functions to include print analysis update
+const origBuildMesh = buildMesh;
+buildMesh = function() {
+  origBuildMesh();
+  setTimeout(updatePrintAnalysis, 50);
+};
+
+// ═══════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════
 renderTemplates();
@@ -1013,6 +1313,7 @@ renderColors();
 renderMaterials();
 buildMesh();
 updatePriceBar();
+updatePrintAnalysis();
 animate();
 </script>
 </body>
