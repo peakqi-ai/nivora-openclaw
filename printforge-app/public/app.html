@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrintForge - AI 驅動的 3D 列印平台</title>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
     <style>
         * {
             margin: 0;
@@ -1991,8 +1991,11 @@
                 }
                 
                 const buffer = await resp.arrayBuffer();
+                const blob = new Blob([buffer], { type: 'model/gltf-binary' });
+                const blobUrl = URL.createObjectURL(blob);
                 
-                loader.parse(buffer, '', (gltf) => {
+                loader.load(blobUrl, (gltf) => {
+                    URL.revokeObjectURL(blobUrl);
                     if (currentModel) {
                         scene.remove(currentModel);
                     }
