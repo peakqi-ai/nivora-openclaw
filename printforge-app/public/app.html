@@ -1972,38 +1972,62 @@
             }, 2000);
         }
 
-        function loadModel(url) {
+        async function loadModel(tripoUrl) {
             const loader = new THREE.GLTFLoader();
             
-            loader.load(url, (gltf) => {
-                if (currentModel) {
-                    scene.remove(currentModel);
-                }
-
-                currentModel = gltf.scene;
-
-                // Center and scale model
-                const box = new THREE.Box3().setFromObject(currentModel);
-                const center = box.getCenter(new THREE.Vector3());
-                const size = box.getSize(new THREE.Vector3());
-                const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 3 / maxDim;
-
-                currentModel.position.sub(center);
-                currentModel.scale.multiplyScalar(scale);
-
-                scene.add(currentModel);
+            // Proxy through our API to avoid CORS issues
+            const proxyUrl = '/api/model';
+            
+            try {
+                showToast('正在載入模型...', 'info');
+                const resp = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: tripoUrl }),
+                });
                 
-                updateModelMaterial();
-                hideProgress();
-                showToast('模型載入成功！', 'success');
+                if (!resp.ok) {
+                    throw new Error('Proxy fetch failed: ' + resp.status);
+                }
+                
+                const buffer = await resp.arrayBuffer();
+                
+                loader.parse(buffer, '', (gltf) => {
+                    if (currentModel) {
+                        scene.remove(currentModel);
+                    }
 
-            }, undefined, (error) => {
+                    currentModel = gltf.scene;
+
+                    // Center and scale model
+                    const box = new THREE.Box3().setFromObject(currentModel);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 3 / maxDim;
+
+                    currentModel.position.sub(center);
+                    currentModel.scale.multiplyScalar(scale);
+
+                    scene.add(currentModel);
+                    
+                    updateModelMaterial();
+                    hideProgress();
+                    showToast('模型載入成功！', 'success');
+
+                }, (error) => {
+                    console.error('Model parse error:', error);
+                    hideProgress();
+                    showToast('模型解析失敗', 'error');
+                    document.getElementById('uploadZone').style.display = 'block';
+                });
+                
+            } catch (error) {
                 console.error('Model load error:', error);
                 hideProgress();
-                showToast('模型載入失敗', 'error');
+                showToast('模型載入失敗: ' + error.message, 'error');
                 document.getElementById('uploadZone').style.display = 'block';
-            });
+            }
         }
 
         // STL Export
