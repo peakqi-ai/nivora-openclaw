@@ -2112,7 +2112,7 @@
             document.getElementById('orderModal').classList.remove('active');
         }
 
-        function submitOrder() {
+        async function submitOrder() {
             const name = document.getElementById('customerName').value.trim();
             const phone = document.getElementById('customerPhone').value.trim();
             const email = document.getElementById('customerEmail').value.trim();
@@ -2123,15 +2123,34 @@
                 return;
             }
 
-            // Simulate order submission
-            document.getElementById('successOrderNumber').textContent = document.getElementById('orderNumber').textContent;
-            document.getElementById('successEmail').textContent = email;
+            try {
+                const resp = await fetch(API_BASE + '/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name, phone, email, address,
+                        orderNumber: document.getElementById('orderNumber').textContent,
+                        material: currentMaterial,
+                        color: currentColor,
+                        size: document.getElementById('sizeDisplay').textContent,
+                        total: document.getElementById('totalCost').textContent,
+                    })
+                });
+                const data = await resp.json();
 
-            document.getElementById('orderForm').style.display = 'none';
-            document.getElementById('successScreen').style.display = 'block';
-
-            // Confetti effect (simple)
-            showToast('訂單已送出！', 'success');
+                if (data.success) {
+                    document.getElementById('successOrderNumber').textContent = data.orderNumber || document.getElementById('orderNumber').textContent;
+                    document.getElementById('successEmail').textContent = email;
+                    document.getElementById('orderForm').style.display = 'none';
+                    document.getElementById('successScreen').style.display = 'block';
+                    showToast('訂單已送出！', 'success');
+                } else {
+                    showToast(data.error || '訂單送出失敗', 'error');
+                }
+            } catch (error) {
+                console.error('Order submit error:', error);
+                showToast('訂單送出失敗：' + error.message, 'error');
+            }
         }
 
         // Toast notification

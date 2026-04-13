@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrintForge - AI 驅動的 3D 列印平台</title>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
     <style>
         * {
             margin: 0;
@@ -1846,47 +1846,27 @@
             }
         });
 
-        const TRIPO_KEY = 'tsk_CMM5vpiooVmcZSHgxMebRV4cq3fI9AZr4-L8g2ws1Ki';
-        const TRIPO_BASE = 'https://api.tripo3d.ai/v2/openapi';
+        // API Backend — calls are proxied through the Next.js backend to protect the API key
+        const API_BASE = '';
 
         async function uploadImage(file) {
             showProgress('上傳圖片中...');
-            
+
             try {
-                // Step 1: Upload image to Tripo
-                const uploadForm = new FormData();
-                uploadForm.append('file', file);
+                const formData = new FormData();
+                formData.append('image', file);
 
-                const uploadResp = await fetch(TRIPO_BASE + '/upload', {
+                const resp = await fetch(API_BASE + '/api/generate', {
                     method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + TRIPO_KEY },
-                    body: uploadForm
+                    body: formData
                 });
-                const uploadData = await uploadResp.json();
-                
-                if (!uploadData.data || !uploadData.data.image_token) {
-                    throw new Error('Image upload failed');
-                }
+                const data = await resp.json();
 
-                // Step 2: Create task
-                const taskResp = await fetch(TRIPO_BASE + '/task', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + TRIPO_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        type: 'image_to_model',
-                        file: { type: 'jpg', file_token: uploadData.data.image_token }
-                    })
-                });
-                const taskData = await taskResp.json();
-
-                if (taskData.data && taskData.data.task_id) {
-                    currentTaskId = taskData.data.task_id;
+                if (data.task_id) {
+                    currentTaskId = data.task_id;
                     pollTaskStatus();
                 } else {
-                    throw new Error('No task ID returned');
+                    throw new Error(data.error || 'Upload failed');
                 }
             } catch (error) {
                 console.error('Upload error:', error);
@@ -1906,24 +1886,18 @@
             showProgress('AI 分析描述...');
 
             try {
-                const taskResp = await fetch(TRIPO_BASE + '/task', {
+                const resp = await fetch(API_BASE + '/api/generate', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + TRIPO_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        type: 'text_to_model',
-                        prompt: prompt
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
                 });
-                const taskData = await taskResp.json();
+                const data = await resp.json();
 
-                if (taskData.data && taskData.data.task_id) {
-                    currentTaskId = taskData.data.task_id;
+                if (data.task_id) {
+                    currentTaskId = data.task_id;
                     pollTaskStatus();
                 } else {
-                    throw new Error('No task ID returned');
+                    throw new Error(data.error || 'Generation failed');
                 }
             } catch (error) {
                 console.error('Generation error:', error);
@@ -1973,21 +1947,18 @@
             pollInterval = setInterval(async () => {
                 try {
                     pollCount++;
-                    const response = await fetch(`${TRIPO_BASE}/task/${currentTaskId}`, {
-                        headers: { 'Authorization': 'Bearer ' + TRIPO_KEY }
-                    });
-                    const result = await response.json();
-                    const data = result.data || {};
+                    const response = await fetch(`${API_BASE}/api/task/${currentTaskId}`);
+                    const data = await response.json();
 
                     // Calculate progress from poll count (Tripo doesn't return %)
                     const fakeProgress = Math.min(90, pollCount * 6);
                     updateProgress(data.progress || fakeProgress);
 
-                    if (data.status === 'success' && data.output && data.output.model) {
+                    if (data.status === 'success' && data.output && data.output.model_url) {
                         clearInterval(pollInterval);
                         pollInterval = null;
                         updateProgress(100);
-                        loadModel(data.output.model);
+                        loadModel(data.output.model_url);
                     } else if (data.status === 'failed') {
                         clearInterval(pollInterval);
                         pollInterval = null;
@@ -2001,10 +1972,30 @@
             }, 2000);
         }
 
-        function loadModel(url) {
+        async function loadModel(tripoUrl) {
             const loader = new THREE.GLTFLoader();
-            
-            loader.load(url, (gltf) => {
+
+            // Proxy through our API to avoid CORS issues
+            const proxyUrl = '/api/model';
+
+            try {
+                showToast('正在載入模型...', 'info');
+                const resp = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: tripoUrl }),
+                });
+
+                if (!resp.ok) {
+                    throw new Error('Proxy fetch failed: ' + resp.status);
+                }
+
+                const buffer = await resp.arrayBuffer();
+                const blob = new Blob([buffer], { type: 'model/gltf-binary' });
+                const blobUrl = URL.createObjectURL(blob);
+
+                loader.load(blobUrl, (gltf) => {
+                    URL.revokeObjectURL(blobUrl);
                 if (currentModel) {
                     scene.remove(currentModel);
                 }
@@ -2027,12 +2018,19 @@
                 hideProgress();
                 showToast('模型載入成功！', 'success');
 
-            }, undefined, (error) => {
-                console.error('Model load error:', error);
+                }, undefined, (error) => {
+                    URL.revokeObjectURL(blobUrl);
+                    console.error('Model load error:', error);
+                    hideProgress();
+                    showToast('模型載入失敗', 'error');
+                    document.getElementById('uploadZone').style.display = 'block';
+                });
+            } catch (error) {
+                console.error('Model proxy error:', error);
                 hideProgress();
-                showToast('模型載入失敗', 'error');
+                showToast('模型載入失敗：' + error.message, 'error');
                 document.getElementById('uploadZone').style.display = 'block';
-            });
+            }
         }
 
         // STL Export
@@ -2114,7 +2112,7 @@
             document.getElementById('orderModal').classList.remove('active');
         }
 
-        function submitOrder() {
+        async function submitOrder() {
             const name = document.getElementById('customerName').value.trim();
             const phone = document.getElementById('customerPhone').value.trim();
             const email = document.getElementById('customerEmail').value.trim();
@@ -2125,15 +2123,34 @@
                 return;
             }
 
-            // Simulate order submission
-            document.getElementById('successOrderNumber').textContent = document.getElementById('orderNumber').textContent;
-            document.getElementById('successEmail').textContent = email;
+            try {
+                const resp = await fetch(API_BASE + '/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name, phone, email, address,
+                        orderNumber: document.getElementById('orderNumber').textContent,
+                        material: currentMaterial,
+                        color: currentColor,
+                        size: document.getElementById('sizeDisplay').textContent,
+                        total: document.getElementById('totalCost').textContent,
+                    })
+                });
+                const data = await resp.json();
 
-            document.getElementById('orderForm').style.display = 'none';
-            document.getElementById('successScreen').style.display = 'block';
-
-            // Confetti effect (simple)
-            showToast('訂單已送出！', 'success');
+                if (data.success) {
+                    document.getElementById('successOrderNumber').textContent = data.orderNumber || document.getElementById('orderNumber').textContent;
+                    document.getElementById('successEmail').textContent = email;
+                    document.getElementById('orderForm').style.display = 'none';
+                    document.getElementById('successScreen').style.display = 'block';
+                    showToast('訂單已送出！', 'success');
+                } else {
+                    showToast(data.error || '訂單送出失敗', 'error');
+                }
+            } catch (error) {
+                console.error('Order submit error:', error);
+                showToast('訂單送出失敗：' + error.message, 'error');
+            }
         }
 
         // Toast notification
