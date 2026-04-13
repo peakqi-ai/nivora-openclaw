@@ -1,34 +1,37 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { fetchModelBinary } from "@/lib/tripo";
+import { uploadModel } from "@/lib/blob";
 
 export async function POST(request: NextRequest) {
   try {
-    const { url } = await request.json();
+    const { url, taskId } = await request.json();
 
-    if (!url || typeof url !== 'string') {
-      return NextResponse.json({ error: 'url is required' }, { status: 400 });
+    if (!url || typeof url !== "string") {
+      return NextResponse.json({ error: "url is required" }, { status: 400 });
     }
 
-    // Fetch model from Tripo
-    const resp = await fetch(url);
-    
-    if (!resp.ok) {
-      return NextResponse.json({ error: 'Failed to fetch model' }, { status: 502 });
+    // Fetch the GLB binary from Tripo
+    const buffer = await fetchModelBinary(url);
+
+    // Save to Vercel Blob for permanent storage
+    let blobUrl: string | null = null;
+    if (taskId) {
+      blobUrl = await uploadModel(buffer, taskId);
     }
 
-    const arrayBuffer = await resp.arrayBuffer();
-
-    return new NextResponse(arrayBuffer, {
+    // Return the binary to the client (for immediate 3D viewer use)
+    return new NextResponse(buffer, {
       headers: {
-        'Content-Type': 'model/gltf-binary',
-        'Content-Length': String(arrayBuffer.byteLength),
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': '*',
-        'Cache-Control': 'public, max-age=86400',
+        "Content-Type": "model/gltf-binary",
+        "Content-Length": String(buffer.byteLength),
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=86400",
+        ...(blobUrl ? { "X-Blob-Url": blobUrl } : {}),
       },
     });
-
-  } catch (error: any) {
-    console.error('Model proxy error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error("Model proxy error:", error);
+    const message = error instanceof Error ? error.message : "Internal error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
