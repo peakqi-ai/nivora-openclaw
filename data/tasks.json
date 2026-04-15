@@ -178,5 +178,98 @@
     "priority": "A",
     "createdAt": "2026-03-25T19:54:00+08:00",
     "completedAt": "2026-03-25T20:03:00+08:00"
+  },
+  {
+    "id": "task-021",
+    "title": "PrintForge v4 開發（Tripo API 整合）",
+    "assignee": "axel",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-07T14:00:00+08:00",
+    "completedAt": "2026-04-07T17:47:00+08:00"
+  },
+  {
+    "id": "task-022",
+    "title": "FORMFTY 客戶背景研究",
+    "assignee": "sage",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-02T13:08:00+08:00",
+    "completedAt": "2026-04-02T17:14:00+08:00"
+  },
+  {
+    "id": "task-023",
+    "title": "PrintForge CORS 問題修復",
+    "assignee": "axel",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-10T10:20:00+08:00",
+    "completedAt": "2026-04-10T12:23:00+08:00"
+  },
+  {
+    "id": "task-024",
+    "title": "MiniMax M2.7 模型分析與策略建議",
+    "assignee": "niva",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-15T13:45:00+08:00",
+    "completedAt": "2026-04-15T14:00:00+08:00"
+  },
+  {
+    "id": "task-025",
+    "title": "Claude Code CLI 安裝",
+    "assignee": "niva",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-15T14:47:00+08:00",
+    "completedAt": "2026-04-15T14:56:00+08:00"
+  },
+  {
+    "id": "task-026",
+    "title": "整理記憶庫與更新虛擬辦公室",
+    "assignee": "niva",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-15T15:04:00+08:00",
+    "completedAt": "2026-04-15T15:11:00+08:00"
+  },
+  {
+    "id": "task-027",
+    "title": "FORMFTY 案子持續跟進",
+    "assignee": "rex",
+    "status": "in_progress",
+    "priority": "A",
+    "createdAt": "2026-04-15T13:39:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-028",
+    "title": "Claude CLI 登入設定",
+    "assignee": "niva",
+    "status": "todo",
+    "priority": "A",
+    "createdAt": "2026-04-15T14:47:00+08:00",
+    "completedAt": null,
+    "note": "需 Jacky 回家操作（目前在外）"
+  },
+  {
+    "id": "task-029",
+    "title": "PrintForge GLB 解析問題排查",
+    "assignee": "axel",
+    "status": "todo",
+    "priority": "B",
+    "createdAt": "2026-04-10T10:20:00+08:00",
+    "completedAt": null,
+    "note": "需瀏覽器 DevTools 看錯誤訊息"
+  },
+  {
+    "id": "task-030",
+    "title": "Nivora AI 產品化方向規劃",
+    "assignee": "niva",
+    "status": "todo",
+    "priority": "A",
+    "createdAt": "2026-04-15T13:39:00+08:00",
+    "completedAt": null,
+    "note": "以產品角度而非接案角度"
   }
 ]
