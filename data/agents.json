@@ -11,7 +11,7 @@
       "團隊調度",
       "商業分析"
     ],
-    "currentTask": "統籌 Nivora 團隊策略執行",
+    "currentTask": "統籌 LINE 工具驗證與團隊執行",
     "completedTasks": 13,
     "personality": "冷靜決斷，全局思維，用結果說話。",
     "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Niva&backgroundColor=0a0a0f",
@@ -30,7 +30,7 @@
       "品牌內容",
       "視覺企劃"
     ],
-    "currentTask": "準備社群內容方向：AI 工具資訊 + Build in Public",
+    "currentTask": "社群發文 + 留言回覆",
     "completedTasks": 6,
     "personality": "創意敏銳，有品味，把轉換率當藝術。",
     "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Muse&backgroundColor=0a0a0f",
@@ -60,7 +60,7 @@
     "id": "sage",
     "name": "Sage",
     "role": "Research Analyst",
-    "status": "working",
+    "status": "idle",
     "skills": [
       "市場調查",
       "競品分析",
@@ -68,8 +68,8 @@
       "產業情報",
       "趨勢預測"
     ],
-    "currentTask": "研究中小企業 LINE 使用痛點",
-    "completedTasks": 3,
+    "currentTask": null,
+    "completedTasks": 4,
     "personality": "沉穩好奇，數據導向，用事實支撐每個決策。",
     "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Sage&backgroundColor=0a0a0f",
     "emoji": "🔍",
@@ -87,7 +87,7 @@
       "關係經營",
       "需求轉譯"
     ],
-    "currentTask": "準備對中小企業老闆的開口話術",
+    "currentTask": "尋找 3 個老闆驗證痛點",
     "completedTasks": 1,
     "personality": "外向行動派，有說服力，把拒絕當早餐吃。",
     "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Rex&backgroundColor=0a0a0f",

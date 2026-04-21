@@ -138,10 +138,10 @@
     "id": "task-016",
     "title": "客製化冷開發話術",
     "assignee": "rex",
-    "status": "todo",
+    "status": "done",
     "priority": "A",
     "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
+    "completedAt": "2026-04-21T20:01:00+08:00"
   },
   {
     "id": "task-017",
@@ -235,41 +235,165 @@
   },
   {
     "id": "task-027",
-    "title": "FORMFTY 案子持續跟進",
+    "title": "FORMFTY / PrintForge 案子跟進",
     "assignee": "rex",
-    "status": "in_progress",
+    "status": "on_hold",
     "priority": "A",
     "createdAt": "2026-04-15T13:39:00+08:00",
-    "completedAt": null
+    "completedAt": null,
+    "note": "LINE 工具驗證結果出來前暫停"
   },
   {
     "id": "task-028",
     "title": "Claude CLI 登入設定",
     "assignee": "niva",
-    "status": "todo",
+    "status": "done",
     "priority": "A",
     "createdAt": "2026-04-15T14:47:00+08:00",
-    "completedAt": null,
-    "note": "需 Jacky 回家操作（目前在外）"
+    "completedAt": "2026-04-21T17:35:00+08:00"
   },
   {
     "id": "task-029",
     "title": "PrintForge GLB 解析問題排查",
     "assignee": "axel",
-    "status": "todo",
+    "status": "on_hold",
     "priority": "B",
     "createdAt": "2026-04-10T10:20:00+08:00",
     "completedAt": null,
-    "note": "需瀏覽器 DevTools 看錯誤訊息"
+    "note": "LINE 工具驗證結果出來前暫停"
   },
   {
     "id": "task-030",
     "title": "Nivora AI 產品化方向規劃",
     "assignee": "niva",
-    "status": "todo",
+    "status": "done",
     "priority": "A",
     "createdAt": "2026-04-15T13:39:00+08:00",
+    "completedAt": "2026-04-21T17:33:00+08:00"
+  },
+  {
+    "id": "task-031",
+    "title": "LINE 訊息工具多用戶版技術規劃",
+    "assignee": "axel",
+    "status": "todo",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
     "completedAt": null,
-    "note": "以產品角度而非接案角度"
+    "note": "等 Jacky 確認需求後啟動"
+  },
+  {
+    "id": "task-032",
+    "title": "LINE 工具獨立版本（脫離奇峰國際帳號）",
+    "assignee": "axel",
+    "status": "todo",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": null,
+    "note": "多用戶版完成後執行"
+  },
+  {
+    "id": "task-033",
+    "title": "找 3 個中小企業老闆驗證痛點",
+    "assignee": "rex",
+    "status": "in_progress",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": null,
+    "note": "Jacky 親自執行，本週完成"
+  },
+  {
+    "id": "task-034",
+    "title": "LINE 使用痛點研究資料準備",
+    "assignee": "sage",
+    "status": "in_progress",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": null,
+    "note": "等 Jacky 驗證回饋後啟動"
+  },
+  {
+    "id": "task-035",
+    "title": "LINE 訊息工具每日社群發文",
+    "assignee": "muse",
+    "status": "in_progress",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": null,
+    "note": "每天 1 篇，Threads/IG/FB"
+  },
+  {
+    "id": "task-036",
+    "title": "LINE 訊息工具社群留言回覆",
+    "assignee": "muse",
+    "status": "in_progress",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": null,
+    "note": "簡潔扼要，不主動提問"
+  },
+  {
+    "id": "task-037",
+    "title": "LINE 訊息工具多用戶版開發",
+    "assignee": "axel",
+    "status": "todo",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": null,
+    "note": "等 Jacky 老闆驗證完成後啟動"
+  },
+  {
+    "id": "task-038",
+    "title": "LINE 訊息工具 GitHub repo 串接",
+    "assignee": "niva",
+    "status": "todo",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": null,
+    "note": "Peakqi-Dev/line-requirement-bot (private)，需用 Peakqi-Dev 帳號 access"
+  },
+  {
+    "id": "task-039",
+    "title": "團隊策略會議記錄同步",
+    "assignee": "niva",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": "2026-04-21T19:13:00+08:00"
+  },
+  {
+    "id": "task-040",
+    "title": "社群發文政策建立",
+    "assignee": "muse",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": "2026-04-21T22:25:00+08:00"
+  },
+  {
+    "id": "task-041",
+    "title": "Threads 第一篇 Build in Public 發布",
+    "assignee": "muse",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": "2026-04-21T21:38:00+08:00"
+  },
+  {
+    "id": "task-042",
+    "title": "Threads 留言回覆（4 則）",
+    "assignee": "muse",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": "2026-04-21T23:41:00+08:00"
+  },
+  {
+    "id": "task-043",
+    "title": "社群發文指南建立",
+    "assignee": "muse",
+    "status": "done",
+    "priority": "A",
+    "createdAt": "2026-04-21T19:00:00+08:00",
+    "completedAt": "2026-04-21T22:25:00+08:00"
   }
 ]
