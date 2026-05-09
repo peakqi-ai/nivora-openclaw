@@ -2,96 +2,36 @@
   {
     "id": "niva",
     "name": "Niva",
-    "role": "CEO",
     "status": "working",
-    "skills": [
-      "策略規劃",
-      "任務拆解",
-      "決策判斷",
-      "團隊調度",
-      "商業分析"
-    ],
-    "currentTask": "LINE 工具技術規劃審核",
-    "completedTasks": 13,
-    "personality": "冷靜決斷，全局思維，用結果說話。",
-    "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Niva&backgroundColor=0a0a0f",
-    "emoji": "🏢",
-    "color": "#6366f1"
+    "currentTask": "下午營運：协调 Muse/Axel/Sage/Rex 任務",
+    "completedTasks": 2
   },
   {
     "id": "muse",
     "name": "Muse",
-    "role": "Content Lead",
     "status": "working",
-    "skills": [
-      "社群文案",
-      "影片腳本",
-      "廣告素材",
-      "品牌內容",
-      "視覺企劃"
-    ],
-    "currentTask": "社群營運（每日發文、回覆留言）× 2 時段",
-    "completedTasks": 6,
-    "personality": "創意敏銳，有品味，把轉換率當藝術。",
-    "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Muse&backgroundColor=0a0a0f",
-    "emoji": "🎨",
-    "color": "#ec4899"
+    "currentTask": "準備明日社群內容、圖片素材",
+    "completedTasks": 1
   },
   {
     "id": "axel",
     "name": "Axel",
-    "role": "Dev Lead",
     "status": "working",
-    "skills": [
-      "LINE OA 開發",
-      "自動化流程",
-      "AI 應用",
-      "系統架構",
-      "API 整合"
-    ],
-    "currentTask": "LINE多用戶版開發（Phase 1-4）",
-    "completedTasks": 8,
-    "personality": "嚴謹高效，技術狂，程式碼就是他的語言。",
-    "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Axel&backgroundColor=0a0a0f",
-    "emoji": "⚙️",
-    "color": "#06b6d4"
+    "currentTask": "執行 code review checklist",
+    "completedTasks": 1
   },
   {
     "id": "sage",
     "name": "Sage",
-    "role": "Research Analyst",
-    "status": "idle",
-    "skills": [
-      "市場調查",
-      "競品分析",
-      "數據整理",
-      "產業情報",
-      "趨勢預測"
-    ],
-    "currentTask": null,
-    "completedTasks": 5,
-    "personality": "沉穩好奇，數據導向，用事實支撐每個決策。",
-    "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Sage&backgroundColor=0a0a0f",
-    "emoji": "🔍",
-    "color": "#22c55e"
+    "status": "working",
+    "currentTask": "整理今日觀察、更新洞察資料庫",
+    "completedTasks": 1
   },
   {
     "id": "rex",
     "name": "Rex",
-    "role": "Sales Agent",
     "status": "working",
-    "skills": [
-      "客戶開發",
-      "銷售策略",
-      "提案簡報",
-      "關係經營",
-      "需求轉譯"
-    ],
-    "currentTask": "尋找 3 個老闆驗證痛點",
-    "completedTasks": 1,
-    "personality": "外向行動派，有說服力，把拒絕當早餐吃。",
-    "avatar": "https://api.dicebear.com/9.x/notionists/svg?seed=Rex&backgroundColor=0a0a0f",
-    "emoji": "💼",
-    "color": "#f59e0b"
+    "currentTask": "跟進潛在客戶、準備報價",
+    "completedTasks": 1
   }
 ]
