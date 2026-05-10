@@ -315,6 +315,64 @@ body {
   margin-bottom: 12px;
 }
 
+/* ===== WEEKLY PROGRESS ===== */
+#weeklyProgressSection {
+  min-height: 20vh;
+  background: rgba(10,10,20,0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 24px 20px;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.02em;
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.progress-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+}
+
+.progress-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.progress-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.progress-heading {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+}
+
+.progress-desc {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.4;
+}
+
 /* ===== TASK BOARD (inline) ===== */
 #taskBoardSection {
   min-height: 30vh;
@@ -417,6 +475,9 @@ body {
   .info-card { width: calc(100vw - 32px); left: 16px !important; right: 16px !important; }
 
   #taskColumns { grid-template-columns: 1fr; }
+
+  #weeklyProgressSection { padding: 16px 12px; }
+  .progress-item { padding: 8px 10px; }
 }
 
 @media (max-width: 900px) and (min-width: 641px) {
