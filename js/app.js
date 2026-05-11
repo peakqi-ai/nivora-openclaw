@@ -4,11 +4,12 @@ const REFRESH_MS = 30000;
 // Agent positions (% of image area, pointing at character head)
 // Using contain-fit: positions are % of the rendered image box
 const AGENT_POSITIONS = {
-  niva:  { left: 42, top: 62 },  // front center (CEO)
-  axel:  { left: 63, top: 56 },  // front right
-  muse:  { left: 20, top: 35 },  // back left
-  sage:  { left: 50, top: 30 },  // back center
-  rex:   { left: 75, top: 35 },  // back right
+  niva:  { left: 44, top: 60 },  // front center (CEO)
+  jacob: { left: 36, top: 58 },  // front left (Engineer)
+  axel:  { left: 64, top: 54 },  // front right
+  muse:  { left: 22, top: 33 },  // back left
+  sage:  { left: 52, top: 28 },  // back center
+  rex:   { left: 76, top: 33 },  // back right
 };
 
 // ===== STATE =====
