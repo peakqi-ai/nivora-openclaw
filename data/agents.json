@@ -3,14 +3,14 @@
     "id": "niva",
     "name": "Niva",
     "status": "working",
-    "currentTask": "下午營運：协调 Muse/Axel/Sage/Rex 任務",
-    "completedTasks": 0
+    "currentTask": "上午營運：審閱 2026-05-11 進度、統籌團隊",
+    "completedTasks": 2
   },
   {
     "id": "muse",
     "name": "Muse",
     "status": "working",
-    "currentTask": "準備明日社群內容、圖片素材",
+    "currentTask": "上午社群留言檢查、回覆互動",
     "completedTasks": 1
   },
   {
@@ -24,14 +24,14 @@
     "id": "sage",
     "name": "Sage",
     "status": "working",
-    "currentTask": "整理今日觀察、更新洞察資料庫",
+    "currentTask": "產出本週 AI 產業週報",
     "completedTasks": 1
   },
   {
     "id": "rex",
     "name": "Rex",
     "status": "working",
-    "currentTask": "第二次跟進現有客戶",
+    "currentTask": "開發新客戶名單、整理 pipeline",
     "completedTasks": 1
   }
 ]
