@@ -295,21 +295,20 @@
     "id": "task-033",
     "title": "找 3 個中小企業老闆驗證痛點",
     "assignee": "rex",
-    "status": "in_progress",
+    "status": "done",
     "priority": "A",
     "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "Jacky 親自執行，本週完成"
+    "completedAt": "2026-05-06T00:00:00+08:00",
+    "note": "2026-05-06 完成，痛點確認"
   },
   {
     "id": "task-034",
     "title": "LINE 使用痛點研究資料準備",
     "assignee": "sage",
-    "status": "in_progress",
+    "status": "done",
     "priority": "A",
     "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "等 Jacky 驗證回饋後啟動"
+    "completedAt": "2026-05-06T00:00:00+08:00"
   },
   {
     "id": "task-035",
@@ -334,12 +333,12 @@
   {
     "id": "task-037",
     "title": "LINE 訊息工具多用戶版開發",
-    "assignee": "axel",
-    "status": "todo",
+    "assignee": "jacob",
+    "status": "in_progress",
     "priority": "A",
     "createdAt": "2026-04-21T19:00:00+08:00",
     "completedAt": null,
-    "note": "等 Jacky 老闆驗證完成後啟動"
+    "note": "等 Jacky 確認 MVP 範圍後啟動"
   },
   {
     "id": "task-038",
@@ -395,5 +394,95 @@
     "priority": "A",
     "createdAt": "2026-04-21T19:00:00+08:00",
     "completedAt": "2026-04-21T22:25:00+08:00"
+  },
+  {
+    "id": "task-044",
+    "title": "虛擬辦公室 Task Board 內容更新",
+    "assignee": "axel",
+    "status": "in_progress",
+    "priority": "P0",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-045",
+    "title": "虛擬辦公室移除 PrintForge 連結",
+    "assignee": "axel",
+    "status": "done",
+    "priority": "P0",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": "2026-05-12T21:05:00+08:00"
+  },
+  {
+    "id": "task-046",
+    "title": "LINE 工具 MVP 範圍確認",
+    "assignee": "jacky",
+    "status": "todo",
+    "priority": "P0",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-047",
+    "title": "Jacob 重啟",
+    "assignee": "jacky",
+    "status": "todo",
+    "priority": "P0",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-048",
+    "title": "官網「More products coming soon」修改",
+    "assignee": "axel",
+    "status": "todo",
+    "priority": "P1",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-049",
+    "title": "官網 Build in Public 引用內容更新",
+    "assignee": "muse",
+    "status": "todo",
+    "priority": "P1",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-050",
+    "title": "Threads 官方 API 串接",
+    "assignee": "jacob",
+    "status": "todo",
+    "priority": "P1",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-051",
+    "title": "第二週社群內容規劃",
+    "assignee": "muse",
+    "status": "todo",
+    "priority": "P2",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-052",
+    "title": "LINE 多用戶版定價確認",
+    "assignee": "jacky",
+    "status": "todo",
+    "priority": "P1",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-053",
+    "title": "PrintForge 是否重啟決策",
+    "assignee": "niva",
+    "status": "todo",
+    "priority": "P2",
+    "createdAt": "2026-05-12T21:00:00+08:00",
+    "completedAt": null
   }
 ]
