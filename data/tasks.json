@@ -399,10 +399,10 @@
     "id": "task-044",
     "title": "虛擬辦公室 Task Board 內容更新",
     "assignee": "axel",
-    "status": "in_progress",
+    "status": "done",
     "priority": "P0",
     "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
+    "completedAt": "2026-05-12T22:45:00+08:00"
   },
   {
     "id": "task-045",
@@ -411,7 +411,7 @@
     "status": "done",
     "priority": "P0",
     "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": "2026-05-12T21:05:00+08:00"
+    "completedAt": "2026-05-12T22:45:00+08:00"
   },
   {
     "id": "task-046",
@@ -444,10 +444,10 @@
     "id": "task-049",
     "title": "官網 Build in Public 引用內容更新",
     "assignee": "muse",
-    "status": "todo",
+    "status": "done",
     "priority": "P1",
     "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
+    "completedAt": "2026-05-12T22:45:00+08:00"
   },
   {
     "id": "task-050",
@@ -462,10 +462,10 @@
     "id": "task-051",
     "title": "第二週社群內容規劃",
     "assignee": "muse",
-    "status": "todo",
+    "status": "done",
     "priority": "P2",
     "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
+    "completedAt": "2026-05-12T22:45:00+08:00"
   },
   {
     "id": "task-052",
