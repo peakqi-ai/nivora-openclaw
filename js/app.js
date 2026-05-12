@@ -4,12 +4,12 @@ const REFRESH_MS = 30000;
 // Agent positions (% of image area, pointing at character head)
 // Using contain-fit: positions are % of the rendered image box
 const AGENT_POSITIONS = {
-  niva:  { left: 34, top: 40 },  // 中央粉紅椅
-  muse:  { left: 25, top: 39 },  // 左上綠衣
-  rex:   { left: 29, top: 70 },  // 左下黃衣戴頭髮夾
-  sage:  { left: 16, top: 56 },  // 左下紫衣女生
-  jacob: { left: 69, top: 40 },  // 右上橘色背心
-  axel:  { left: 82, top: 75 },  // 右下深色帽 T
+  niva:  { left: 38, top: 32 },  // 往上拉，粉紅椅上方
+  muse:  { left: 20, top: 30 },  // 往上拉，不擋綠衣人物
+  rex:   { left: 25, top: 65 },  // 維持下方
+  sage:  { left: 8,  top: 48 },  // 往左拉開，不擋黃衣
+  jacob: { left: 72, top: 30 },  // 往上拉，橘色背心上方
+  axel:  { left: 85, top: 68 },  // 往上拉，深色帽 T 上方
 };
 
 // ===== STATE =====
