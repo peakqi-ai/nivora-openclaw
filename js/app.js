@@ -4,12 +4,12 @@ const REFRESH_MS = 30000;
 // Agent positions (% of image area, pointing at character head)
 // Using contain-fit: positions are % of the rendered image box
 const AGENT_POSITIONS = {
-  niva:  { left: 38, top: 42 },  // 中央粉紅椅
-  muse:  { left: 22, top: 30 },  // 左上綠衣
-  rex:   { left: 10, top: 50 },  // 左下黃衣戴頭髮夾
-  sage:  { left: 25, top: 65 },  // 左下紫衣女生
-  jacob: { left: 75, top: 35 },  // 右上橘色背心
-  axel:  { left: 80, top: 75 },  // 右下深色帽 T
+  niva:  { left: 34, top: 40 },  // 中央粉紅椅
+  muse:  { left: 25, top: 39 },  // 左上綠衣
+  rex:   { left: 29, top: 70 },  // 左下黃衣戴頭髮夾
+  sage:  { left: 16, top: 56 },  // 左下紫衣女生
+  jacob: { left: 69, top: 40 },  // 右上橘色背心
+  axel:  { left: 82, top: 75 },  // 右下深色帽 T
 };
 
 // ===== STATE =====
@@ -120,6 +120,7 @@ function renderLabels() {
 
     group.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (!pos) return;
       toggleCard(agent.id, { left: pos.left, top: pos.top });
     });
 
@@ -134,7 +135,10 @@ function toggleCard(agentId, pos) {
   openCardId = agentId;
 
   const agent = agents.find(a => a.id === agentId);
-  if (!agent) return;
+  if (!agent) {
+    console.warn('toggleCard: agent not found', agentId);
+    return;
+  }
 
   document.getElementById('backdrop').classList.remove('hidden');
 
