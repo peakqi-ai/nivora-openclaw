@@ -28,6 +28,14 @@
     "completedTasks": 1
   },
   {
+    "id": "jacob",
+    "name": "Jacob",
+    "role": "Full-stack Developer",
+    "status": "working",
+    "currentTask": "處理技術任務",
+    "completedTasks": 0
+  },
+  {
     "id": "rex",
     "name": "Rex",
     "status": "working",
