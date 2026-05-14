@@ -7,7 +7,7 @@
     "role": "CEO",
     "personality": "商業導向，直接果斷。主動拆解任務，給出可執行方案，不等指令。",
     "skills": ["策略規劃", "任務統籌", "決策判斷", "風險評估"],
-    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23e91e63'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='18'%3E🏢%3C/text%3E%3C/svg%3E"
+    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23e91e63'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23fff' opacity='0.9'/%3E%3Crect x='8' y='18' width='16' height='12' rx='4' fill='%23fff' opacity='0.9'/%3E%3Crect x='6' y='26' width='20' height='4' rx='2' fill='%23fff' opacity='0.7'/%3E%3C/svg%3E"
   },
   {
     "id": "muse",
@@ -17,7 +17,7 @@
     "role": "Content Lead",
     "personality": "創意豐富，審美敏銳。擅長社群內容策略，懂的觀眾想要什麼。",
     "skills": ["社群內容", "圖片生成", "文案撰寫", "視覺策劃"],
-    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%239c27b0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='18'%3E🎨%3C/text%3E%3C/svg%3E"
+    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%239c27b0'/%3E%3Ccircle cx='16' cy='13' r='6' fill='%23f8bbd9'/%3E%3Cpath d='M8 22 Q16 18 24 22 L24 28 Q16 30 8 28 Z' fill='%23f8bbd9'/%3E%3Ccircle cx='13' cy='12' r='1.5' fill='%23333'/%3E%3Ccircle cx='19' cy='12' r='1.5' fill='%23333'/%3E%3Cpath d='M12 16 Q16 19 20 16' stroke='%23333' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='10' r='2' fill='%23f48fb1'/%3E%3Ccircle cx='22' cy='10' r='2' fill='%23f48fb1'/%3E%3C/svg%3E"
   },
   {
     "id": "axel",
@@ -27,7 +27,7 @@
     "role": "Dev Lead",
     "personality": "技術深度，系統思考。不只規劃架構，會考慮長遠擴展性。",
     "skills": ["技術架構", "開發規劃", "Code Review", "系統設計"],
-    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232196f3'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='18'%3E⚙️%3C/text%3E%3C/svg%3E"
+    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%232196f3'/%3E%3Ccircle cx='16' cy='13' r='6' fill='%23bbdefb'/%3E%3Crect x='8' y='18' width='16' height='12' rx='3' fill='%23bbdefb'/%3E%3Crect x='10' y='20' width='12' height='6' rx='1' fill='%232196f3' opacity='0.3'/%3E%3Ccircle cx='13' cy='12' r='1.2' fill='%23333'/%3E%3Ccircle cx='19' cy='12' r='1.2' fill='%23333'/%3E%3Crect x='6' y='26' width='20' height='4' rx='2' fill='%23bbdefb'/%3E%3Cpath d='M13 15 L15 17 L19 13' stroke='%23333' stroke-width='1.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
   },
   {
     "id": "sage",
@@ -37,7 +37,7 @@
     "role": "Research",
     "personality": "數據導向，研究嚴謹。拆解市場趨勢，找出規律和機會。",
     "skills": ["市場研究", "競品分析", "數據解讀", "趨勢觀察"],
-    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234caf50'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='18'%3E🔍%3C/text%3E%3C/svg%3E"
+    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%234caf50'/%3E%3Ccircle cx='16' cy='13' r='6' fill='%23c8e6c9'/%3E%3Crect x='8' y='18' width='16' height='12' rx='3' fill='%23c8e6c9'/%3E%3Ccircle cx='13' cy='12' r='1.2' fill='%23333'/%3E%3Ccircle cx='19' cy='12' r='1.2' fill='%23333'/%3E%3Cpath d='M13 16 Q16 18 19 16' stroke='%23333' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3Crect x='6' y='26' width='20' height='4' rx='2' fill='%23c8e6c9'/%3E%3Crect x='20' y='6' width='8' height='10' rx='4' fill='%23c8e6c9' opacity='0.8'/%3E%3Ccircle cx='24' cy='11' r='3' fill='none' stroke='%234caf50' stroke-width='1.2'/%3E%3Cline x1='26' y1='13' x2='28' y2='15' stroke='%234caf50' stroke-width='1.2'/%3E%3C/svg%3E"
   },
   {
     "id": "rex",
@@ -47,6 +47,6 @@
     "role": "Sales",
     "personality": "結果導向，談判高手。懂客戶心理，擅長把機會變成營收。",
     "skills": ["業務開發", "客戶跟進", "報價策略", "談判技巧"],
-    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff9800'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='18'%3E💼%3C/text%3E%3C/svg%3E"
+    "avatar": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23ff9800'/%3E%3Ccircle cx='16' cy='13' r='6' fill='%23ffe0b2'/%3E%3Crect x='8' y='18' width='16' height='12' rx='3' fill='%23ffe0b2'/%3E%3Ccircle cx='13' cy='12' r='1.2' fill='%23333'/%3E%3Ccircle cx='19' cy='12' r='1.2' fill='%23333'/%3E%3Cpath d='M13 16 Q16 18 19 16' stroke='%23333' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3Crect x='6' y='26' width='20' height='4' rx='2' fill='%23ffe0b2'/%3E%3Crect x='12' y='17' width='8' height='3' rx='1' fill='%23ff9800' opacity='0.6'/%3E%3C/svg%3E"
   }
 ]
