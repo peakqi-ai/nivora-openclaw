@@ -1,0 +1,51 @@
+[
+  {
+    "id": "day2_instagram",
+    "day": 2,
+    "timestamp": "2026-05-14T20:15:55.482465",
+    "text": "做產品的第一個月，我學會的三件事\n\n以 Nivora 品牌創辦人視角（匿名或半匿名），說三個早期犯過的錯——不是心靈雞湯，是具體的失敗：報價太低、沒有文件化流程、客戶期待失控。",
+    "platform": "instagram"
+  },
+  {
+    "id": "day3_facebook",
+    "day": 3,
+    "timestamp": "2026-05-14T20:15:55.482470",
+    "text": "為什麼你的 AI agent 總是在亂說話\n\n拆解 prompt engineering 的底層邏輯，針對「AI 輸出不穩定」這個痛點，給三個馬上能用的修正方法。不谈理论，只讲实操。",
+    "platform": "facebook"
+  },
+  {
+    "id": "day4_threads",
+    "day": 4,
+    "timestamp": "2026-05-14T20:15:55.482473",
+    "text": "兩週前上線的 LINE 工具，現在怎麼了\n\n真实更新——用户数、遇到的技术坑、第一次被客诉怎么处理的。用数据说话，不要只说「很好」。",
+    "platform": "threads"
+  },
+  {
+    "id": "day5_instagram",
+    "day": 5,
+    "timestamp": "2026-05-14T20:15:55.482477",
+    "text": "你用 AI 工具處理過最意外的事情是什麼？\n\n抛一个问题，引发评论区讨论。贴一张图（可以是概念图或截图），配文问「你有过 AI 突然做好事的经验吗？」，用 reply-to-comment 机制延长互动。",
+    "platform": "instagram"
+  },
+  {
+    "id": "day6_threads",
+    "day": 6,
+    "timestamp": "2026-05-14T20:15:55.482480",
+    "text": "我们怎么用两个 AI 系统跑一家公司\n\n介绍 OpenClaw + Claude Code 的双 AI 协作架构——不是技术教学，是工作流的真实分享。说明为什么需要两个系统、它们各自负责什么、数据怎么同步。",
+    "platform": "threads"
+  },
+  {
+    "id": "day7_facebook",
+    "day": 7,
+    "timestamp": "2026-05-14T20:15:55.482483",
+    "text": "小团队用 AI 的正确姿势：不是堆工具，是砍需求\n\n从产品开发角度谈 AI implementation 的优先顺序——先确认要解决的核心问题，再选工具，而不是反过来。给出一个简单的决策框架。",
+    "platform": "facebook"
+  },
+  {
+    "id": "day1_threads",
+    "day": 1,
+    "timestamp": "2026-05-15T10:00:00.718158",
+    "text": "AI 工具到底要多「自動化」才算好用？\n\n從 LINE 機器人的介面設計切入，談自動化邊界——哪些環節必須保留人的判斷、哪些可以完全交給 AI。提出「夠用就好，不要貪心」的角度。",
+    "platform": "threads"
+  }
+]
