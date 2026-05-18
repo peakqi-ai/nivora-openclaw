@@ -14,7 +14,7 @@
     ],
     "avatar": "assets/avatar-niva.svg",
     "status": "working",
-    "currentTask": "下午營運：协调 Muse/Axel/Sage/Rex 任務",
+    "currentTask": "上午營運：審閱 2026-05-18 進度、統籌團隊",
     "completedTasks": 1
   },
   {
@@ -32,7 +32,7 @@
     ],
     "avatar": "assets/avatar-muse.svg",
     "status": "working",
-    "currentTask": "準備明日社群內容、圖片素材",
+    "currentTask": "上午社群留言檢查、回覆互動",
     "completedTasks": 1
   },
   {
@@ -50,7 +50,7 @@
     ],
     "avatar": "assets/avatar-axel.svg",
     "status": "working",
-    "currentTask": "Review 今日本站更新、等 Jacob 回報",
+    "currentTask": "技術方案規劃、MVP 架構確認",
     "completedTasks": 1
   },
   {
@@ -68,7 +68,7 @@
     ],
     "avatar": "assets/avatar-sage.svg",
     "status": "working",
-    "currentTask": "整理今日觀察、更新洞察資料庫",
+    "currentTask": "市場研究、競品分析",
     "completedTasks": 1
   },
   {
@@ -86,7 +86,7 @@
     ],
     "avatar": "assets/avatar-rex.svg",
     "status": "working",
-    "currentTask": "第二次跟進現有客戶",
+    "currentTask": "開發新客戶名單、整理 pipeline",
     "completedTasks": 1
   },
   {
