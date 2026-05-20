@@ -1,12 +1,5 @@
 [
   {
-    "id": "day6_threads",
-    "day": 6,
-    "timestamp": "2026-05-14T20:15:55.482480",
-    "text": "我们怎么用两个 AI 系统跑一家公司\n\n介绍 OpenClaw + Claude Code 的双 AI 协作架构——不是技术教学，是工作流的真实分享。说明为什么需要两个系统、它们各自负责什么、数据怎么同步。",
-    "platform": "threads"
-  },
-  {
     "id": "day7_facebook",
     "day": 7,
     "timestamp": "2026-05-14T20:15:55.482483",
@@ -47,5 +40,12 @@
     "timestamp": "2026-05-19T10:00:00.804223",
     "text": "你用 AI 工具處理過最意外的事情是什麼？\n\n抛一个问题，引发评论区讨论。贴一张图（可以是概念图或截图），配文问「你有过 AI 突然做好事的经验吗？」，用 reply-to-comment 机制延长互动。",
     "platform": "instagram"
+  },
+  {
+    "id": "day6_threads",
+    "day": 6,
+    "timestamp": "2026-05-20T10:00:00.104155",
+    "text": "我们怎么用两个 AI 系统跑一家公司\n\n介绍 OpenClaw + Claude Code 的双 AI 协作架构——不是技术教学，是工作流的真实分享。说明为什么需要两个系统、它们各自负责什么、数据怎么同步。",
+    "platform": "threads"
   }
 ]
