@@ -1,12 +1,5 @@
 [
   {
-    "id": "day3_facebook",
-    "day": 3,
-    "timestamp": "2026-05-17T10:00:00.932427",
-    "text": "為什麼你的 AI agent 總是在亂說話\n\n拆解 prompt engineering 的底層邏輯，針對「AI 輸出不穩定」這個痛點，給三個馬上能用的修正方法。不谈理论，只讲实操。",
-    "platform": "facebook"
-  },
-  {
     "id": "day4_threads",
     "day": 4,
     "timestamp": "2026-05-18T10:00:00.593016",
@@ -47,5 +40,12 @@
     "timestamp": "2026-05-23T10:00:00.504772",
     "text": "做產品的第一個月，我學會的三件事\n\n以 Nivora 品牌創辦人視角（匿名或半匿名），說三個早期犯過的錯——不是心靈雞湯，是具體的失敗：報價太低、沒有文件化流程、客戶期待失控。",
     "platform": "instagram"
+  },
+  {
+    "id": "day3_facebook",
+    "day": 3,
+    "timestamp": "2026-05-24T10:00:01.221620",
+    "text": "為什麼你的 AI agent 總是在亂說話\n\n拆解 prompt engineering 的底層邏輯，針對「AI 輸出不穩定」這個痛點，給三個馬上能用的修正方法。不谈理论，只讲实操。",
+    "platform": "facebook"
   }
 ]
