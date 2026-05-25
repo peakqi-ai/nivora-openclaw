@@ -1,12 +1,5 @@
 [
   {
-    "id": "day4_threads",
-    "day": 4,
-    "timestamp": "2026-05-18T10:00:00.593016",
-    "text": "兩週前上線的 LINE 工具，現在怎麼了\n\n真实更新——用户数、遇到的技术坑、第一次被客诉怎么处理的。用数据说话，不要只说「很好」。",
-    "platform": "threads"
-  },
-  {
     "id": "day5_instagram",
     "day": 5,
     "timestamp": "2026-05-19T10:00:00.804223",
@@ -47,5 +40,12 @@
     "timestamp": "2026-05-24T10:00:01.221620",
     "text": "為什麼你的 AI agent 總是在亂說話\n\n拆解 prompt engineering 的底層邏輯，針對「AI 輸出不穩定」這個痛點，給三個馬上能用的修正方法。不谈理论，只讲实操。",
     "platform": "facebook"
+  },
+  {
+    "id": "day4_threads",
+    "day": 4,
+    "timestamp": "2026-05-25T10:00:00.842507",
+    "text": "兩週前上線的 LINE 工具，現在怎麼了\n\n真实更新——用户数、遇到的技术坑、第一次被客诉怎么处理的。用数据说话，不要只说「很好」。",
+    "platform": "threads"
   }
 ]
