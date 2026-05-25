@@ -3,6 +3,9 @@
 Muse Content Queue Manager
 Reads Muse's content plan and adds posts to the queue.
 
+IMPORTANT: All content must use Traditional Chinese only.
+嚴禁使用任何簡體字。全部輸出必須為繁體中文。
+
 Usage:
   python3 muse-queue.py              # add today's pending posts
   python3 muse-queue.py --list        # show queue

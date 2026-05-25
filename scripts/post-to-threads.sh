@@ -18,6 +18,20 @@ API_BASE="https://graph.threads.net/v1.0"
 
 die() { echo "❌ $*" >&2; exit 1; }
 
+# Detect simplified Chinese characters in text
+# Returns 0 if clean, 1 if simplified chars found (and logs warning)
+check_simplified() {
+  local text="$1"
+  # Simplified-only characters (traditional equivalents look different)
+  # Pattern catches: 厂发对会为争当运过区业单结线网总无书车
+  if echo "$text" | grep -qE '[厂发对会为争当运过区业单结线网总无书车]'; then
+    echo "⚠️  WARNING: Simplified Chinese detected in post. Blocking publish."
+    echo "📋 Text preview: ${text:0:100}..."
+    return 1
+  fi
+  return 0
+}
+
 # Load .env
 [ -f "$ENV_FILE" ] || die "Missing .env at $ENV_FILE"
 set -a
@@ -46,6 +60,12 @@ if [ $# -eq 0 ]; then
     die "Invalid queue entry"
   fi
 
+  # Check for simplified Chinese before posting
+  if ! check_simplified "$TEXT"; then
+    echo "❌ Post blocked due to simplified Chinese. Remove and re-queue manually."
+    exit 0
+  fi
+
   echo "📤 Posting from queue (id=$POST_ID, platform=$PLATFORM): ${TEXT:0:50}..."
 
 else
@@ -56,6 +76,12 @@ else
 fi
 
 [ -n "$TEXT" ] || die "Empty text"
+
+# Check for simplified Chinese before posting
+if ! check_simplified "$TEXT"; then
+  echo "❌ Post blocked due to simplified Chinese."
+  exit 1
+fi
 
 # Step 1: create container
 CREATE_RESP="$(curl -sS -X POST "$API_BASE/me/threads" \
