@@ -22,14 +22,20 @@ die() { echo "❌ $*" >&2; exit 1; }
 # Returns 0 if clean, 1 if simplified chars found (and logs warning)
 check_simplified() {
   local text="$1"
-  # Simplified-only characters (traditional equivalents look different)
-  # Pattern catches: 厂发对会为争当运过区业单结线网总无书车
-  if echo "$text" | grep -qE '[厂发对会为争当运过区业单结线网总无书车]'; then
+  # Use Python for reliable Unicode-aware detection
+  if python3 -c "
+import sys
+text = sys.argv[1]
+blocked = set('厂发对会为争当运过区业单结线网总无书车')
+found = [c for c in text if c in blocked]
+sys.exit(1 if found else 0)
+" "$text" 2>/dev/null; then
+    return 0
+  else
     echo "⚠️  WARNING: Simplified Chinese detected in post. Blocking publish."
     echo "📋 Text preview: ${text:0:100}..."
     return 1
   fi
-  return 0
 }
 
 # Load .env
