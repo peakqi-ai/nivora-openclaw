@@ -1,12 +1,5 @@
 [
   {
-    "id": "day7_facebook",
-    "day": 7,
-    "timestamp": "2026-05-27T10:00:00.956617",
-    "text": "小團隊用 AI 的正確姿勢：不是堆工具，是砍需求\n\n從產品開發角度談 AI implementation 的優先順序——先確認要解決的核心問題，再選工具，而不是反過來。給出一個簡單的決策框架。",
-    "platform": "facebook"
-  },
-  {
     "id": "day1_threads",
     "day": 1,
     "timestamp": "2026-05-28T10:00:00.753302",
