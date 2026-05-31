@@ -3,7 +3,7 @@
     "id": "leadflow-ai-前台接待---phase-a-b-c-全上線",
     "title": "LeadFlow AI 前台接待 — Phase A+B+C 全上線",
     "priority": 0,
-    "status": "working",
+    "status": "done",
     "assignee": "jacob"
   },
   {
@@ -26,20 +26,6 @@
     "priority": 2,
     "status": "todo",
     "assignee": "jacob"
-  },
-  {
-    "id": "printforge-glb-解析卡關",
-    "title": "PrintForge GLB 解析卡關",
-    "priority": 2,
-    "status": "todo",
-    "assignee": "jacob"
-  },
-  {
-    "id": "nivora-ai-電商模式具體方案",
-    "title": "Nivora AI 電商模式具體方案",
-    "priority": 3,
-    "status": "todo",
-    "assignee": "niva"
   },
   {
     "id": "社群帳號內容累積-build-in-public",
