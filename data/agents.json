@@ -14,8 +14,7 @@
     ],
     "avatar": "assets/avatar-niva.svg",
     "status": "working",
-    "currentTask": "下午營運：协调 Muse/Axel/Sage/Rex 任務",
-    "completedTasks": 1
+    "currentTask": "LeadFlow Beta 用戶推廣"
   },
   {
     "id": "muse",
@@ -32,8 +31,7 @@
     ],
     "avatar": "assets/avatar-muse.svg",
     "status": "working",
-    "currentTask": "準備明日社群內容、圖片素材",
-    "completedTasks": 1
+    "currentTask": "社群帳號內容累積（Build in Public）"
   },
   {
     "id": "axel",
@@ -49,9 +47,7 @@
       "系統設計"
     ],
     "avatar": "assets/avatar-axel.svg",
-    "status": "working",
-    "currentTask": "Review 今日本站更新、等 Jacob 回報",
-    "completedTasks": 1
+    "status": "idle"
   },
   {
     "id": "sage",
@@ -67,9 +63,7 @@
       "趨勢觀察"
     ],
     "avatar": "assets/avatar-sage.svg",
-    "status": "working",
-    "currentTask": "整理今日觀察、更新洞察資料庫",
-    "completedTasks": 1
+    "status": "idle"
   },
   {
     "id": "rex",
@@ -86,8 +80,7 @@
     ],
     "avatar": "assets/avatar-rex.svg",
     "status": "working",
-    "currentTask": "第二次跟進現有客戶",
-    "completedTasks": 1
+    "currentTask": "LeadFlow Beta 用戶推廣"
   },
   {
     "id": "jacob",
@@ -104,7 +97,6 @@
     ],
     "avatar": "assets/avatar-jacob.svg",
     "status": "working",
-    "currentTask": "技術執行：LINE 工具開發、網站更新部署",
-    "completedTasks": 1
+    "currentTask": "LeadFlow AI 前台接待 — Phase A+B+C 全上線"
   }
 ]

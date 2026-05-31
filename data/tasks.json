@@ -1,488 +1,51 @@
 [
   {
-    "id": "task-001",
-    "title": "建立公司知識庫目錄",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-24T18:51:00+08:00",
-    "completedAt": "2026-03-24T18:52:00+08:00"
+    "id": "leadflow-ai-前台接待---phase-a-b-c-全上線",
+    "title": "LeadFlow AI 前台接待 — Phase A+B+C 全上線",
+    "priority": 0,
+    "status": "working",
+    "assignee": "jacob"
   },
   {
-    "id": "task-002",
-    "title": "安裝 LaunchAgent 開機自啟",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-24T18:51:00+08:00",
-    "completedAt": "2026-03-24T18:53:00+08:00"
+    "id": "leadflow-beta-用戶推廣",
+    "title": "LeadFlow Beta 用戶推廣",
+    "priority": 1,
+    "status": "working",
+    "assignee": "niva"
   },
   {
-    "id": "task-003",
-    "title": "草擬服務型錄 v1",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-24T18:51:00+08:00",
-    "completedAt": "2026-03-24T18:55:00+08:00"
-  },
-  {
-    "id": "task-004",
-    "title": "定義 Sub-agent 團隊",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-24T18:51:00+08:00",
-    "completedAt": "2026-03-24T18:56:00+08:00"
-  },
-  {
-    "id": "task-005",
-    "title": "建置虛擬辦公室網頁",
-    "assignee": "axel",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-24T21:08:00+08:00",
-    "completedAt": "2026-03-24T21:16:00+08:00"
-  },
-  {
-    "id": "task-006",
-    "title": "產出 3 個 Demo 案例",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-24T21:30:00+08:00",
-    "completedAt": "2026-03-24T21:55:00+08:00"
-  },
-  {
-    "id": "task-007",
-    "title": "社群內容規劃（前 10 篇）",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-24T22:00:00+08:00",
-    "completedAt": "2026-03-24T22:15:00+08:00"
-  },
-  {
-    "id": "task-008",
-    "title": "冷開發名單 v1",
-    "assignee": "rex",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-24T22:20:00+08:00",
-    "completedAt": "2026-03-24T22:24:00+08:00"
-  },
-  {
-    "id": "task-009",
-    "title": "Nivora AI 官網上線",
-    "assignee": "axel",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-24T23:00:00+08:00",
-    "completedAt": "2026-03-24T23:27:00+08:00"
-  },
-  {
-    "id": "task-010",
-    "title": "社群帳號 Bio / 頭像 / 連結設定",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": "2026-03-25T13:33:00+08:00"
-  },
-  {
-    "id": "task-011",
-    "title": "第 1 篇 IG 貼文（品牌宣告）",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-25T12:34:00+08:00",
-    "completedAt": "2026-03-25T13:33:00+08:00"
-  },
-  {
-    "id": "task-012",
-    "title": "第 2 篇 IG 貼文（四大服務介紹）配圖",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-25T13:38:00+08:00",
-    "completedAt": "2026-03-25T13:53:00+08:00"
-  },
-  {
-    "id": "task-013",
-    "title": "完善官網 CTA 流程",
-    "assignee": "axel",
+    "id": "line-requirement-bot-多用戶版",
+    "title": "line-requirement-bot 多用戶版",
+    "priority": 2,
     "status": "todo",
-    "priority": "B",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
+    "assignee": "jacob"
   },
   {
-    "id": "task-014",
-    "title": "申請 LINE OA",
-    "assignee": "niva",
+    "id": "muse-官方-api-串接-取代-cdp",
+    "title": "Muse 官方 API 串接（取代 CDP）",
+    "priority": 2,
     "status": "todo",
-    "priority": "B",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
+    "assignee": "jacob"
   },
   {
-    "id": "task-015",
-    "title": "冷開發名單填入真實店家",
-    "assignee": "rex",
+    "id": "printforge-glb-解析卡關",
+    "title": "PrintForge GLB 解析卡關",
+    "priority": 2,
     "status": "todo",
-    "priority": "A",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
+    "assignee": "jacob"
   },
   {
-    "id": "task-016",
-    "title": "客製化冷開發話術",
-    "assignee": "rex",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": "2026-04-21T20:01:00+08:00"
-  },
-  {
-    "id": "task-017",
-    "title": "建立客戶 Onboarding SOP",
-    "assignee": "niva",
+    "id": "nivora-ai-電商模式具體方案",
+    "title": "Nivora AI 電商模式具體方案",
+    "priority": 3,
     "status": "todo",
-    "priority": "C",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
+    "assignee": "niva"
   },
   {
-    "id": "task-018",
-    "title": "整理定價策略文件",
-    "assignee": "sage",
-    "status": "todo",
-    "priority": "C",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-019",
-    "title": "第 3 篇 IG 貼文（LINE OA 案例）配圖",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-25T19:33:00+08:00",
-    "completedAt": "2026-03-25T19:45:00+08:00"
-  },
-  {
-    "id": "task-020",
-    "title": "3D 等距虛擬辦公室 v1",
-    "assignee": "axel",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-03-25T19:54:00+08:00",
-    "completedAt": "2026-03-25T20:03:00+08:00"
-  },
-  {
-    "id": "task-021",
-    "title": "PrintForge v4 開發（Tripo API 整合）",
-    "assignee": "axel",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-07T14:00:00+08:00",
-    "completedAt": "2026-04-07T17:47:00+08:00"
-  },
-  {
-    "id": "task-022",
-    "title": "FORMFTY 客戶背景研究",
-    "assignee": "sage",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-02T13:08:00+08:00",
-    "completedAt": "2026-04-02T17:14:00+08:00"
-  },
-  {
-    "id": "task-023",
-    "title": "PrintForge CORS 問題修復",
-    "assignee": "axel",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-10T10:20:00+08:00",
-    "completedAt": "2026-04-10T12:23:00+08:00"
-  },
-  {
-    "id": "task-024",
-    "title": "MiniMax M2.7 模型分析與策略建議",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-15T13:45:00+08:00",
-    "completedAt": "2026-04-15T14:00:00+08:00"
-  },
-  {
-    "id": "task-025",
-    "title": "Claude Code CLI 安裝",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-15T14:47:00+08:00",
-    "completedAt": "2026-04-15T14:56:00+08:00"
-  },
-  {
-    "id": "task-026",
-    "title": "整理記憶庫與更新虛擬辦公室",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-15T15:04:00+08:00",
-    "completedAt": "2026-04-15T15:11:00+08:00"
-  },
-  {
-    "id": "task-027",
-    "title": "FORMFTY / PrintForge 案子跟進",
-    "assignee": "rex",
-    "status": "on_hold",
-    "priority": "A",
-    "createdAt": "2026-04-15T13:39:00+08:00",
-    "completedAt": null,
-    "note": "LINE 工具驗證結果出來前暫停"
-  },
-  {
-    "id": "task-028",
-    "title": "Claude CLI 登入設定",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-15T14:47:00+08:00",
-    "completedAt": "2026-04-21T17:35:00+08:00"
-  },
-  {
-    "id": "task-029",
-    "title": "PrintForge GLB 解析問題排查",
-    "assignee": "axel",
-    "status": "on_hold",
-    "priority": "B",
-    "createdAt": "2026-04-10T10:20:00+08:00",
-    "completedAt": null,
-    "note": "LINE 工具驗證結果出來前暫停"
-  },
-  {
-    "id": "task-030",
-    "title": "Nivora AI 產品化方向規劃",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-15T13:39:00+08:00",
-    "completedAt": "2026-04-21T17:33:00+08:00"
-  },
-  {
-    "id": "task-031",
-    "title": "LINE 訊息工具多用戶版技術規劃",
-    "assignee": "axel",
-    "status": "todo",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "等 Jacky 確認需求後啟動"
-  },
-  {
-    "id": "task-032",
-    "title": "LINE 工具獨立版本（脫離奇峰國際帳號）",
-    "assignee": "axel",
-    "status": "todo",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "多用戶版完成後執行"
-  },
-  {
-    "id": "task-033",
-    "title": "找 3 個中小企業老闆驗證痛點",
-    "assignee": "rex",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": "2026-05-06T00:00:00+08:00",
-    "note": "2026-05-06 完成，痛點確認"
-  },
-  {
-    "id": "task-034",
-    "title": "LINE 使用痛點研究資料準備",
-    "assignee": "sage",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": "2026-05-06T00:00:00+08:00"
-  },
-  {
-    "id": "task-035",
-    "title": "LINE 訊息工具每日社群發文",
-    "assignee": "muse",
-    "status": "in_progress",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "每天 1 篇，Threads/IG/FB"
-  },
-  {
-    "id": "task-036",
-    "title": "LINE 訊息工具社群留言回覆",
-    "assignee": "muse",
-    "status": "in_progress",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "簡潔扼要，不主動提問"
-  },
-  {
-    "id": "task-037",
-    "title": "LINE 訊息工具多用戶版開發",
-    "assignee": "jacob",
-    "status": "in_progress",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "等 Jacky 確認 MVP 範圍後啟動"
-  },
-  {
-    "id": "task-038",
-    "title": "LINE 訊息工具 GitHub repo 串接",
-    "assignee": "niva",
-    "status": "todo",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "Peakqi-Dev/line-requirement-bot (private)，需用 Peakqi-Dev 帳號 access"
-  },
-  {
-    "id": "task-039",
-    "title": "團隊策略會議記錄同步",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": "2026-04-21T19:13:00+08:00"
-  },
-  {
-    "id": "task-040",
-    "title": "社群發文政策建立",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": "2026-04-21T22:25:00+08:00"
-  },
-  {
-    "id": "task-041",
-    "title": "Threads 第一篇 Build in Public 發布",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": "2026-04-21T21:38:00+08:00"
-  },
-  {
-    "id": "task-042",
-    "title": "Threads 留言回覆（4 則）",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": "2026-04-21T23:41:00+08:00"
-  },
-  {
-    "id": "task-043",
-    "title": "社群發文指南建立",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": "2026-04-21T22:25:00+08:00"
-  },
-  {
-    "id": "task-044",
-    "title": "虛擬辦公室 Task Board 內容更新",
-    "assignee": "axel",
-    "status": "done",
-    "priority": "P0",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": "2026-05-12T22:45:00+08:00"
-  },
-  {
-    "id": "task-045",
-    "title": "虛擬辦公室移除 PrintForge 連結",
-    "assignee": "axel",
-    "status": "done",
-    "priority": "P0",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": "2026-05-12T22:45:00+08:00"
-  },
-  {
-    "id": "task-046",
-    "title": "LINE 工具 MVP 範圍確認",
-    "assignee": "jacky",
-    "status": "todo",
-    "priority": "P0",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-047",
-    "title": "Jacob 重啟",
-    "assignee": "jacky",
-    "status": "todo",
-    "priority": "P0",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-048",
-    "title": "官網「More products coming soon」修改",
-    "assignee": "axel",
-    "status": "todo",
-    "priority": "P1",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-049",
-    "title": "官網 Build in Public 引用內容更新",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "P1",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": "2026-05-12T22:45:00+08:00"
-  },
-  {
-    "id": "task-050",
-    "title": "Threads 官方 API 串接",
-    "assignee": "jacob",
-    "status": "todo",
-    "priority": "P1",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-051",
-    "title": "第二週社群內容規劃",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "P2",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": "2026-05-12T22:45:00+08:00"
-  },
-  {
-    "id": "task-052",
-    "title": "LINE 多用戶版定價確認",
-    "assignee": "jacky",
-    "status": "todo",
-    "priority": "P1",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-053",
-    "title": "PrintForge 是否重啟決策",
-    "assignee": "niva",
-    "status": "todo",
-    "priority": "P2",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
+    "id": "社群帳號內容累積-build-in-public",
+    "title": "社群帳號內容累積（Build in Public）",
+    "priority": 3,
+    "status": "working",
+    "assignee": "muse"
   }
 ]
