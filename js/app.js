@@ -15,17 +15,21 @@ const AGENT_POSITIONS = {
 // ===== STATE =====
 let agents = [];
 let tasks = [];
+let highlights = [];
 let openCardId = null;
 
 // ===== FETCH =====
 async function fetchData() {
   try {
-    const [agentsRes, tasksRes] = await Promise.all([
-      fetch('data/agents.json?t=' + Date.now()),
-      fetch('data/tasks.json?t=' + Date.now()),
+    const t = Date.now();
+    const [agentsRes, tasksRes, highlightsRes] = await Promise.all([
+      fetch('data/agents.json?t=' + t),
+      fetch('data/tasks.json?t=' + t),
+      fetch('data/highlights.json?t=' + t),
     ]);
-    agents = await agentsRes.json();
-    tasks = await tasksRes.json();
+    agents     = await agentsRes.json();
+    tasks      = await tasksRes.json();
+    highlights = highlightsRes.ok ? await highlightsRes.json() : [];
   } catch (e) {
     console.warn('Fetch error:', e);
   }
@@ -36,6 +40,7 @@ function render() {
   renderLabels();
   renderHeader();
   renderTaskBoard();
+  renderHighlights();
 }
 
 function renderHeader() {
@@ -199,6 +204,35 @@ function closeAllCards() {
   openCardId = null;
   document.getElementById('infoCards').innerHTML = '';
   document.getElementById('backdrop').classList.add('hidden');
+}
+
+// ===== WEEKLY HIGHLIGHTS =====
+function renderHighlights() {
+  const list = document.getElementById('highlightsList');
+  if (!list) return;
+
+  if (!highlights || highlights.length === 0) {
+    list.innerHTML = '<div style="font-size:0.8rem;color:rgba(255,255,255,0.35);padding:12px 4px;">暫無近期更新</div>';
+    return;
+  }
+
+  const ICONS = ['🚀', '⚙️', '📝', '🤖', '💡', '🔄'];
+  list.innerHTML = highlights.map((h, i) => {
+    const icon = ICONS[i % ICONS.length];
+    const dateLabel = h.date ? h.date.slice(5) : '';  // MM-DD
+    // Truncate long descriptions
+    const heading = h.text.length > 60 ? h.text.slice(0, 60) + '…' : h.text;
+    const desc    = h.text.length > 60 ? h.text.slice(60) : '';
+    return `
+      <div class="progress-item">
+        <span class="progress-icon">${icon}</span>
+        <div class="progress-content">
+          <div class="progress-heading">${heading}</div>
+          ${desc ? `<div class="progress-desc">${desc.length > 120 ? desc.slice(0, 120) + '…' : desc}</div>` : ''}
+          <div class="progress-desc" style="opacity:0.45;margin-top:2px">${dateLabel}</div>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 // ===== TASK BOARD (inline 3-column) =====
