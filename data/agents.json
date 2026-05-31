@@ -14,8 +14,8 @@
     ],
     "avatar": "assets/avatar-niva.svg",
     "status": "working",
-    "currentTask": "下午營運：协调 Muse/Axel/Sage/Rex 任務",
-    "completedTasks": 1
+    "currentTask": "Sprint 週會統籌、各成員進度對齊",
+    "completedTasks": 3
   },
   {
     "id": "muse",
@@ -32,8 +32,8 @@
     ],
     "avatar": "assets/avatar-muse.svg",
     "status": "working",
-    "currentTask": "上午社群留言檢查、回覆互動",
-    "completedTasks": 1
+    "currentTask": "Threads 每日發文（LeadFlow 房仲系列）",
+    "completedTasks": 2
   },
   {
     "id": "axel",
@@ -50,8 +50,8 @@
     ],
     "avatar": "assets/avatar-axel.svg",
     "status": "working",
-    "currentTask": "技術方案規劃、MVP 架構確認",
-    "completedTasks": 1
+    "currentTask": "系統穩定度監控、LeadFlow 技術規劃",
+    "completedTasks": 2
   },
   {
     "id": "sage",
@@ -68,8 +68,8 @@
     ],
     "avatar": "assets/avatar-sage.svg",
     "status": "working",
-    "currentTask": "市場研究、競品分析",
-    "completedTasks": 1
+    "currentTask": "591 競品追蹤、台灣房仲 AI 應用市場研究",
+    "completedTasks": 2
   },
   {
     "id": "rex",
@@ -86,8 +86,8 @@
     ],
     "avatar": "assets/avatar-rex.svg",
     "status": "working",
-    "currentTask": "開發新客戶名單、整理 pipeline",
-    "completedTasks": 1
+    "currentTask": "LeadFlow Beta 推廣（10+ 人，8 加好友）、FB 房仲社團進場",
+    "completedTasks": 2
   },
   {
     "id": "jacob",
@@ -104,7 +104,7 @@
     ],
     "avatar": "assets/avatar-jacob.svg",
     "status": "working",
-    "currentTask": "技術執行：LINE 工具開發、網站更新部署",
-    "completedTasks": 1
+    "currentTask": "Nivora 系統維運（官網 / Gist / launchd）",
+    "completedTasks": 3
   }
 ]

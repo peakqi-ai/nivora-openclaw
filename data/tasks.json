@@ -108,33 +108,6 @@
     "completedAt": "2026-03-25T13:53:00+08:00"
   },
   {
-    "id": "task-013",
-    "title": "完善官網 CTA 流程",
-    "assignee": "axel",
-    "status": "todo",
-    "priority": "B",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-014",
-    "title": "申請 LINE OA",
-    "assignee": "niva",
-    "status": "todo",
-    "priority": "B",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-015",
-    "title": "冷開發名單填入真實店家",
-    "assignee": "rex",
-    "status": "todo",
-    "priority": "A",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
-  },
-  {
     "id": "task-016",
     "title": "客製化冷開發話術",
     "assignee": "rex",
@@ -142,24 +115,6 @@
     "priority": "A",
     "createdAt": "2026-03-25T11:43:00+08:00",
     "completedAt": "2026-04-21T20:01:00+08:00"
-  },
-  {
-    "id": "task-017",
-    "title": "建立客戶 Onboarding SOP",
-    "assignee": "niva",
-    "status": "todo",
-    "priority": "C",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-018",
-    "title": "整理定價策略文件",
-    "assignee": "sage",
-    "status": "todo",
-    "priority": "C",
-    "createdAt": "2026-03-25T11:43:00+08:00",
-    "completedAt": null
   },
   {
     "id": "task-019",
@@ -241,16 +196,7 @@
     "priority": "A",
     "createdAt": "2026-04-15T13:39:00+08:00",
     "completedAt": null,
-    "note": "LINE 工具驗證結果出來前暫停"
-  },
-  {
-    "id": "task-028",
-    "title": "Claude CLI 登入設定",
-    "assignee": "niva",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-15T14:47:00+08:00",
-    "completedAt": "2026-04-21T17:35:00+08:00"
+    "note": "LeadFlow 驗證完成後再決定是否重啟"
   },
   {
     "id": "task-029",
@@ -260,7 +206,7 @@
     "priority": "B",
     "createdAt": "2026-04-10T10:20:00+08:00",
     "completedAt": null,
-    "note": "LINE 工具驗證結果出來前暫停"
+    "note": "LeadFlow 驗證完成後再決定是否重啟"
   },
   {
     "id": "task-030",
@@ -272,26 +218,6 @@
     "completedAt": "2026-04-21T17:33:00+08:00"
   },
   {
-    "id": "task-031",
-    "title": "LINE 訊息工具多用戶版技術規劃",
-    "assignee": "axel",
-    "status": "todo",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "等 Jacky 確認需求後啟動"
-  },
-  {
-    "id": "task-032",
-    "title": "LINE 工具獨立版本（脫離奇峰國際帳號）",
-    "assignee": "axel",
-    "status": "todo",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "多用戶版完成後執行"
-  },
-  {
     "id": "task-033",
     "title": "找 3 個中小企業老闆驗證痛點",
     "assignee": "rex",
@@ -299,7 +225,7 @@
     "priority": "A",
     "createdAt": "2026-04-21T19:00:00+08:00",
     "completedAt": "2026-05-06T00:00:00+08:00",
-    "note": "2026-05-06 完成，痛點確認"
+    "note": "2026-05-06 完成，3/3 確認，願付月費 NT$200-300"
   },
   {
     "id": "task-034",
@@ -309,46 +235,6 @@
     "priority": "A",
     "createdAt": "2026-04-21T19:00:00+08:00",
     "completedAt": "2026-05-06T00:00:00+08:00"
-  },
-  {
-    "id": "task-035",
-    "title": "LINE 訊息工具每日社群發文",
-    "assignee": "muse",
-    "status": "in_progress",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "每天 1 篇，Threads/IG/FB"
-  },
-  {
-    "id": "task-036",
-    "title": "LINE 訊息工具社群留言回覆",
-    "assignee": "muse",
-    "status": "in_progress",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "簡潔扼要，不主動提問"
-  },
-  {
-    "id": "task-037",
-    "title": "LINE 訊息工具多用戶版開發",
-    "assignee": "jacob",
-    "status": "in_progress",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "等 Jacky 確認 MVP 範圍後啟動"
-  },
-  {
-    "id": "task-038",
-    "title": "LINE 訊息工具 GitHub repo 串接",
-    "assignee": "niva",
-    "status": "todo",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": null,
-    "note": "Peakqi-Dev/line-requirement-bot (private)，需用 Peakqi-Dev 帳號 access"
   },
   {
     "id": "task-039",
@@ -378,111 +264,101 @@
     "completedAt": "2026-04-21T21:38:00+08:00"
   },
   {
-    "id": "task-042",
-    "title": "Threads 留言回覆（4 則）",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": "2026-04-21T23:41:00+08:00"
-  },
-  {
-    "id": "task-043",
-    "title": "社群發文指南建立",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "A",
-    "createdAt": "2026-04-21T19:00:00+08:00",
-    "completedAt": "2026-04-21T22:25:00+08:00"
-  },
-  {
-    "id": "task-044",
-    "title": "虛擬辦公室 Task Board 內容更新",
-    "assignee": "axel",
-    "status": "done",
-    "priority": "P0",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": "2026-05-12T22:45:00+08:00"
-  },
-  {
-    "id": "task-045",
-    "title": "虛擬辦公室移除 PrintForge 連結",
-    "assignee": "axel",
-    "status": "done",
-    "priority": "P0",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": "2026-05-12T22:45:00+08:00"
-  },
-  {
-    "id": "task-046",
-    "title": "LINE 工具 MVP 範圍確認",
-    "assignee": "jacky",
-    "status": "todo",
-    "priority": "P0",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
-  },
-  {
     "id": "task-047",
-    "title": "Jacob 重啟",
-    "assignee": "jacky",
-    "status": "todo",
+    "title": "Jacob 自動啟動設定",
+    "assignee": "jacob",
+    "status": "done",
     "priority": "P0",
     "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-048",
-    "title": "官網「More products coming soon」修改",
-    "assignee": "axel",
-    "status": "todo",
-    "priority": "P1",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
-  },
-  {
-    "id": "task-049",
-    "title": "官網 Build in Public 引用內容更新",
-    "assignee": "muse",
-    "status": "done",
-    "priority": "P1",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": "2026-05-12T22:45:00+08:00"
+    "completedAt": "2026-05-01T00:00:00+08:00",
+    "note": "launchd + tmux jacob session，開機永久 TG 雙向"
   },
   {
     "id": "task-050",
     "title": "Threads 官方 API 串接",
     "assignee": "jacob",
-    "status": "todo",
+    "status": "done",
     "priority": "P1",
     "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
+    "completedAt": "2026-05-14T00:00:00+08:00",
+    "note": "取代 CDP，Muse 每日穩定自動發文"
   },
   {
-    "id": "task-051",
-    "title": "第二週社群內容規劃",
+    "id": "task-054",
+    "title": "LeadFlow AI 前台接待 Phase A+B+C",
+    "assignee": "jacob",
+    "status": "done",
+    "priority": "P0",
+    "createdAt": "2026-05-16T00:00:00+08:00",
+    "completedAt": "2026-05-22T00:00:00+08:00",
+    "note": "DB migration + LIFF 配對 + AI 接待 + handoff + 客戶建檔 + 摘要 + 訂閱限額 + 推薦 + Blog + SEO"
+  },
+  {
+    "id": "task-055",
+    "title": "LeadFlow Blog 第一篇發布",
     "assignee": "muse",
     "status": "done",
-    "priority": "P2",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": "2026-05-12T22:45:00+08:00"
+    "priority": "P1",
+    "createdAt": "2026-05-22T00:00:00+08:00",
+    "completedAt": "2026-05-26T00:00:00+08:00",
+    "note": "how-ai-helps-real-estate-agents，5/26 排程發布"
   },
   {
-    "id": "task-052",
-    "title": "LINE 多用戶版定價確認",
-    "assignee": "jacky",
+    "id": "task-056",
+    "title": "LeadFlow Beta 用戶推廣",
+    "assignee": "rex",
+    "status": "in_progress",
+    "priority": "P0",
+    "createdAt": "2026-05-22T00:00:00+08:00",
+    "completedAt": null,
+    "note": "10+ 人推廣，8 加好友，4 活躍；目標 5-10 活躍用戶"
+  },
+  {
+    "id": "task-057",
+    "title": "LeadFlow Beta 用戶 FB 房仲社團進場",
+    "assignee": "rex",
+    "status": "in_progress",
+    "priority": "P1",
+    "createdAt": "2026-05-31T00:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-058",
+    "title": "591 競品追蹤報告",
+    "assignee": "sage",
+    "status": "in_progress",
+    "priority": "P1",
+    "createdAt": "2026-05-31T00:00:00+08:00",
+    "completedAt": null
+  },
+  {
+    "id": "task-059",
+    "title": "Threads 每日發文（LeadFlow 房仲系列）",
+    "assignee": "muse",
+    "status": "in_progress",
+    "priority": "P0",
+    "createdAt": "2026-05-14T00:00:00+08:00",
+    "completedAt": null,
+    "note": "每天 19:00 自動觸發，10:00 檢查留言"
+  },
+  {
+    "id": "task-060",
+    "title": "LeadFlow 金流串接（Payuni）",
+    "assignee": "jacob",
     "status": "todo",
     "priority": "P1",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
+    "createdAt": "2026-05-31T00:00:00+08:00",
+    "completedAt": null,
+    "note": "決定用 Payuni，待 Beta 穩定後啟動"
   },
   {
-    "id": "task-053",
-    "title": "PrintForge 是否重啟決策",
-    "assignee": "niva",
-    "status": "todo",
-    "priority": "P2",
-    "createdAt": "2026-05-12T21:00:00+08:00",
-    "completedAt": null
+    "id": "task-061",
+    "title": "虛擬辦公室狀態更新",
+    "assignee": "jacob",
+    "status": "done",
+    "priority": "P1",
+    "createdAt": "2026-05-31T00:00:00+08:00",
+    "completedAt": "2026-05-31T00:00:00+08:00",
+    "note": "agents.json + tasks.json 全面更新，launchd 8 jobs 全正常"
   }
 ]
