@@ -10,13 +10,5 @@
   {
     "date": "2026-05-20",
     "text": "修兩個嚴重 hotfix — /app/qr URL 三元優先級 bug 連結指向 vercel preview (b830c50); middleware 漏 /r 客人公開頁被 307 到 /login (2104a51)。順手補 scripts/qa-smoke-urls.mjs 防呆 (e48842e)。Jacky 改 onboarding 三題流程方向「不擋人」(5eb2505)：onFollow 仍提示但不攔截，Dashboard amber 補填提示條取代。E2E 28 步測試 + 修 lambda cold-start (timeout 9→15s, maxDuration=30s) + autoOnboard Beta-50 grant (5b7ff5a)。"
-  },
-  {
-    "date": "2026-05-19",
-    "text": "任務優先序調整 — LeadFlow AI 前台接待（Sprint 2 進行中）拉到 [最高]，LeadFlow Beta 推廣 [高]，line-requirement-bot 改 [中] 暫緩取消 due 2026-05-20。"
-  },
-  {
-    "date": "2026-05-19",
-    "text": "LeadFlow Phase B 完成（commit 2925e25）— AI handoff classifier (needs_agent / silent_handoff 純 regex 12/12 pass) + agent push notify (30 分 throttle, LIFF deep link redirectTo) + status switcher dropdown 手動切 ai/needs_agent/agent_handling/resolved。同日 Phase C 完成（commit c806e98）— 客戶自動建檔 (stub on first msg, AI 萃取 every 3 turns)、對話 idle-30min lazy 摘要、多物件 active_property_id 規則 scorer 自動切換 + 手動 override。"
   }
 ]
