@@ -1,10 +1,1 @@
-[
-  {
-    "date": "2026-05-22",
-    "text": "定價結構大改 (commit aa7c78e) — premium → team / pro NT$499→399；免費版加三項硬限額（客戶 20 / 物件 3 / AI 建檔 30 月 / AI 代寫 10 月），新表 ai_usage_events append-only。同日 commit c586610：首次引導 nudge 24h/72h + 7 天反饋 + 30 天循環評分（agent_nudges + parseRatingReply）+ Hero 即時 agent count。"
-  },
-  {
-    "date": "2026-05-22",
-    "text": "五個內部優化批次 (commit 43ebe9b) — /admin 30 天趨勢圖純 SVG 自寫無 Recharts；/terms + /privacy 繁中靜態頁；lib/email/templates.ts 三個 HTML 模板；推薦機制 (referral_code / referred_by / /r-invite / /app/referral / nudge_invite)；Blog 基礎 (blog_posts + /blog/[slug] generateMetadata)。後續 commit 8143106 /admin/blog CRUD，8477592 e2e 實測 + customer fallback「LINE 客人」修正，0a0df4c admin 最後活躍 + 7d 未活躍 stat。"
-  }
-]
+[]
