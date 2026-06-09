@@ -1,37 +1,142 @@
 [
   {
-    "id": "leadflow-ai-前台接待---phase-a-b-c-全上線",
+    "id": "leadflow-phase-abc",
     "title": "LeadFlow AI 前台接待 — Phase A+B+C 全上線",
     "priority": 0,
     "status": "done",
-    "assignee": "jacob"
+    "assignee": "jacob",
+    "completedAt": "2026-05-19"
   },
   {
-    "id": "leadflow-beta-用戶推廣",
-    "title": "LeadFlow Beta 用戶推廣",
+    "id": "leadflow-hotfix-0520",
+    "title": "LeadFlow 緊急修復（QR URL / middleware / cold-start timeout / onboarding 不擋人）",
+    "priority": 0,
+    "status": "done",
+    "assignee": "jacob",
+    "completedAt": "2026-05-20"
+  },
+  {
+    "id": "leadflow-settings-v2",
+    "title": "LeadFlow /app/settings v2（方案+通知+LINE+Email+密碼+CSV+刪帳）",
     "priority": 1,
+    "status": "done",
+    "assignee": "jacob",
+    "completedAt": "2026-05-21"
+  },
+  {
+    "id": "leadflow-landing-seo",
+    "title": "LeadFlow Landing 優化 + SEO 基礎（OG/JSON-LD/sitemap/robots）",
+    "priority": 1,
+    "status": "done",
+    "assignee": "jacob",
+    "completedAt": "2026-05-22"
+  },
+  {
+    "id": "leadflow-pricing-structure",
+    "title": "LeadFlow 定價結構大改（premium→team / pro NT$399 / 免費版限額）",
+    "priority": 0,
+    "status": "done",
+    "assignee": "jacob",
+    "completedAt": "2026-05-22"
+  },
+  {
+    "id": "leadflow-referral-email-blog",
+    "title": "LeadFlow 推薦機制 + Email 模板 + Blog 基礎架構",
+    "priority": 1,
+    "status": "done",
+    "assignee": "jacob",
+    "completedAt": "2026-05-22"
+  },
+  {
+    "id": "leadflow-admin强化",
+    "title": "LeadFlow Admin 強化（Blog CRUD / 30天趨勢圖 / 最後活躍追蹤）",
+    "priority": 1,
+    "status": "done",
+    "assignee": "jacob",
+    "completedAt": "2026-05-22"
+  },
+  {
+    "id": "leadflow-e2e-test",
+    "title": "LeadFlow E2E 實測（28步 + AI timeout 9s→15s + Beta-50 grant）",
+    "priority": 1,
+    "status": "done",
+    "assignee": "jacob",
+    "completedAt": "2026-05-22"
+  },
+  {
+    "id": "muse-threads-posts",
+    "title": "Muse 每週 Threads 發文（3篇 + 長文 + 短影音腳本）",
+    "priority": 1,
+    "status": "done",
+    "assignee": "muse",
+    "completedAt": "2026-06-09"
+  },
+  {
+    "id": "muse-comment-monitoring",
+    "title": "Muse 每天監控 Threads 留言並回覆（10:00 / 15:00 / 20:00）",
+    "priority": 2,
+    "status": "done",
+    "assignee": "muse",
+    "completedAt": "2026-06-09"
+  },
+  {
+    "id": "sage-market-report",
+    "title": "Sage 每週市場觀察報告（591 AI 助手追蹤 + 房仲社群痛點）",
+    "priority": 1,
+    "status": "done",
+    "assignee": "sage",
+    "completedAt": "2026-06-09"
+  },
+  {
+    "id": "rex-fb-group-outreach",
+    "title": "Rex 房仲 FB 社團滲透（加入 + 提供價值 + 互動）",
+    "priority": 1,
+    "status": "done",
+    "assignee": "rex",
+    "completedAt": "2026-06-09"
+  },
+  {
+    "id": "rex-user-feedback",
+    "title": "Rex 每週用戶反饋整理（8個Beta用戶活躍度追蹤）",
+    "priority": 1,
+    "status": "done",
+    "assignee": "rex",
+    "completedAt": "2026-06-09"
+  },
+  {
+    "id": "axel-jacob-dev-priorities",
+    "title": "Axel 每週整理 Jacob 開發優先序建議 + bug/feature 清單",
+    "priority": 1,
+    "status": "done",
+    "assignee": "axel",
+    "completedAt": "2026-06-09"
+  },
+  {
+    "id": "leadflow-beta-推廣",
+    "title": "LeadFlow Beta 用戶推廣（Rex + Niva 主動接觸房仲）",
+    "priority": 0,
     "status": "working",
-    "assignee": "niva"
+    "assignee": "rex"
+  },
+  {
+    "id": "muse-seo-articles",
+    "title": "Muse 開始寫 SEO 文章（房仲 CRM / AI 工具，/blog 每週1篇）",
+    "priority": 2,
+    "status": "todo",
+    "assignee": "muse"
   },
   {
     "id": "line-requirement-bot-多用戶版",
-    "title": "line-requirement-bot 多用戶版",
-    "priority": 2,
-    "status": "todo",
-    "assignee": "jacob"
-  },
-  {
-    "id": "muse-官方-api-串接-取代-cdp",
-    "title": "Muse 官方 API 串接（取代 CDP）",
-    "priority": 2,
-    "status": "todo",
-    "assignee": "jacob"
-  },
-  {
-    "id": "社群帳號內容累積-build-in-public",
-    "title": "社群帳號內容累積（Build in Public）",
+    "title": "line-requirement-bot 多用戶版（已暫緩，等 LeadFlow 穩定）",
     "priority": 3,
-    "status": "working",
-    "assignee": "muse"
+    "status": "todo",
+    "assignee": "jacob"
+  },
+  {
+    "id": "社群帳號-api-串接",
+    "title": "Threads / IG 官方 API 串接（取代 CDP 自動化）",
+    "priority": 2,
+    "status": "todo",
+    "assignee": "jacob"
   }
 ]

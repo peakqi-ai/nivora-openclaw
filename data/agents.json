@@ -14,7 +14,7 @@
     ],
     "avatar": "assets/avatar-niva.svg",
     "status": "working",
-    "currentTask": "LeadFlow Beta 用戶推廣"
+    "currentTask": "LeadFlow Beta 推廣統籌 + 每週 Sprint 會議"
   },
   {
     "id": "muse",
@@ -22,7 +22,7 @@
     "emoji": "🎨",
     "color": "#9c27b0",
     "role": "Content Lead",
-    "personality": "創意豐富，審美敏銳。擅長社群內容策略，懂的觀眾想要什麼。",
+    "personality": "創意豐富，審美敏銳。擅長社群內容策略，懂得觀眾想要什麼。",
     "skills": [
       "社群內容",
       "圖片生成",
@@ -31,7 +31,7 @@
     ],
     "avatar": "assets/avatar-muse.svg",
     "status": "working",
-    "currentTask": "社群帳號內容累積（Build in Public）"
+    "currentTask": "Threads 每週3篇發文 + SEO 文章規劃"
   },
   {
     "id": "axel",
@@ -47,7 +47,8 @@
       "系統設計"
     ],
     "avatar": "assets/avatar-axel.svg",
-    "status": "idle"
+    "status": "working",
+    "currentTask": "每週 Jacob 開發優先序建議 + bug/feature 清單整理"
   },
   {
     "id": "sage",
@@ -63,7 +64,8 @@
       "趨勢觀察"
     ],
     "avatar": "assets/avatar-sage.svg",
-    "status": "idle"
+    "status": "working",
+    "currentTask": "每週市場觀察報告 + 591 AI 助手追蹤"
   },
   {
     "id": "rex",
@@ -80,7 +82,7 @@
     ],
     "avatar": "assets/avatar-rex.svg",
     "status": "working",
-    "currentTask": "LeadFlow Beta 用戶推廣"
+    "currentTask": "LeadFlow Beta 用戶推廣 + FB 社團滲透"
   },
   {
     "id": "jacob",

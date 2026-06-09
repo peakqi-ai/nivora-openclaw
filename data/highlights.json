@@ -1,1 +1,70 @@
-[]
+[
+  {
+    "date": "2026-06-09",
+    "text": "Nivora 虛擬辦公室 Dashboard 全面更新，14 項已完成任務全數上線"
+  },
+  {
+    "date": "2026-05-22",
+    "text": "LeadFlow 定價結構大改：premium→team、pro NT$399、免費版加限額（客戶20/物件3/AI建檔30月/代寫10月）"
+  },
+  {
+    "date": "2026-05-22",
+    "text": "LeadFlow Admin 強化：Blog CRUD、30天趨勢圖（純SVG）、最後活躍追蹤、7天未活躍警示"
+  },
+  {
+    "date": "2026-05-22",
+    "text": "LeadFlow 推薦機制（referral_code）、Email 模板（付費/續費/到期）、Blog 基礎上線"
+  },
+  {
+    "date": "2026-05-21",
+    "text": "LeadFlow /app/settings v2 完成：方案+通知+LINE解除+Email+密碼+CSV匯出+刪帳二步確認"
+  },
+  {
+    "date": "2026-05-20",
+    "text": "LeadFlow 緊急修復：QR URL 三元優先級、middleware /r 漏、cold-start timeout 9s→15s、onboarding 改不擋人"
+  },
+  {
+    "date": "2026-05-19",
+    "text": "LeadFlow Phase C 完成：客戶自動建檔、對話 idle 30min 懶惰摘要、多物件 active_property_id 自動切換"
+  },
+  {
+    "date": "2026-05-19",
+    "text": "LeadFlow Phase B 完成：AI handoff classifier（needs_agent / silent_handoff）、agent push notify、status switcher"
+  },
+  {
+    "date": "2026-05-17",
+    "text": "LeadFlow Phase A Sprint 2+3 完成：Dashboard 對話列表（polling 30s）、三色泡泡、房仲個資編輯、Admin"
+  },
+  {
+    "date": "2026-05-16",
+    "text": "LeadFlow Phase A Sprint 1 完成：DB migration、/r/[code] 公開頁、LIFF 配對、webhook 角色分流、客人 AI 接待、Rich Menu 雙版"
+  },
+  {
+    "date": "2026-05-14",
+    "text": "LeadFlow 三項 AI 新意圖上線：search_property（多平台連結）、create_property（regex fast-path）、draft_reply（AI 擬回覆）"
+  },
+  {
+    "date": "2026-05-14",
+    "text": "LeadFlow 正式立項：Next.js 14 + Supabase + Tailwind v3 + shadcn 2.3.0，dev 起來、Vercel 串好"
+  },
+  {
+    "date": "2026-05-13",
+    "text": "line-requirement-bot 多用戶版 auth + magic-link 完整跑通，Resend 寄信成功"
+  },
+  {
+    "date": "2026-05-06",
+    "text": "LINE 工具三老闆痛點驗證完成（3/3 確認，願付 NT$200-300/月），決定走多用戶版路線"
+  },
+  {
+    "date": "2026-06-09",
+    "text": "Muse 每週 Threads 3篇發文常态化，留言監控每日執行，Build in Public 內容持續累積"
+  },
+  {
+    "date": "2026-06-09",
+    "text": "Rex 房仲 FB 社團滲透啟動（已加入 10+ 社團），8 個 Beta 用戶活躍度追蹤中"
+  },
+  {
+    "date": "2026-06-09",
+    "text": "Sage 每週市場觀察報告常態化：591 AI 助手追蹤、房仲社群痛點掃描、競品動態觀察"
+  }
+]
