@@ -50,24 +50,6 @@ body {
   color: rgba(255,255,255,0.8);
 }
 
-.printforge-link {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #00E5C0;
-  text-decoration: none;
-  padding: 6px 14px;
-  border: 1px solid rgba(0,229,192,0.3);
-  border-radius: 6px;
-  background: rgba(0,229,192,0.08);
-  transition: background 0.2s, border-color 0.2s;
-  white-space: nowrap;
-}
-
-.printforge-link:hover {
-  background: rgba(0,229,192,0.16);
-  border-color: rgba(0,229,192,0.5);
-}
-
 .stat {
   display: flex;
   align-items: center;
